@@ -1,5 +1,4 @@
 from Reader import Reader
-import json
 
 def main():
 

@@ -8,7 +8,6 @@ import numpy as np
 import os
 import copy
 from math import sqrt
-import sys
 from utils.VarObject import Var
 import utils.Plotting as pl
 

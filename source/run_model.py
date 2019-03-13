@@ -1,14 +1,10 @@
 from Reader import Reader
 import copy
 import pandas
-import json
-import sys
 import os
 from glob import glob
 import argparse
 import cPickle
-import subprocess as sp
-import multiprocessing as mp
 import keras
 
 def main():
@@ -91,73 +87,73 @@ def run(samples,channel, era, use, train,short, datacard = False, add_nominal=Fa
         model.train( trainSet )
         model.save(modelname)
 
-    elif not datacard:
-        # TODO: Maybe not needed to check. Just load what is there
-        if os.path.exists("{0}/StandardScaler.{1}.pkl".format(models_folder,channel) ):
-            print "Loading Scaler"
-            scaler = []
-            if glob("{0}/{1}_*_keras_preprocessing.pickle".format(models_folder,channel)) :
-                with open( "{0}/{1}_fold0_keras_preprocessing.pickle".format(models_folder,channel), "rb" ) as FSO:
-                    scaler.append( cPickle.load( FSO ) )
+    # elif not datacard:
+    #     # TODO: Maybe not needed to check. Just load what is there
+    #     if os.path.exists("{0}/StandardScaler.{1}.pkl".format(models_folder,channel) ):
+    #         print "Loading Scaler"
+    #         scaler = []
+    #         if glob("{0}/{1}_*_keras_preprocessing.pickle".format(models_folder,channel)) :
+    #             with open( "{0}/{1}_fold0_keras_preprocessing.pickle".format(models_folder,channel), "rb" ) as FSO:
+    #                 scaler.append( cPickle.load( FSO ) )
+    #
+    #             with open( "{0}/{1}_fold1_keras_preprocessing.pickle".format(models_folder,channel), "rb" ) as FSO:
+    #                 scaler.append( cPickle.load( FSO ) )
+    #         else:
+    #             with open( "{0}/StandardScaler.{1}.pkl".format(models_folder,channel), "rb" ) as FSO:
+    #                 tmp = cPickle.load( FSO )
+    #                 scaler = [tmp,tmp]
+    #
+    #
+    #     print "Loading model and predicting."
+    #     model = modelObject( filename = modelname )
+    #     read.variables = model.variables
+    #     variables = model.variables
 
-                with open( "{0}/{1}_fold1_keras_preprocessing.pickle".format(models_folder,channel), "rb" ) as FSO:
-                    scaler.append( cPickle.load( FSO ) )
-            else:
-                with open( "{0}/StandardScaler.{1}.pkl".format(models_folder,channel), "rb" ) as FSO:
-                    tmp = cPickle.load( FSO )
-                    scaler = [tmp,tmp]
-
-
-        print "Loading model and predicting."
-        model = modelObject( filename = modelname )
-        read.variables = model.variables
-        variables = model.variables
-
-    if not datacard:
-
-        outpath = read.config["outpath"] + "/predictions_" + era
-        predictions = {}
-        print "Predicting samples"
-        if add_nominal:
-            print "Predicting Nominal"
-            for sample, sampleConfig in read.get(what = "nominal", for_prediction = True):
-                sandbox(channel, model, scaler, sample, variables, "nom_" + sampleConfig["histname"], outpath ,sampleConfig, read.modifyDF )
-
-
-        for sample, sampleConfig in read.get(what = "full", add_jec = not short, for_prediction = True):
-            if "data" in sampleConfig["histname"]:
-                sandbox(channel, model, scaler, sample, variables, "NOMINAL_ntuple_Data", outpath, sampleConfig, read.modifyDF)
-            elif "full" in sampleConfig["histname"]:
-                sandbox(channel, model, scaler, sample, variables,  "NOMINAL_ntuple_" + sampleConfig["histname"].split("_")[0], outpath, sampleConfig, read.modifyDF )
-            else:
-                splName = sampleConfig["histname"].split("_")
-                sandbox(channel, model, scaler, sample, variables,  "_".join(splName[1:])+"_ntuple_" + sampleConfig["histname"].split("_")[0], outpath, sampleConfig, read.modifyDF )
-
-        if not short:
-            print "Predicting shapes"
-            for sample, sampleConfig in read.get(what = "tes", for_prediction = True):
-                sandbox(channel, model, scaler, sample, variables, sampleConfig["histname"], outpath ,sampleConfig, read.modifyDF )
+    # if not datacard:
+    #
+    #     outpath = read.config["outpath"] + "/predictions_" + era
+    #     predictions = {}
+    #     print "Predicting samples"
+    #     if add_nominal:
+    #         print "Predicting Nominal"
+    #         for sample, sampleConfig in read.get(what = "nominal", for_prediction = True):
+    #             sandbox(channel, model, scaler, sample, variables, "nom_" + sampleConfig["histname"], outpath ,sampleConfig, read.modifyDF )
+    #
+    #
+    #     for sample, sampleConfig in read.get(what = "full", add_jec = not short, for_prediction = True):
+    #         if "data" in sampleConfig["histname"]:
+    #             sandbox(channel, model, scaler, sample, variables, "NOMINAL_ntuple_Data", outpath, sampleConfig, read.modifyDF)
+    #         elif "full" in sampleConfig["histname"]:
+    #             sandbox(channel, model, scaler, sample, variables,  "NOMINAL_ntuple_" + sampleConfig["histname"].split("_")[0], outpath, sampleConfig, read.modifyDF )
+    #         else:
+    #             splName = sampleConfig["histname"].split("_")
+    #             sandbox(channel, model, scaler, sample, variables,  "_".join(splName[1:])+"_ntuple_" + sampleConfig["histname"].split("_")[0], outpath, sampleConfig, read.modifyDF )
+    #
+    #     if not short:
+    #         print "Predicting shapes"
+    #         for sample, sampleConfig in read.get(what = "tes", for_prediction = True):
+    #             sandbox(channel, model, scaler, sample, variables, sampleConfig["histname"], outpath ,sampleConfig, read.modifyDF )
 
 
 
-    if "hephy.at" in os.environ["HOME"]:
-        from Tools.Datacard.produce import Datacard, makePlot
-        from Tools.CutObject.CutObject import Cut
-        from Tools.FakeFactor.FakeFactor import FakeFactor
-
-        Datacard.use_config = era + "/datacard_conf"
-        D = Datacard(channel=channel,
-                     variable="predicted_prob",
-                     era=era,
-                     real_est="mc",
-                     add_systematics = not short,
-                     debug=True,
-                     use_cutfile = "conf/cuts_{0}.json".format(era))
-
-        FakeFactor.fractions = "{0}/datacard_conf/fractions/htt_ff_fractions_{0}.root".format(era) 
-
-        D.create(era+"/"+use)
-        makePlot(channel, "ML", era+"/"+use, era, era+"/plots")
+    # if "hephy.at" in os.environ["HOME"]:
+    #     from Tools.Datacard.produce import Datacard, makePlot
+    #     from Tools.CutObject.CutObject import Cut
+    #     from Tools.FakeFactor.FakeFactor import FakeFactor
+    #
+    #     Datacard.use_config = era + "/datacard_conf"
+    #     D = Datacard(channel=channel,
+    #                  variable="predicted_prob",
+    #                  era=era,
+    #                  real_est="mc",
+    #                  add_systematics = not short,
+    #                  debug=True,
+    #                  use_cutfile = "conf/cuts_{0}.json".format(era))
+    #
+    #     FakeFactor.fractions = "{0}/datacard_conf/fractions/htt_ff_fractions_{0}.root".format(era)
+    #
+    #     D.create(era+"/"+use)
+    #     makePlot(channel, "ML", era+"/"+use, era, era+"/plots")
 
 def sandbox(channel, model, scaler, sample, variables, outname, outpath, config = None, modify = None):
     # needed because of memory management

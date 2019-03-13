@@ -1,7 +1,6 @@
 import numpy as np
 import ROOT as R
 import os
-import sys
 import shutil
 import copy
 import json
