@@ -3,8 +3,6 @@ import pandas
 import root_pandas as rp
 import os
 import sys
-import yaml
-from helper import calc
 
 def main():
 
@@ -113,13 +111,25 @@ class Reader():
         return config
 
 
+    def getSamplesForFractionTraining(self):
+        self.for_prediction = False
+        self.setARSamples()
+        samples = []
+        for sample, histname in self:
+            samples.append(sample)
+        print
+        "Combining for fraction training"
+        return self.combineFolds(samples)
+
+
     def getSamplesForTraining(self):
         self.for_prediction = False
         self.setNominalSamples()
         samples = []
         for sample,histname in self:
             samples.append(sample)
-        print "Combining for training"
+        print
+        "Combining for training"
         return self.combineFolds(samples)
 
     def setNominalSamples(self):
@@ -134,6 +144,25 @@ class Reader():
             tmp = self._getCommonSettings(sample)
 
             tmp["path"] = self.config["samples"][sample]["name"] 
+            tmp["histname"   ] = sample
+            tmp["rename"      ] = {}
+
+            self.itersamples.append( tmp )
+
+        return self
+
+    def setARSamples(self):
+        self.addvar = []
+        self.itersamples = []
+        self.idx = 0
+        samples = self.config["samples"].keys()
+        samples.sort()
+        for sample in samples:
+            if not "_anti" in sample and not "_estimate" in sample: continue
+
+            tmp = self._getCommonSettings(sample)
+
+            tmp["path"] = self.config["samples"][sample]["name"]
             tmp["histname"   ] = sample
             tmp["rename"      ] = {}
 
@@ -271,6 +300,7 @@ class Reader():
             folds[i] = pandas.concat( fold, ignore_index=True).sample(frac=1., random_state = 41).reset_index(drop=True)
 
         return folds
+
 
     def get(self, what, add_jec = False, for_prediction = False):
         self.for_prediction = for_prediction

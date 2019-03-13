@@ -6,6 +6,7 @@ from glob import glob
 import argparse
 import cPickle
 import keras
+from FileManager import FileManager
 
 def main():
 
@@ -16,7 +17,7 @@ def main():
     parser.add_argument('-s', dest='short',   help='Do !!NOT!! predict shapes' , action='store_true')
     parser.add_argument('-d', dest='datacard',  help='Only produce Datacard' , action='store_true')
     parser.add_argument('-e', dest='era',  help='Era' , choices=["2016","2017"], required = True)
-    parser.add_argument('--add_nominal', dest='add_nom',  help='Add nominal samples to prediction', action='store_true' )    
+    parser.add_argument('--add_nominal', dest='add_nom',  help='Add nominal samples to prediction', action='store_true' )
     args = parser.parse_args()
 
     print "---------------------------"
@@ -30,7 +31,7 @@ def main():
     print "---------------------------"
 
         
-    run(samples = "conf/global_config_{0}_{1}.json".format(args.channel,args.era),
+    run(samples = "conf/frac_config_{0}_{1}.json".format(args.channel,args.era),
         channel=args.channel,
         era = args.era,
         use = args.model,
@@ -59,23 +60,32 @@ def run(samples,channel, era, use, train,short, datacard = False, add_nominal=Fa
     target_names = read.config["target_names"]
     variables = read.config["variables"]
 
-    models_folder = era + "/models"
-    if not os.path.exists(models_folder):
-        os.makedirs(models_folder)
+    model_dir = "models/" + era
+    model_name = "{0}.{1}".format(channel, use)
 
-    modelname = "{0}/{1}.{2}".format(models_folder,channel,use)
+    file_manager = FileManager("/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output")
+
+    file_manager.set_model_dir(model_dir)
+    file_manager.set_model_name(model_name)
+
+    if not os.path.exists(file_manager.get_model_dir()):
+        os.makedirs(file_manager.get_model_dir())
+
     scaler = None
 
     if train:
         print "Training new model"
         print "Loading Training set"
-        trainSet = read.getSamplesForTraining()
+        trainSet = read.getSamplesForFractionTraining()
 
         print "Fit Scaler to training set...",
         scaler = trainScaler(trainSet, variables )
 
         print " done. Dumping for later."
-        with open("{0}/StandardScaler.{1}.pkl".format(models_folder,channel), 'wb') as FSO:
+        file_manager.set_scaler_name("StandardScaler.{0}.pkl".format(channel))
+
+        # with open("{0}/StandardScaler.{1}.pkl".format(models_folder,channel), 'wb') as FSO:
+        with open(file_manager.get_scaler_path(), 'wb') as FSO:
             cPickle.dump(scaler, FSO , 2)
         scaler = [scaler, scaler] # Hotfix since KIT uses 2 scalers
 
@@ -85,7 +95,7 @@ def run(samples,channel, era, use, train,short, datacard = False, add_nominal=Fa
                              variables=variables,
                              target_names = target_names )
         model.train( trainSet )
-        model.save(modelname)
+        model.save(file_manager.get_model_path())
 
     # elif not datacard:
     #     # TODO: Maybe not needed to check. Just load what is there
