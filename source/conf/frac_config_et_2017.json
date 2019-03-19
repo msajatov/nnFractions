@@ -57,25 +57,17 @@
     },
     "lumi": 41.529,
       "class_weight":{
-        "ggh":     {"et":217.5  },
-        "qqh":     {"et":2133.7 },
-        "ztt":     {"et":2.7    },
-        "zll":     {"et":5.8   },
-        "w":       {"et":5.5    },
-        "tt":      {"et":12.7  },
-        "ss":      {"et":5.8  },
-        "misc":    {"et":57.8  }
+          "tt_jet":     {"et":11.7   },
+        "w_jet":     {"et":1.7  },
+        "qcd_jet":     {"et":8.4    },
+          "other":     {"et":4.9 }
       },
 
     "target_values":{
-        "qqh":    0,
-        "ggh":    1,
-        "ztt":    2,
-        "misc":   3,
-        "ss":     4,
-        "zll":    5,
-        "tt":     6,
-        "w":      7
+        "tt_jet":    0,
+        "w_jet":    1,
+        "qcd_jet":      2,
+        "other":     3
     },
 
     "weights":["*weight*","gen_match*","topPtReweightWeight*","zPtReweightWeight", "sf*","njets","jpt_1","jdeta","mjj"],
@@ -86,70 +78,68 @@
 
     "samples":{
         "ZTT_anti": {
-            "target":{"mt":"ztt", "et":"ztt"},
+            "target":{"et":"other"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENTAU-",
             "name": "NOMINAL_ntuple_DY",
             "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight*sf_SingleXorCrossTrigger"
         },
         "ZL_anti": {
-            "target":{"mt":"zll", "et":"zll"},
+            "target":{"et":"other"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- &&  ((-GENJET- || -GENTAU-) < 0.5)",
             "name": "NOMINAL_ntuple_DY",
             "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight*sf_SingleXorCrossTrigger"
         },
         "ZJ_anti": {
-            "target":{"mt":"zll", "et":"zll"},
+            "target":{"et":"w_jet"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENJET-",
             "name": "NOMINAL_ntuple_DY",
             "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight*sf_SingleXorCrossTrigger"
         },
         "TTT_anti": {
-            "target":{"mt":"tt", "et":"tt"},
+            "target":{"et":"other"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENTAU- ",
             "name": "NOMINAL_ntuple_TT",
             "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1*sf_SingleXorCrossTrigger"
         },
         "TTL_anti": {
-            "target":{"mt":"tt", "et":"tt"},
+            "target":{"et":"other"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && ((-GENJET- || -GENTAU-) < 0.5)",
             "name": "NOMINAL_ntuple_TT",
             "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1*sf_SingleXorCrossTrigger"
         },
         "TTJ_anti": {
-            "target":{"mt":"tt", "et":"tt"},
+            "target":{"et":"tt_jet"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENJET- ",
             "name": "NOMINAL_ntuple_TT",
             "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1*sf_SingleXorCrossTrigger"
         },
         "VVT_anti": {
-            "target":{"mt":"misc", "et":"misc"},
+            "target":{"et":"other"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENTAU- ",
             "name": "NOMINAL_ntuple_VV",
             "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*sf_SingleXorCrossTrigger"
         },
         "VVL_anti": {
-            "target":{"mt":"misc", "et":"misc"},
+            "target":{"et":"other"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && ((-GENJET- || -GENTAU-) < 0.5)",
             "name": "NOMINAL_ntuple_VV",
             "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*sf_SingleXorCrossTrigger"
         },
         "VVJ_anti": {
-            "target":{"mt":"misc", "et":"misc"},
+            "target":{"et":"w_jet"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENJET-",
             "name": "NOMINAL_ntuple_VV",
             "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*sf_SingleXorCrossTrigger"
         },
         "W_anti": {
-            "target":{"mt":"w", "et":"w"},
+            "target":{"et":"w_jet"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_WJets",
             "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*sf_SingleXorCrossTrigger"
         },
         "QCD_estimate": {
-            "target":{"mt":"ss", "et":"ss", "tt":"noniso" },
-            "select": {
-                "et":"-SS- && -ISO- && -VETO- && -MT- && -TRIG-"
-            },
+            "target":{"et":"qcd_jet"},
+            "select": "-SS- && -ISO- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_Data",
             "event_weight": 1.0
         }

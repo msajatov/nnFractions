@@ -54,21 +54,17 @@
     },
     "lumi": 35.87,
       "class_weight":{
-          "tt_jet":    {"mt":204.7 },
-        "z_jet":    {"mt":204.7 },
-        "w_jet":    {"mt":204.7 },
-        "vv_jet":    {"mt":204.7 },
-        "qcd_jet":      {"mt":204.7 },
-        "other":     {"mt":204.7 }
+          "tt_jet":    {"mt":20.6 },
+        "w_jet":    {"mt":2.7 },
+        "qcd_jet":    {"mt":2.3 },
+        "other":    {"mt":6.8 }
       },
 
     "target_values":{
         "tt_jet":    0,
-        "z_jet":    1,
-        "w_jet":    2,
-        "vv_jet":    3,
-        "qcd_jet":      4,
-        "other":     5
+        "w_jet":    1,
+        "qcd_jet":      2,
+        "other":     3
     },
 
     "weights":["*weight*","gen_match*","topPtReweightWeight*","zPtReweightWeight", "sf*","njets","jpt_1","jdeta","mjj"],
@@ -91,7 +87,7 @@
             "event_weight": "weight*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight*sf_SingleXorCrossTrigger"
         },
         "ZJ_anti": {
-            "target":{"mt":"z_jet"},
+            "target":{"mt":"w_jet"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENJET-",
             "name": "NOMINAL_ntuple_DY",
             "event_weight": "weight*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight*sf_SingleXorCrossTrigger"
@@ -127,7 +123,7 @@
             "event_weight": "weight*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*sf_SingleXorCrossTrigger"
         },
         "VVJ_anti": {
-            "target":{"mt":"vv_jet"},
+            "target":{"mt":"w_jet"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENJET-",
             "name": "NOMINAL_ntuple_VV",
             "event_weight": "weight*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*sf_SingleXorCrossTrigger"
