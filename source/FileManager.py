@@ -14,10 +14,10 @@ class FileManager():
     def set_scaler_name(self, name):
         self.scaler_name = name
 
-    def set_model_dir(self, dirpath):
-        self.model_dir = "{0}/models/{1}/".format(self.outputpath, dirpath)
+    def set_model_dir(self, dirname):
+        self.model_dir = "{0}/models/{1}/".format(self.outputpath, dirname)
 
-    def get_model_dir(self, dirpath):
+    def get_model_dir(self):
         return self.model_dir
 
     def get_model_path(self):
