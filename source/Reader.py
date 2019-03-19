@@ -247,6 +247,9 @@ class Reader():
         if self.for_prediction:
             return DF
 
+        num = len(DF.index)
+        print "Entries in DF before modification: " + str(num)
+
         self.modifyDF(DF, sample_info)
 
         return self._getFolds( DF[ self.config["variables"] + ["target","train_weight","evt","event_weight"] ] )
@@ -394,7 +397,6 @@ class Reader():
                             where = select,
                             columns = branches,
                             chunksize = chunksize)
-
 
         # tmp.replace(-999.,-10, inplace = True)
         # tmp["evt"] = tmp["evt"].astype('int64')
