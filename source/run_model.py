@@ -60,7 +60,7 @@ def run(samples,channel, era, use, train,short, datacard = False, add_nominal=Fa
     target_names = read.config["target_names"]
     variables = read.config["variables"]
 
-    model_dir = "models/" + era
+    model_dir = era
     model_name = "{0}.{1}".format(channel, use)
 
     file_manager = FileManager("/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output")
@@ -76,7 +76,7 @@ def run(samples,channel, era, use, train,short, datacard = False, add_nominal=Fa
     if train:
         print "Training new model"
         print "Loading Training set"
-        trainSet = read.getSamplesForFractionTraining()
+        trainSet = read.getSamplesForTraining()
 
         print "Fit Scaler to training set...",
         scaler = trainScaler(trainSet, variables )
