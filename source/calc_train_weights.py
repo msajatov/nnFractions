@@ -2,37 +2,61 @@ from Reader import Reader
 
 def main():
 
-    samples = "conf/global_config_{0}_2016.json"
+    fractions = True
 
-    train_weights = {}
-    for channel in ["mt","et","tt"]:
-        train_weights[channel] = getWeights(samples.format(channel), channel)
+    if not fractions:
 
-    class_weights = {}
-    for cl in ["ztt", "zll", "misc", "tt", "w", "ss", "noniso", "ggh", "qqh"]:
-        class_weights[cl] = {}
-        for ch in ["mt","et","tt"]:
-            tmp = train_weights.get(ch,{})
-            class_weights[cl][ch] = tmp.get(cl,0)
+        samples = "conf/global_config_{0}_2017.json"
 
-    for cl in class_weights:
-        print '"{0}":'.format(cl) + " "*(7-len(cl)),'{'+'"mt":{mt}, "et":{et}, "tt":{tt} '.format(**class_weights[cl])+'},'
-     
-        # for s in config["samples"]:
-            # if config["samples"][s]["target"] == "none": continue
+        train_weights = {}
+        for channel in ["mt", "et", "tt"]:
+            train_weights[channel] = getWeights(samples.format(channel), channel)
+
+        class_weights = {}
+        for cl in ["ztt", "zll", "misc", "tt", "w", "ss", "noniso", "ggh", "qqh"]:
+            class_weights[cl] = {}
+            for ch in ["mt","et","tt"]:
+                tmp = train_weights.get(ch,{})
+                class_weights[cl][ch] = tmp.get(cl,0)
+
+        for cl in class_weights:
+            print '"{0}":'.format(cl) + " "*(7-len(cl)),'{'+'"mt":{mt}, "et":{et}, "tt":{tt} '.format(**class_weights[cl])+'},'
+
+            # for s in config["samples"]:
+                # if config["samples"][s]["target"] == "none": continue
 
 
-            # config["samples"][s]["train_weight_scale"][channel] = train_weights[channel][config["samples"][s]["target"][channel]]
+                # config["samples"][s]["train_weight_scale"][channel] = train_weights[channel][config["samples"][s]["target"][channel]]
 
-    # with open(samples,"w") as FSO:
-    #     json.dump(config, FSO, indent=2)
+        # with open(samples,"w") as FSO:
+        #     json.dump(config, FSO, indent=2)
+    else:
+
+        samples = "conf/frac_config_{0}_2017.json"
+
+        train_weights = {}
+        for channel in ["mt", "et", "tt"]:
+            train_weights[channel] = getWeights(samples.format(channel), channel)
+
+        class_weights = {}
+        for cl in ["tt_jet", "w_jet", "qcd_jet", "other"]:
+            class_weights[cl] = {}
+            for ch in ["mt", "et", "tt"]:
+                tmp = train_weights.get(ch, {})
+                class_weights[cl][ch] = tmp.get(cl, 0)
+
+        for cl in class_weights:
+            print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"mt":{mt}, "et":{et}, "tt":{tt} '.format(
+                **class_weights[cl]) + '},'
+
 
 def getWeights(samples, channel):
 
     train_weights = {}
     read = Reader(channel = channel,
                   config_file = samples,
-                  folds=2)
+                  folds=2,
+                  era="2017")
 
     numbers = {}
     targets = []
