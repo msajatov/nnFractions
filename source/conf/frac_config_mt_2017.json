@@ -139,6 +139,42 @@
             "select": "-SS- && -ANTIISO2- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_Data",
             "event_weight": 1.0
+        },
+        "VV_full": {
+            "target":"none",
+            "select": "-VETO- && -MT- && -TRIG-",
+            "name": "NOMINAL_ntuple_VV",
+            "event_weight": 1.0
+        },
+        "DY_full": {
+            "target":"none",
+            "select": "-VETO- && -MT- && -TRIG-",
+            "name": "NOMINAL_ntuple_DY",
+            "event_weight": 1.0
+        },
+        "EMB_full": {
+            "target":"none",
+            "select": "-VETO- && -MT- && -TRIG-",
+            "name": "NOMINAL_ntuple_EMB",
+            "event_weight": 1.0
+        },
+        "TT_full": {
+            "target":"none",
+            "select": "-VETO- && -MT- && -TRIG-",
+            "name": "NOMINAL_ntuple_TT",
+            "event_weight": 1.0
+        },
+        "W_full": {
+            "target":"none",
+            "select": "-VETO- && -MT- && -TRIG-",
+            "name": "NOMINAL_ntuple_WJets",
+            "event_weight": 1.0
+        },
+        "data_full": {
+            "target":"none",
+            "select": "-VETO- && -MT- && -TRIG-",
+            "name": "NOMINAL_ntuple_Data",
+            "event_weight": 1.0
         }
     }
 }
