@@ -59,13 +59,16 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, ad
     target_names = read.config["target_names"]
     variables = read.config["variables"]
 
-    model_dir = "models_test/" + era
+    model_dir = "models_long/" + era
     model_name = "{0}.{1}".format(channel, use)
 
     file_manager = FileManager("/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output")
 
     file_manager.set_model_dirname(model_dir)
     file_manager.set_model_filename(model_name)
+
+    prediction_dir = "predictions_" + era
+    file_manager.set_prediction_dirname(prediction_dir)
 
     scaler = None
 
@@ -80,7 +83,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, ad
     if train:
         print "Training new model"
         print "Loading Training set"
-        trainSet = read.getSamplesForTraining()
+        trainSet = read.getSamplesForFractionTraining()
 
         print "Fit Scaler to training set...",
         scaler = trainScaler(trainSet, variables)
@@ -115,8 +118,6 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, ad
         variables = model.variables
 
     if predict:
-        prediction_dir = "predictions_" + era
-        file_manager.set_prediction_dirname(prediction_dir)
         outpath = file_manager.get_prediction_dirpath()
 
         print "Predicting samples"
