@@ -304,12 +304,12 @@ class Reader():
 
         return folds
 
-
     def get(self, what, add_jec = False, for_prediction = False):
         self.for_prediction = for_prediction
         if what == "nominal"  : return self.setNominalSamples()
         if what == "full"     : return self.setFullSamples(add_jec)
         if what == "tes"      : return self.setTESSamples()
+        if what == "anti": return self.setARSamples()
 
     def _parseCut(self, cutstring):
         cutstring = self._assertChannel( cutstring )
