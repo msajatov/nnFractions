@@ -121,3 +121,7 @@ run/
 
 # output dir
 output/
+
+# datacard dirs
+source/2016
+source/2017
