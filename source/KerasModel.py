@@ -135,8 +135,8 @@ class KerasObject():
         if type(samples) is list:
             samples = deque(samples)
 
-        for i in xrange( len(samples) ):
-            predictions.append( self.testSingle( samples[0], i ) )
+        for i in xrange(len(samples)):
+            predictions.append( self.testSingle( samples[0], i))
             samples.rotate(-1)
 
         samples[0].drop(samples[0].index, inplace = True)
@@ -147,8 +147,17 @@ class KerasObject():
 
     def testSingle(self, test,fold ):
 
-        prediction = DataFrame( self.models[fold].predict(test[self.variables].values) )
+        prediction = DataFrame(self.models[fold].predict(test[self.variables].values))
 
-        return DataFrame(dtype = float, data = {"predicted_class":prediction.idxmax(axis=1).values,
-                                 "predicted_prob": prediction.max(axis=1).values } )
+        headers = []
+
+        for i in range (0,len(prediction.columns)):
+            headers.append("predicted_prob_" + str(i))
+
+        prediction.columns = headers
+
+        return prediction
+
+        #return DataFrame(dtype = float, data = {"predicted_class":prediction.idxmax(axis=1).values,
+        #                         "predicted_prob": prediction.max(axis=1).values } )
 
