@@ -76,61 +76,61 @@
     "samples":{
         "ZTT_anti": {
             "target":{ "tt":"other" },
-            "select": "-OS- && -ISO- && -VETO- && -MT- && -TRIG- && -GENTAU-",
+            "select": "-OS- && -ANTIISO- && -VETO- && -MT- && -TRIG- && -GENTAU-",
             "name": "NOMINAL_ntuple_DY",
             "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight"
         },
         "ZL_anti": {
             "target":{ "tt":"other" },
-            "select": "-OS- && -ISO- && -VETO- && -MT- && -TRIG- &&  ((-GENJET- || -GENTAU-) < 0.5)",
+            "select": "-OS- && -ANTIISO- && -VETO- && -MT- && -TRIG- &&  ((-GENJET- || -GENTAU-) < 0.5)",
             "name": "NOMINAL_ntuple_DY",
             "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight"
         },
         "ZJ_anti": {
             "target":{ "tt":"w_jet" },
-            "select": "-OS- && -ISO- && -VETO- && -MT- && -TRIG- && -GENJET-",
+            "select": "-OS- && -ANTIISO- && -VETO- && -MT- && -TRIG- && -GENJET-",
             "name": "NOMINAL_ntuple_DY",
             "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight"
         },
         "TTT_anti": {
             "target":{ "tt":"other" },
-            "select": "-OS- && -ISO- && -VETO- && -MT- && -TRIG- && -GENTAU- ",
+            "select": "-OS- && -ANTIISO- && -VETO- && -MT- && -TRIG- && -GENTAU- ",
             "name": "NOMINAL_ntuple_TT",
             "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1"
         },
         "TTL_anti": {
             "target":{ "tt":"other" },
-            "select": "-OS- && -ISO- && -VETO- && -MT- && -TRIG- && ((-GENJET- || -GENTAU-) < 0.5)",
+            "select": "-OS- && -ANTIISO- && -VETO- && -MT- && -TRIG- && ((-GENJET- || -GENTAU-) < 0.5)",
             "name": "NOMINAL_ntuple_TT",
             "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1"
         },
         "TTJ_anti": {
             "target":{ "tt":"tt_jet" },
-            "select": "-OS- && -ISO- && -VETO- && -MT- && -TRIG- && -GENJET- ",
+            "select": "-OS- && -ANTIISO- && -VETO- && -MT- && -TRIG- && -GENJET- ",
             "name": "NOMINAL_ntuple_TT",
             "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1"
         },
         "VVT_anti": {
             "target":{ "tt":"other" },
-            "select": "-OS- && -ISO- && -VETO- && -MT- && -TRIG- && -GENTAU- ",
+            "select": "-OS- && -ANTIISO- && -VETO- && -MT- && -TRIG- && -GENTAU- ",
             "name": "NOMINAL_ntuple_VV",
             "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )"
         },
         "VVL_anti": {
             "target":{ "tt":"other" },
-            "select": "-OS- && -ISO- && -VETO- && -MT- && -TRIG- && ((-GENJET- || -GENTAU-) < 0.5)",
+            "select": "-OS- && -ANTIISO- && -VETO- && -MT- && -TRIG- && ((-GENJET- || -GENTAU-) < 0.5)",
             "name": "NOMINAL_ntuple_VV",
             "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )"
         },
         "VVJ_anti": {
             "target":{ "tt":"w_jet" },
-            "select": "-OS- && -ISO- && -VETO- && -MT- && -TRIG- && -GENJET-",
+            "select": "-OS- && -ANTIISO- && -VETO- && -MT- && -TRIG- && -GENJET-",
             "name": "NOMINAL_ntuple_VV",
             "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )"
         },
         "W_anti": {
             "target":{ "tt":"w_jet" },
-            "select": "-OS- && -ISO- && -VETO- && -MT- && -TRIG-",
+            "select": "-OS- && -ANTIISO- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_WJets",
             "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )"
         },
