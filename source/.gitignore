@@ -115,6 +115,7 @@ venv.bak/
 # log files etc.
 nohup.out
 log_*
+nohup*
 
 # sh scripts
 run/
