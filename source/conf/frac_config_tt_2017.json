@@ -54,10 +54,10 @@
     },
     "lumi": 41.529,
       "class_weight":{
-        "tt_jet":     {"tt":251.0 },
-        "w_jet":     {"tt":47.7 },
+        "tt_jet":     {"tt":61.0 },
+        "w_jet":     {"tt":15.7 },
         "qcd_jet":     {"tt":1.2 },
-        "other":  {"tt":5.8 }
+        "other":  {"tt":9.9 }
       },
 
     "target_values":{
