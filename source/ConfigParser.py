@@ -44,6 +44,7 @@ class ConfigParser:
         self._add_samples_to_categories()
 
         for cat in self.target_categories:
+            print cat.name + ":"
             for sset in cat.sample_sets:
                 print sset
             print "\n"
@@ -55,11 +56,16 @@ class ConfigParser:
                 cuts[c] = self._assert_channel(cuts[c])
             self.cut_dict = cuts
 
-# sample_sets are still missing
+    def get_sample_sets(self):
+        return self.sample_sets
+
+    def get_target_categories(self):
+        return self.target_categories
+
     def _parse_categories(self, config):
         print "Parsing categories..."
         cat = TargetCategory("none", 1)
-        cat.probability_var_index = -1
+        cat.index = -1
         self.target_categories.append(cat)
 
         for key in config["class_weight"]:
@@ -75,10 +81,9 @@ class ConfigParser:
         for i, target_cat in enumerate(self.target_categories):
             for key in config["target_values"]:
                 val = config["target_values"][key]
-                #print target_cat
                 if key == target_cat.get_name():
                     prob_index = self._assert_channel(val)
-                    target_cat.probability_var_index = prob_index
+                    target_cat.index = prob_index
 
     def _parse_sample_sets(self, config):
         print "Parsing sample sets..."
@@ -88,15 +93,11 @@ class ConfigParser:
             source = self._assert_channel(val["name"])
             source_name = "{0}-{1}.root".format(self.channel, source)
             target_name = self._assert_channel(val["target"])
-            # make this return a list of Cut instances
+            # make this return a list of Cut instances? Only if Cut class can be implemented properly
             cuts = self._parse_cut(val["select"])
             event_weight = self._assert_channel(val["event_weight"])
 
-            #print "Filtering categories..."
-
             categories = [c for c in self.target_categories if c.name == target_name]
-            #print "Remaining:"
-            #print categories
 
             if len(categories) != 1:
                 raise ValueError("Target category not found or ambiguous!")
@@ -120,65 +121,6 @@ class ConfigParser:
             sample_sets = [sample for sample in self.sample_sets if sample.target.name == cat.name]
             cat.sample_sets = sample_sets
 
-
-
-    def dummy(self, config):
-
-        targets = []
-        config["channel"] = self.channel
-        config["path"] = config["path"].format(**config)  # Can be dropped when configs are split per channel
-        config["outpath"] = config["outpath"].format(**config)
-        config["target_names"] = {}
-        config["variables"] = self._assertChannel(config["variables"])
-        config["version"] = self._assertChannel(config["version"])
-        for cw in config["class_weight"]:
-            config["class_weight"][cw] = self._assertChannel(config["class_weight"][cw])
-
-        for sample in config["samples"]:
-
-            snap = config["samples"][sample]
-            self.processes.append(sample)
-
-            sample_name = self._assertChannel(snap["name"])
-            snap["target"] = self._assertChannel(snap["target"])
-            targets.append(snap["target"])
-
-            snap["name"] = "{path}/{channel}-{name}.root".format(name=sample_name, **config)
-
-            snap["select"] = self._parseCut(snap["select"])
-
-            snap["event_weight"] = self._assertChannel(snap["event_weight"])
-
-            if sample != "data" and sample != "estimate" and "_full" in sample:
-                snap["shapes"] = self._getShapePaths(snap["name"], sample,
-                                                     config["shape_from_file"],
-                                                     config["shape_from_tree"])
-                if type(snap["event_weight"]) is list:
-                    config["addvar"] = list(set(config["addvar"] + snap["event_weight"]))
-
-            config["samples"][sample] = snap
-
-        targets.sort()
-        targets = [t for t in targets if t != "none"]
-        target_map = {"none": -1}
-
-        for i, t in enumerate(set(targets)):
-            config["target_names"][i] = t
-            target_map[t] = i
-
-        for sample in config["samples"]:
-            config["samples"][sample]["target_name"] = config["samples"][sample]["target"]
-
-            if "target_values" in config:
-                config["samples"][sample]["target"] = int(
-                    config["target_values"].get(config["samples"][sample]["target"], -1))
-            else:
-                config["samples"][sample]["target"] = target_map.get(config["samples"][sample]["target"], -1)
-
-            config["target_names"][config["samples"][sample]["target"]] = config["samples"][sample]["target_name"]
-
-        return config
-
     def _assert_channel(self, entry):
         if type(entry) is dict:
             return entry[self.channel]
@@ -191,12 +133,12 @@ class ConfigParser:
             cutstring = cutstring.replace(alias, cut)
         return cutstring
 
+# this does not work properly because of the nested or logically combined aliases
     def _parse_cut_new(self, cutstring):
         complex_cut = ComplexCut(self.cut_config_path)
         cutstring = self._assert_channel(cutstring)
 
         aliases = cutstring.split("&&")
-        #print aliases
 
         stripped_aliases = []
         for alias in aliases:
