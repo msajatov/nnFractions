@@ -47,6 +47,9 @@ class DataReader:
 
         training_samples = []
         for_prediction = False
+
+        self.sample_info_dicts.sort()
+
         for sample_info in self.sample_info_dicts:
             # this may be one fold or two folds -> use parameter properly
             loaded_data_frame = self.loadForMe(sample_info, for_prediction)
@@ -146,8 +149,8 @@ class DataReader:
 
     def combineFolds(self, samples):
 
-        print "samples: "
-        print samples
+        #print "samples: "
+        #print samples
 
         folds = [ [fold] for fold in samples[0] ]
         for sample in samples[1:]:

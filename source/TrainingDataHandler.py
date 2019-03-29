@@ -19,7 +19,7 @@ class TrainingDataHandler(DataHandler):
         self.scaler = scaler
 
     def handle(self, data_frame):
-        print "Handling data for prediction..."
+        print "Handling data for training..."
         self._handle_training_data(data_frame)
 
     def _handle_training_data(self, data_frame):
