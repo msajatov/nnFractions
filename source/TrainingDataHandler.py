@@ -39,7 +39,7 @@ class TrainingDataHandler(DataHandler):
         trainSet = data_frame
 
         print "Fit Scaler to training set...",
-        scaler = self.trainScaler(trainSet, self.config_parser.variables)
+        scaler = self.trainScaler(trainSet, self.config_parser.variable_names)
 
         print " done. Dumping for later."
 
@@ -47,10 +47,10 @@ class TrainingDataHandler(DataHandler):
             cPickle.dump(scaler, FSO, 2)
         scaler = [scaler, scaler]  # Hotfix since KIT uses 2 scalers
 
-        trainSet = self.applyScaler(scaler, trainSet, self.config_parser.variables)
+        trainSet = self.applyScaler(scaler, trainSet, self.config_parser.variable_names)
 
         model = modelObject(parameter_file=parameters,
-                            variables=self.config_parser.variables,
+                            variables=self.config_parser.variable_names,
                             target_names=self.config_parser.get_target_names)
         model.train(trainSet)
         model.save(self.file_manager.get_model_filepath())
