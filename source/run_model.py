@@ -7,9 +7,11 @@ import argparse
 import cPickle
 import keras
 from FileManager import FileManager
+from DataController import DataController
 from DataReader import DataReader
 from ConfigParser import ConfigParser
 from TrainingDataHandler import TrainingDataHandler
+from PredictionDataHandler import PredictionDataHandler
 from Settings import Settings
 
 def main():
@@ -47,14 +49,7 @@ def main():
 
 def run(samples, channel, era, use, train=False, shapes=False, predict=False, add_nominal=False):
 
-    # if use == "xgb":
-    #     from XGBModel import XGBObject as modelObject
-    #     parameters = "conf/parameters_xgb.json"
-    #
-    # if use == "keras":
-    #     print "Using keras..."
-    #     from KerasModel import KerasObject as modelObject
-    #     parameters = "conf/parameters_keras.json"
+
     #
     # print "Initializing Reader..."
     #
@@ -66,7 +61,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, ad
     # target_names = read.config["target_names"]
     # variables = read.config["variables"]
 
-    model_dir = "models_refactor/" + era
+    model_dir = "models_long/" + era
     model_name = "{0}.{1}".format(channel, use)
 
     file_manager = FileManager("/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output")
@@ -113,10 +108,10 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, ad
         # TODO: pass sample_sets as method parameter vs. inject in constructor
         # TODO: prepare model and scaler (dummy variables but important as references)
 
-        model = 0
-        scaler = 0
+        #model = 0
+        #scaler = 0
 
-        parser = ConfigParser("mt", 2017, "conf/frac_config_mt_2017.json")
+        parser = ConfigParser(channel, era, "conf/frac_config_{0}_{1}.json".format(channel, era))
 
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
 
@@ -126,10 +121,63 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, ad
             print ss
 
         settings = Settings(use, channel, era)
-        handler = TrainingDataHandler(settings, file_manager, parser, model, scaler)
-        reader = DataReader(parser.data_root_path, 2, parser, settings, sample_sets=[], data_handler=handler)
+        training_handler = TrainingDataHandler(settings, file_manager, parser, 0, 0)
+        controller = DataController(parser.data_root_path, 2, parser, settings, sample_sets=[])
 
-        reader.read_and_process_for_training(sample_sets)
+        sample_info_dicts = controller.prepare(sample_sets)
+        training_folds = controller.read_for_training(sample_info_dicts)
+
+        training_handler.handle(training_folds)
+
+    elif predict:
+        if os.path.exists(file_manager.get_scaler_filepath()):
+            print "Loading Scaler"
+            with open(file_manager.get_scaler_filepath(), "rb") as FSO:
+                tmp = cPickle.load(FSO)
+                scaler = [tmp, tmp]
+        else:
+            print "Fatal: Scaler file not found at {0}. Train model using -t first.".format(file_manager.get_scaler_filepath())
+            return
+
+        print "Loading model and predicting."
+        if use == "xgb":
+            from XGBModel import XGBObject as modelObject
+            parameters = "conf/parameters_xgb.json"
+
+        if use == "keras":
+            print "Using keras..."
+            from KerasModel import KerasObject as modelObject
+            parameters = "conf/parameters_keras.json"
+        model = modelObject(filename=file_manager.get_model_filepath())
+
+    if predict:
+        parser = ConfigParser(channel, era, "conf/frac_config_{0}_{1}.json".format(channel, era))
+        sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
+
+        print "Filtered sample sets for prediction: "
+
+        for ss in sample_sets:
+            print ss
+
+        settings = Settings(use, channel, era)
+        prediction_handler = PredictionDataHandler(settings, file_manager, parser, model, scaler)
+        controller = DataController(parser.data_root_path, 2, parser, settings, sample_sets=[])
+
+        sample_info_dicts = controller.prepare(sample_sets)
+
+        first = True
+        for sample_info in sample_info_dicts:
+            print "predicting for " + sample_info["histname"]
+            # this may be one fold or two folds -> use parameter properly
+            iter = controller.read_for_prediction(sample_info)
+            for df in iter:
+                controller.modifyDF(df, sample_info)
+                prediction_handler.handle(df, sample_info, first)
+                first = False
+
+
+
+
 
     # elif predict:
     #     if os.path.exists(file_manager.get_scaler_filepath()):
