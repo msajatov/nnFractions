@@ -49,18 +49,6 @@ def main():
 
 def run(samples, channel, era, use, train=False, shapes=False, predict=False, add_nominal=False):
 
-
-    #
-    # print "Initializing Reader..."
-    #
-    # read = Reader(channel = channel,
-    #               config_file = samples,
-    #               folds=2,
-    #               era = era)
-    #
-    # target_names = read.config["target_names"]
-    # variables = read.config["variables"]
-
     model_dir = "models_long/" + era
     model_name = "{0}.{1}".format(channel, use)
 
@@ -72,8 +60,6 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, ad
     prediction_dir = "pred_refactor_" + era
     file_manager.set_prediction_dirname(prediction_dir)
 
-    # scaler = None
-
     file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
 
     print "debug:" + "\n"
@@ -83,34 +69,6 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, ad
     print file_manager.get_model_filename() + "\n"
 
     if train:
-        # print "Training new model"
-        # print "Loading Training set"
-        # trainSet = read.getSamplesForFractionTraining()
-        #
-        # print "Fit Scaler to training set...",
-        # scaler = trainScaler(trainSet, variables)
-        #
-        # print " done. Dumping for later."
-        #
-        # with open(file_manager.get_scaler_filepath(), 'wb') as FSO:
-        #     cPickle.dump(scaler, FSO , 2)
-        # scaler = [scaler, scaler] # Hotfix since KIT uses 2 scalers
-        #
-        # trainSet = applyScaler(scaler, trainSet, variables)
-        #
-        # model = modelObject( parameter_file=parameters,
-        #                      variables=variables,
-        #                      target_names=target_names)
-        # model.train(trainSet)
-        # model.save(file_manager.get_model_filepath())
-
-        # TODO: select samples (only those with anti etc.)
-        # TODO: pass sample_sets as method parameter vs. inject in constructor
-        # TODO: prepare model and scaler (dummy variables but important as references)
-
-        #model = 0
-        #scaler = 0
-
         parser = ConfigParser(channel, era, "conf/frac_config_{0}_{1}.json".format(channel, era))
 
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
@@ -142,12 +100,11 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, ad
         print "Loading model and predicting."
         if use == "xgb":
             from XGBModel import XGBObject as modelObject
-            parameters = "conf/parameters_xgb.json"
 
         if use == "keras":
             print "Using keras..."
             from KerasModel import KerasObject as modelObject
-            parameters = "conf/parameters_keras.json"
+
         model = modelObject(filename=file_manager.get_model_filepath())
 
     if predict:
@@ -174,62 +131,6 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, ad
                 controller.modifyDF(df, sample_info)
                 prediction_handler.handle(df, sample_info, first)
                 first = False
-
-
-
-
-
-    # elif predict:
-    #     if os.path.exists(file_manager.get_scaler_filepath()):
-    #         print "Loading Scaler"
-    #         with open(file_manager.get_scaler_filepath(), "rb") as FSO:
-    #             tmp = cPickle.load(FSO)
-    #             scaler = [tmp, tmp]
-    #     else:
-    #         print "Fatal: Scaler file not found at {0}. Train model using -t first.".format(file_manager.get_scaler_filepath())
-    #         return
-    #
-    #     print "Loading model and predicting."
-    #     model = modelObject(filename=file_manager.get_model_filepath())
-    #     read.variables = model.variables
-    #     variables = model.variables
-    #
-    # if predict:
-    #     outpath = file_manager.get_prediction_dirpath()
-    #
-    #     print "Predicting samples"
-    #     if add_nominal:
-    #         print "Predicting Nominal"
-    #         for sample, sampleConfig in read.get(what = "nominal", for_prediction = True):
-    #             sandbox(channel, model, scaler, sample, variables, "nom_" + sampleConfig["histname"], outpath ,sampleConfig, read.modifyDF )
-    #
-    #
-    #     for sample, sampleConfig in read.get(what = "full", add_jec = shapes, for_prediction = True):
-    #         if "data" in sampleConfig["histname"]:
-    #             sandbox(channel, model, scaler, sample, variables, "NOMINAL_ntuple_Data", outpath, sampleConfig, read.modifyDF)
-    #         elif "full" in sampleConfig["histname"]:
-    #             print "predicting for " + sampleConfig["histname"]
-    #             sandbox(channel, model, scaler, sample, variables,  "NOMINAL_ntuple_" + sampleConfig["histname"].split("_")[0], outpath, sampleConfig, read.modifyDF )
-
-
-
-
-
-
-
-
-
-
-            # else:
-            #     splName = sampleConfig["histname"].split("_")
-            #     sandbox(channel, model, scaler, sample, variables,  "_".join(splName[1:])+"_ntuple_" + sampleConfig["histname"].split("_")[0], outpath, sampleConfig, read.modifyDF )
-
-        # if shapes:
-        #     print "Predicting shapes"
-        #     for sample, sampleConfig in read.get(what = "tes", for_prediction = True):
-        #         sandbox(channel, model, scaler, sample, variables, sampleConfig["histname"], outpath ,sampleConfig, read.modifyDF )
-
-
 
     # if "hephy.at" in os.environ["HOME"]:
     #     from Tools.Datacard.produce import Datacard, makePlot
