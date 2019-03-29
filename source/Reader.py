@@ -350,13 +350,22 @@ class Reader():
 
     def _getEventWeight(self, sample):
         if type( self.config["samples"][sample]["event_weight"] ) is list:
-            return "*".join( self.config["samples"][sample]["event_weight"] + [ str(self.config["lumi"]) ] )
+            res = "*".join( self.config["samples"][sample]["event_weight"] + [ str(self.config["lumi"]) ] )
+            print "Res in list:"
+            print res
+            return res
 
         if type( self.config["samples"][sample]["event_weight"] ) is float:
-            return str( self.config["samples"][sample]["event_weight"] )
+            res = str( self.config["samples"][sample]["event_weight"] )
+            print "Res in float:"
+            print res
+            return res
 
         if type( self.config["samples"][sample]["event_weight"] ) is unicode:
-            return "*".join([str( self.config["samples"][sample]["event_weight"] ), str(self.config["lumi"]) ])
+            res = "*".join([str( self.config["samples"][sample]["event_weight"] ), str(self.config["lumi"]) ])
+            print "Res in unicode:"
+            print res
+            return res
 
         else:
             return 1.0
@@ -397,6 +406,11 @@ class Reader():
                             where = select,
                             columns = branches,
                             chunksize = chunksize)
+
+        print "New chunk with length: " + str(len(tmp))
+        print tmp[:0]
+        print tmp[:1]
+        print tmp[:2]
 
         # tmp.replace(-999.,-10, inplace = True)
         # tmp["evt"] = tmp["evt"].astype('int64')

@@ -7,6 +7,10 @@ import argparse
 import cPickle
 import keras
 from FileManager import FileManager
+from DataReader import DataReader
+from ConfigParser import ConfigParser
+from TrainingDataHandler import TrainingDataHandler
+from Settings import Settings
 
 def main():
 
@@ -43,23 +47,26 @@ def main():
 
 def run(samples, channel, era, use, train=False, shapes=False, predict=False, add_nominal=False):
 
-    if use == "xgb":
-        from XGBModel import XGBObject as modelObject
-        parameters = "conf/parameters_xgb.json"
+    # if use == "xgb":
+    #     from XGBModel import XGBObject as modelObject
+    #     parameters = "conf/parameters_xgb.json"
+    #
+    # if use == "keras":
+    #     print "Using keras..."
+    #     from KerasModel import KerasObject as modelObject
+    #     parameters = "conf/parameters_keras.json"
+    #
+    # print "Initializing Reader..."
+    #
+    # read = Reader(channel = channel,
+    #               config_file = samples,
+    #               folds=2,
+    #               era = era)
+    #
+    # target_names = read.config["target_names"]
+    # variables = read.config["variables"]
 
-    if use == "keras":
-        from KerasModel import KerasObject as modelObject
-        parameters = "conf/parameters_keras.json"
-
-    read = Reader(channel = channel,
-                  config_file = samples,
-                  folds=2,
-                  era = era)
-
-    target_names = read.config["target_names"]
-    variables = read.config["variables"]
-
-    model_dir = "models_long/" + era
+    model_dir = "models_refactor/" + era
     model_name = "{0}.{1}".format(channel, use)
 
     file_manager = FileManager("/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output")
@@ -67,10 +74,10 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, ad
     file_manager.set_model_dirname(model_dir)
     file_manager.set_model_filename(model_name)
 
-    prediction_dir = "predictions_" + era
+    prediction_dir = "pred_refactor_" + era
     file_manager.set_prediction_dirname(prediction_dir)
 
-    scaler = None
+    # scaler = None
 
     file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
 
@@ -81,58 +88,90 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, ad
     print file_manager.get_model_filename() + "\n"
 
     if train:
-        print "Training new model"
-        print "Loading Training set"
-        trainSet = read.getSamplesForFractionTraining()
+        # print "Training new model"
+        # print "Loading Training set"
+        # trainSet = read.getSamplesForFractionTraining()
+        #
+        # print "Fit Scaler to training set...",
+        # scaler = trainScaler(trainSet, variables)
+        #
+        # print " done. Dumping for later."
+        #
+        # with open(file_manager.get_scaler_filepath(), 'wb') as FSO:
+        #     cPickle.dump(scaler, FSO , 2)
+        # scaler = [scaler, scaler] # Hotfix since KIT uses 2 scalers
+        #
+        # trainSet = applyScaler(scaler, trainSet, variables)
+        #
+        # model = modelObject( parameter_file=parameters,
+        #                      variables=variables,
+        #                      target_names=target_names)
+        # model.train(trainSet)
+        # model.save(file_manager.get_model_filepath())
 
-        print "Fit Scaler to training set...",
-        scaler = trainScaler(trainSet, variables)
+        # TODO: select samples (only those with anti etc.)
+        # TODO: pass sample_sets as method parameter vs. inject in constructor
+        # TODO: prepare model and scaler (dummy variables but important as references)
 
-        print " done. Dumping for later."
+        model = 0
+        scaler = 0
 
-        with open(file_manager.get_scaler_filepath(), 'wb') as FSO:
-            cPickle.dump(scaler, FSO , 2)
-        scaler = [scaler, scaler] # Hotfix since KIT uses 2 scalers
+        parser = ConfigParser("mt", 2017, "conf/frac_config_mt_2017.json")
 
-        trainSet = applyScaler(scaler, trainSet, variables)
+        sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
 
-        model = modelObject( parameter_file=parameters,
-                             variables=variables,
-                             target_names=target_names)
-        model.train(trainSet)
-        model.save(file_manager.get_model_filepath())
+        print "Filtered sample sets for training: "
 
-    elif predict:
-        if os.path.exists(file_manager.get_scaler_filepath()):
-            print "Loading Scaler"
-            with open(file_manager.get_scaler_filepath(), "rb") as FSO:
-                tmp = cPickle.load(FSO)
-                scaler = [tmp, tmp]
-        else:
-            print "Fatal: Scaler file not found at {0}. Train model using -t first.".format(file_manager.get_scaler_filepath())
-            return
+        for ss in sample_sets:
+            print ss
 
-        print "Loading model and predicting."
-        model = modelObject(filename=file_manager.get_model_filepath())
-        read.variables = model.variables
-        variables = model.variables
+        settings = Settings(use, channel, era)
+        handler = TrainingDataHandler(settings, file_manager, parser, model, scaler)
+        reader = DataReader(parser.data_root_path, 2, parser, settings, sample_sets=[], data_handler=handler)
 
-    if predict:
-        outpath = file_manager.get_prediction_dirpath()
+        reader.read_and_process_for_training(sample_sets)
 
-        print "Predicting samples"
-        if add_nominal:
-            print "Predicting Nominal"
-            for sample, sampleConfig in read.get(what = "nominal", for_prediction = True):
-                sandbox(channel, model, scaler, sample, variables, "nom_" + sampleConfig["histname"], outpath ,sampleConfig, read.modifyDF )
+    # elif predict:
+    #     if os.path.exists(file_manager.get_scaler_filepath()):
+    #         print "Loading Scaler"
+    #         with open(file_manager.get_scaler_filepath(), "rb") as FSO:
+    #             tmp = cPickle.load(FSO)
+    #             scaler = [tmp, tmp]
+    #     else:
+    #         print "Fatal: Scaler file not found at {0}. Train model using -t first.".format(file_manager.get_scaler_filepath())
+    #         return
+    #
+    #     print "Loading model and predicting."
+    #     model = modelObject(filename=file_manager.get_model_filepath())
+    #     read.variables = model.variables
+    #     variables = model.variables
+    #
+    # if predict:
+    #     outpath = file_manager.get_prediction_dirpath()
+    #
+    #     print "Predicting samples"
+    #     if add_nominal:
+    #         print "Predicting Nominal"
+    #         for sample, sampleConfig in read.get(what = "nominal", for_prediction = True):
+    #             sandbox(channel, model, scaler, sample, variables, "nom_" + sampleConfig["histname"], outpath ,sampleConfig, read.modifyDF )
+    #
+    #
+    #     for sample, sampleConfig in read.get(what = "full", add_jec = shapes, for_prediction = True):
+    #         if "data" in sampleConfig["histname"]:
+    #             sandbox(channel, model, scaler, sample, variables, "NOMINAL_ntuple_Data", outpath, sampleConfig, read.modifyDF)
+    #         elif "full" in sampleConfig["histname"]:
+    #             print "predicting for " + sampleConfig["histname"]
+    #             sandbox(channel, model, scaler, sample, variables,  "NOMINAL_ntuple_" + sampleConfig["histname"].split("_")[0], outpath, sampleConfig, read.modifyDF )
 
 
-        for sample, sampleConfig in read.get(what = "full", add_jec = shapes, for_prediction = True):
-            if "data" in sampleConfig["histname"]:
-                sandbox(channel, model, scaler, sample, variables, "NOMINAL_ntuple_Data", outpath, sampleConfig, read.modifyDF)
-            elif "full" in sampleConfig["histname"]:
-                print "predicting for " + sampleConfig["histname"]
-                sandbox(channel, model, scaler, sample, variables,  "NOMINAL_ntuple_" + sampleConfig["histname"].split("_")[0], outpath, sampleConfig, read.modifyDF )
+
+
+
+
+
+
+
+
             # else:
             #     splName = sampleConfig["histname"].split("_")
             #     sandbox(channel, model, scaler, sample, variables,  "_".join(splName[1:])+"_ntuple_" + sampleConfig["histname"].split("_")[0], outpath, sampleConfig, read.modifyDF )

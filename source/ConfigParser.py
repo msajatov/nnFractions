@@ -20,6 +20,10 @@ class ConfigParser:
         self.sample_sets = []
         self.target_categories = []
         self.variable_names = []
+        self.weights = []
+        self.lumi = 0
+
+        self.data_root_path = ""
 
         self.cut_dict = {}
 
@@ -37,17 +41,20 @@ class ConfigParser:
             print "Check {0}. Probably a ',' ".format(path)
             sys.exit(0)
 
+        self._parse_data_root_path(config)
+        self._parse_lumi(config)
+        self._parse_weights(config)
         self._parse_variable_names(config)
         self._parse_categories(config)
         self._parse_sample_sets(config)
 
         self._add_samples_to_categories()
 
-        for cat in self.target_categories:
-            print cat.name + ":"
-            for sset in cat.sample_sets:
-                print sset
-            print "\n"
+        #for cat in self.target_categories:
+            #print cat.name + ":"
+            #for sset in cat.sample_sets:
+                #print sset
+            #print "\n"
 
     def read_cut_mapping(self, cut_config_path):
         with open(cut_config_path, "r") as FSO:
@@ -61,6 +68,12 @@ class ConfigParser:
 
     def get_target_categories(self):
         return self.target_categories
+
+    def get_target_names(self):
+        target_names = []
+        for cat in self.target_categories:
+            target_names.append(cat.name)
+        return target_names
 
     def _parse_categories(self, config):
         print "Parsing categories..."
@@ -76,7 +89,7 @@ class ConfigParser:
             print target_cat
             self.target_categories.append(target_cat)
 
-        print self.target_categories
+        #print self.target_categories
 
         for i, target_cat in enumerate(self.target_categories):
             for key in config["target_values"]:
@@ -86,7 +99,7 @@ class ConfigParser:
                     target_cat.index = prob_index
 
     def _parse_sample_sets(self, config):
-        print "Parsing sample sets..."
+        #print "Parsing sample sets..."
         for key in config["samples"]:
             val = config["samples"][key]
             # this is not the full file path yet! (training vs. prediction?)
@@ -107,7 +120,7 @@ class ConfigParser:
             sample_set = SampleSet(key, source_name, cuts, category, event_weight)
             self.sample_sets.append(sample_set)
 
-            print sample_set
+            #print sample_set
 
             # check if target is one of the valid, defined ones
             # for training: check if target is not the default one (none)
@@ -115,6 +128,15 @@ class ConfigParser:
     def _parse_variable_names(self, config):
         print "Parsing variable names..."
         self.variable_names = self._assert_channel(config["variables"])
+
+    def _parse_lumi(self, config):
+        self.lumi = config["lumi"]
+
+    def _parse_weights(self, config):
+        self.weights = config["weights"]
+
+    def _parse_data_root_path(self, config):
+        self.data_root_path = config["path"]
 
     def _add_samples_to_categories(self):
         for cat in self.target_categories:
