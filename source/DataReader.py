@@ -65,20 +65,24 @@ class DataReader:
         print "Time Diff: "
         print time_diff
 
-        self.data_handler.handle(training_folds)
+        self.data_handler.handle(training_folds, "")
         return
 
     def read_and_process_for_prediction(self, sample_sets):
         #self.read_and_process(self, sample_sets, split_in_folds=True, use_chunks=True)
 
-        self.prepare()
+        self.prepare(sample_sets)
         # check if chunking is needed / requested
 
         for_prediction = True
+        first = True
         for sample_info in self.sample_info_dicts:
             # this may be one fold or two folds -> use parameter properly
             loaded_data_frame = self.loadForMe(sample_info, for_prediction)
-            self.data_handler.handle(loaded_data_frame)
+            print "predicting for " + sample_info["histname"]
+            self.modifyDF(loaded_data_frame)
+            self.data_handler.handle(loaded_data_frame, sample_info, first)
+            first = False
         return
 
     #def read_and_process(self, sample_sets, split_in_folds=True, use_chunks=False):

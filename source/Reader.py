@@ -407,13 +407,15 @@ class Reader():
                             columns = branches,
                             chunksize = chunksize)
 
-        print "New chunk with length: " + str(len(tmp))
-        print tmp[:0]
-        print tmp[:1]
-        print tmp[:2]
+        #print "New chunk with length: " + str(len(tmp))
+        #print tmp[:0]
+        #print tmp[:1]
+        #print tmp[:2]
 
         # tmp.replace(-999.,-10, inplace = True)
-        # tmp["evt"] = tmp["evt"].astype('int64')
+        tmp["evt"] = tmp["evt"].astype('int64')
+
+        print tmp["evt"]
 
         return tmp
 
