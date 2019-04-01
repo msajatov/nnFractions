@@ -40,8 +40,13 @@ def main():
 
 def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
 
+    print "Entering plot..."
+
     data = histos.pop("data",None)
     signal_hists = []
+
+    print "Length of histos:"
+    print str(len(histos))
 
     for i,s in enumerate(signal):
         tmp = histos.pop(s, None)
@@ -61,6 +66,7 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
     stack.Add( copy.deepcopy( histos[ what[0] ] ) )
     
     for h in what[1:]:
+        "Calling applyHistStyle:"
         applyHistStyle( histos[h] , h )
         stack.Add( copy.deepcopy( histos[h] ) )
         cumul.Add( histos[h] )
@@ -235,7 +241,11 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
     channel.Draw()
     righttop.Draw()
     cv.SetName(outfile.replace(".root",""))
-    cv.SaveAs( "/".join([os.getcwd(),outfile]) )
+    #cv.SaveAs( "/".join([os.getcwd(),outfile]) )
+
+
+    print "Attempting to save to: " + outfile
+    cv.SaveAs(outfile)
 
 
 
@@ -317,7 +327,7 @@ def createRatioCanvas(name):
     return cv
 
 def applyHistStyle(hist, name):
-
+    print "Applying hist style:"
     hist.GetXaxis().SetLabelFont(63)
     hist.GetXaxis().SetLabelSize(14)
     hist.GetYaxis().SetLabelFont(63)
@@ -326,7 +336,7 @@ def applyHistStyle(hist, name):
     hist.SetLineColor( R.kBlack )
 
 def applySignalHistStyle(hist, name, width = 1):
-
+    print "Applying signal hist style:"
     hist.GetXaxis().SetLabelFont(63)
     hist.GetXaxis().SetLabelSize(14)
     hist.GetYaxis().SetLabelFont(63)
@@ -353,13 +363,18 @@ def getFancyName(name):
     if name == "EWKZ":              return r"EWKZ"
     if name in ["qqH","qqH125"]:    return "VBF"
     if name in ["ggH","ggH125"]:    return "ggF"
+    if name in "predicted_prob_0":   return "pp_tt_jet"
+    if name in "predicted_prob_1":   return "pp_w_jet"
+    if name in "predicted_prob_2":   return "pp_qcd_jet"
+    if name in "predicted_prob_3":   return "pp_other"
 
     return name
 
 
 
 def getColor(name):
-
+    print "Name in getColor is:"
+    print name
     if name in ["TT","TTT","TTJ","jetFakes_TT"]:    return R.TColor.GetColor(155,152,204)
     if name in ["sig"]:                             return R.kRed
     if name in ["bkg"]:                             return R.kBlue
@@ -373,6 +388,12 @@ def getColor(name):
     if name in ["ZTT","DY","real"]:                 return R.TColor.GetColor(248,206,104)
     if name in ["jetFakes"]:                        return R.TColor.GetColor(192,232,100)
     if name in ["data"]:                            return R.TColor.GetColor(0,0,0)
+    if name in ["predicted_prob_0"]:return R.TColor.GetColor(192,232,100)
+    if name in ["predicted_prob_1"]:return R.TColor.GetColor(0,100,0)
+    if name in ["predicted_prob_2"]:
+        return R.TColor.GetColor(222,90,106)
+    if name in ["predicted_prob_3"]:
+        return R.TColor.GetColor(155,152,204)
     else: return R.kYellow
 
 if __name__ == '__main__':
