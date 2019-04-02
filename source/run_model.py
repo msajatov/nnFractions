@@ -52,6 +52,8 @@ def main():
 
 def run(samples, channel, era, use, train=False, shapes=False, predict=False, draw=False, add_nominal=False):
 
+    config = samples
+
     model_dir = "models_long/" + era
     model_name = "{0}.{1}".format(channel, use)
 
@@ -72,7 +74,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
     print file_manager.get_model_filename() + "\n"
 
     if train:
-        parser = ConfigParser(channel, era, "conf/frac_config_{0}_{1}.json".format(channel, era))
+        parser = ConfigParser(channel, era, config)
 
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
 
@@ -111,7 +113,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
         model = modelObject(filename=file_manager.get_model_filepath())
 
     if predict:
-        parser = ConfigParser(channel, era, "conf/frac_config_{0}_{1}.json".format(channel, era))
+        parser = ConfigParser(channel, era, config)
         sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
 
         print "Filtered sample sets for prediction: "
@@ -137,18 +139,18 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
 
     if draw:
         settings = Settings(use, channel, era)
-        parser = ConfigParser(channel, era, "conf/frac_config_{0}_{1}.json".format(channel, era))
+        parser = ConfigParser(channel, era, config)
         plot_creator = PlotCreator(settings, file_manager, parser)
 
-        #sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
-
-        #print "Filtered sample sets for prediction frac plots: "
-
-        #for ss in sample_sets:
-         #   print ss
-
-        #outdirpath = file_manager.get_output_root_path() + "/fracplottest"
-        #plot_creator.make_fraction_plots(sample_sets, "m_vis", "full", outdirpath)
+        # sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
+        #
+        # print "Filtered sample sets for prediction frac plots: "
+        #
+        # for ss in sample_sets:
+        #    print ss
+        #
+        # outdirpath = file_manager.get_output_root_path() + "/fracplottest/" + channel
+        # plot_creator.make_fraction_plots(sample_sets, "m_vis", "full", outdirpath)
 
         # ---------------------------------------------------------------------------------
 
@@ -162,17 +164,17 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
         outdirpath = file_manager.get_output_root_path() + "/fracplottest/" + channel
         plot_creator.make_val_plots(sample_sets, "m_vis", "full", outdirpath)
 
-        #---------------------------------------------------------------------------------
+        # ---------------------------------------------------------------------------------
 
-        #sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
-
-        #print "Filtered sample sets for training frac plots: "
-
+        # sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
+        #
+        # print "Filtered sample sets for training frac plots: "
+        #
         # for ss in sample_sets:
         #    print ss
-
-        #outdirpath = file_manager.get_output_root_path() + "/fracplottest/" + channel
-        #plot_creator.make_fraction_plots(sample_sets, "m_vis", "training", outdirpath)
+        #
+        # outdirpath = file_manager.get_output_root_path() + "/fracplottest/" + channel
+        # plot_creator.make_fraction_plots(sample_sets, "m_vis", "training", outdirpath)
 
         # ---------------------------------------------------------------------------------
 
@@ -185,94 +187,6 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
 
         outdirpath = file_manager.get_output_root_path() + "/fracplottest/" + channel
         plot_creator.make_val_plots(sample_sets, "m_vis", "training", outdirpath)
-
-
-    # if "hephy.at" in os.environ["HOME"]:
-    #     from Tools.Datacard.produce import Datacard, makePlot
-    #     from Tools.CutObject.CutObject import Cut
-    #     from Tools.FakeFactor.FakeFactor import FakeFactor
-    #
-    #     datacard_configpath = era + "/datacard_conf"
-    #     datacard_outpath = era+"/"+use
-    #     datacard_plotpath = era+"/plots"
-    #
-    #     #file_manager.set_datacard_config_dirname(era + "/datacard_conf")
-    #
-    #     Datacard.use_config = datacard_configpath
-    #
-    #     #Datacard.use_config = file_manager.get_datacard_config_dirpath()
-    #     #Datacard.use_config = file_manager.get_datacard_config_dirname()
-    #     D = Datacard(channel=channel,
-    #                  variable="predicted_prob",
-    #                  era=era,
-    #                  real_est="mc",
-    #                  add_systematics = shapes,
-    #                  debug=True,
-    #                  use_cutfile = "conf/cuts_{0}.json".format(era))
-    #
-    #     ffpath = "{0}/datacard_conf/fractions/htt_ff_fractions_{0}.root".format(era)
-    #     #file_manager.set_fractions_filepath("../output/" + ffpath)
-    #
-    #     FakeFactor.fractions = ffpath
-    #
-    #     D.create(file_manager.get_datacard_output_dirname())
-    #
-    #     datacard_plotpath
-    #
-    #     makePlot(channel, "ML", datacard_outpath, era, datacard_plotpath)
-
-def sandbox(channel, model, scaler, sample, variables, outname, outpath, config = None, modify = None):
-    # needed because of memory management
-    # iterate over chunks of sample and do splitting on the fly
-    first = True
-    for part in sample:
-        # This is awful. Try to figure out a better way to add stuff to generator.
-        if modify:
-            modify(part, config)
-
-        part["THU"] = 1 # Add dummy
-        # Carefull!! Check if splitting is done the same for training. This is the KIT splitting
-        folds = [part.query( "abs(evt % 2) != 0 " ).reset_index(drop=True), part.query( "abs(evt % 2) == 0 " ).reset_index(drop=True) ]
-        addPrediction(channel, model.predict( applyScaler(scaler, folds, variables) ), folds, outname, outpath, new = first )
-        
-        folds[0].drop(folds[0].index, inplace=True)
-        folds[1].drop(folds[1].index, inplace=True)
-        part.drop(part.index, inplace=True)
-
-        first = False
-    del sample
-
-def addPrediction(channel,prediction, df, sample, outpath, new = True):
-
-    if not os.path.exists(outpath):
-        os.mkdir(outpath)
-
-    for i in xrange( len(df) ):
-        for c in prediction[i].columns.values.tolist():
-            df[i][c] =  prediction[i][c]
-            
-        if i == 0 and new: mode = "w"
-        else: mode = "a"
-        # df[i].to_root("{0}/{1}-{2}.root".format("predictions",channel, sample), key="TauCheck", mode = mode)
-        df[i].to_root("{0}/{1}-{2}.root".format(outpath,channel, sample), key="TauCheck", mode = mode)
-        prediction[i].drop(prediction[i].index, inplace = True)
-
-def trainScaler(folds, variables):
-    from sklearn.preprocessing import StandardScaler
-
-    total = pandas.concat( folds, ignore_index = True ).reset_index(drop=True)
-    Scaler = StandardScaler()
-    Scaler.fit( total[ variables ] )
-
-
-    return Scaler
-
-def applyScaler(scaler, folds, variables):
-    if not scaler: return folds
-    newFolds = copy.deepcopy(folds)
-    for i,fold in enumerate(newFolds):
-        fold[variables] = scaler[i].transform( fold[variables] )
-    return newFolds
 
 
 if __name__ == '__main__':
