@@ -67,6 +67,9 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
 
     file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
 
+    plot_dir = "/lin_fracplots/" + channel
+    file_manager.set_plot_dirname(plot_dir)
+
     print "debug:" + "\n"
     print file_manager.get_model_dirpath() + "\n"
     print file_manager.get_model_filepath() + "\n"
@@ -138,19 +141,22 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
                 first = False
 
     if draw:
+
+        bin_var = "m_vis"
+
         settings = Settings(use, channel, era)
         parser = ConfigParser(channel, era, config)
         plot_creator = PlotCreator(settings, file_manager, parser)
 
-        # sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
-        #
-        # print "Filtered sample sets for prediction frac plots: "
-        #
-        # for ss in sample_sets:
-        #    print ss
-        #
-        # outdirpath = file_manager.get_output_root_path() + "/fracplottest/" + channel
-        # plot_creator.make_fraction_plots(sample_sets, "m_vis", "full", outdirpath)
+        sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
+
+        print "Filtered sample sets for prediction frac plots: "
+
+        for ss in sample_sets:
+           print ss
+
+        outdirpath = file_manager.get_plot_dirpath()
+        plot_creator.make_fraction_plots(sample_sets, bin_var, "full", outdirpath)
 
         # ---------------------------------------------------------------------------------
 
@@ -161,20 +167,20 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
         for ss in sample_sets:
             print ss
 
-        outdirpath = file_manager.get_output_root_path() + "/fracplottest/" + channel
-        plot_creator.make_val_plots(sample_sets, "m_vis", "full", outdirpath)
+        outdirpath = file_manager.get_plot_dirpath()
+        plot_creator.make_val_plots(sample_sets, bin_var, "full", outdirpath)
 
         # ---------------------------------------------------------------------------------
 
-        # sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
-        #
-        # print "Filtered sample sets for training frac plots: "
-        #
-        # for ss in sample_sets:
-        #    print ss
-        #
-        # outdirpath = file_manager.get_output_root_path() + "/fracplottest/" + channel
-        # plot_creator.make_fraction_plots(sample_sets, "m_vis", "training", outdirpath)
+        sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
+
+        print "Filtered sample sets for training frac plots: "
+
+        for ss in sample_sets:
+           print ss
+
+        outdirpath = file_manager.get_plot_dirpath()
+        plot_creator.make_fraction_plots(sample_sets, bin_var, "training", outdirpath)
 
         # ---------------------------------------------------------------------------------
 
@@ -185,8 +191,8 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
         for ss in sample_sets:
             print ss
 
-        outdirpath = file_manager.get_output_root_path() + "/fracplottest/" + channel
-        plot_creator.make_val_plots(sample_sets, "m_vis", "training", outdirpath)
+        outdirpath = file_manager.get_plot_dirpath()
+        plot_creator.make_val_plots(sample_sets, bin_var, "training", outdirpath)
 
 
 if __name__ == '__main__':

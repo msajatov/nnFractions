@@ -109,5 +109,5 @@ class PlotCreator:
         return tmpHist
 
     def create_plot(self, histograms, descriptions, outfile):
-        pl.plot(histograms, canvas="semi", signal=[],
+        pl.plot(histograms, canvas="linear", signal=[],
                 descriptions=descriptions, outfile=outfile)

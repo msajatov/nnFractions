@@ -21,6 +21,9 @@ class FileManager():
         self.datacard_plot_dirname = "datacard/plot/default"
         self.datacard_plot_dirpath = "{0}/{1}".format(self.outputpath, self.datacard_plot_dirname)
 
+        self.plot_dirname = "plots/default"
+        self.plot_dirpath = "{0}/{1}".format(self.outputpath, self.plot_dirname)
+
         self.fractions_filepath = ""
 
     def get_output_root_path(self):
@@ -113,5 +116,14 @@ class FileManager():
 
     def get_fractions_filepath(self):
         return self.get_fractions_filepath()
+
+    def set_plot_dirname(self, dirname):
+        self.plot_dirname = dirname
+        self.plot_dirpath = "{0}/{1}".format(self.outputpath, self.plot_dirname)
+        if not os.path.exists(self.plot_dirpath):
+            os.makedirs(self.plot_dirpath)
+
+    def get_plot_dirpath(self):
+        return self.plot_dirpath
 
 

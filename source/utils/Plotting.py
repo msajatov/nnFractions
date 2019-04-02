@@ -363,10 +363,10 @@ def getFancyName(name):
     if name == "EWKZ":              return r"EWKZ"
     if name in ["qqH","qqH125"]:    return "VBF"
     if name in ["ggH","ggH125"]:    return "ggF"
-    if name in "predicted_prob_0":   return "pp_tt_jet"
-    if name in "predicted_prob_1":   return "pp_w_jet"
-    if name in "predicted_prob_2":   return "pp_qcd_jet"
-    if name in "predicted_prob_3":   return "pp_other"
+    if name in "predicted_prob_0":   return "tt_jet"
+    if name in "predicted_prob_1":   return "w_jet"
+    if name in "predicted_prob_2":   return "qcd_jet"
+    if name in "predicted_prob_3":   return "other"
 
     return name
 
