@@ -9,7 +9,7 @@ from Tools.Weights.Weights import Weight
 def main():
 
     sourcefiles = ["TT", "VV", "DY", "W", "EMB", "Data"]
-    channel = "mt"
+    channel = "et"
 
     for source in sourcefiles:
         sample_path = "/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output/predictions_fracplot_oldcode_2017/{0}-NOMINAL_ntuple_{1}.root".format(channel, source)
@@ -29,8 +29,8 @@ def main():
                     "predicted_prob_2",
                     "predicted_prob_3"]
 
-        histograms = getHistosForFractions(sample_path, select, branches, var, bin_var, outdir, source, channel)
-        #histograms = getHistosForFullData(sample_path, select, branches, var, bin_var, outdir, source, channel)
+        getHistosForFractions(sample_path, select, branches, var, bin_var, outdir, source, channel)
+        getHistosForFullData(sample_path, select, branches, var, bin_var, outdir, source, channel)
 
 def getHistosForFractions(sample_path, select, branches, var, bin_var, outdir, source, channel):
     histograms = {}

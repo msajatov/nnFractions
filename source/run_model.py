@@ -13,6 +13,7 @@ from ConfigParser import ConfigParser
 from TrainingDataHandler import TrainingDataHandler
 from PredictionDataHandler import PredictionDataHandler
 from Settings import Settings
+from PlotCreator import PlotCreator
 
 def main():
 
@@ -22,6 +23,7 @@ def main():
     parser.add_argument('-t', dest='train',   help='Train new model', action='store_true')
     parser.add_argument('-s', dest='shapes',   help='Predict shapes', action='store_true')
     parser.add_argument('-p', dest='predict', help='Make prediction', action='store_true')
+    parser.add_argument('-d', dest='draw', help='Draw', action='store_true')
     parser.add_argument('-e', dest='era',  help='Era', choices=["2016", "2017"], required = True)
     parser.add_argument('--add_nominal', dest='add_nom', help='Add nominal samples to prediction', action='store_true')
     args = parser.parse_args()
@@ -43,11 +45,12 @@ def main():
         train=args.train,
         shapes=args.shapes,
         predict=args.predict,
+        draw=args.draw,
         add_nominal=args.add_nom
         )
 
 
-def run(samples, channel, era, use, train=False, shapes=False, predict=False, add_nominal=False):
+def run(samples, channel, era, use, train=False, shapes=False, predict=False, draw=False, add_nominal=False):
 
     model_dir = "models_long/" + era
     model_name = "{0}.{1}".format(channel, use)
@@ -57,7 +60,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, ad
     file_manager.set_model_dirname(model_dir)
     file_manager.set_model_filename(model_name)
 
-    prediction_dir = "pred_refactor_" + era
+    prediction_dir = "predictions_fracplot_oldcode_" + era
     file_manager.set_prediction_dirname(prediction_dir)
 
     file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
@@ -131,6 +134,58 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, ad
                 controller.modifyDF(df, sample_info)
                 prediction_handler.handle(df, sample_info, first)
                 first = False
+
+    if draw:
+        settings = Settings(use, channel, era)
+        parser = ConfigParser(channel, era, "conf/frac_config_{0}_{1}.json".format(channel, era))
+        plot_creator = PlotCreator(settings, file_manager, parser)
+
+        #sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
+
+        #print "Filtered sample sets for prediction frac plots: "
+
+        #for ss in sample_sets:
+         #   print ss
+
+        #outdirpath = file_manager.get_output_root_path() + "/fracplottest"
+        #plot_creator.make_fraction_plots(sample_sets, "m_vis", "full", outdirpath)
+
+        # ---------------------------------------------------------------------------------
+
+        sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
+
+        print "Filtered sample sets for prediction val plots: "
+
+        for ss in sample_sets:
+            print ss
+
+        outdirpath = file_manager.get_output_root_path() + "/fracplottest/" + channel
+        plot_creator.make_val_plots(sample_sets, "m_vis", "full", outdirpath)
+
+        #---------------------------------------------------------------------------------
+
+        #sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
+
+        #print "Filtered sample sets for training frac plots: "
+
+        # for ss in sample_sets:
+        #    print ss
+
+        #outdirpath = file_manager.get_output_root_path() + "/fracplottest/" + channel
+        #plot_creator.make_fraction_plots(sample_sets, "m_vis", "training", outdirpath)
+
+        # ---------------------------------------------------------------------------------
+
+        sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
+
+        print "Filtered sample sets for training val plots: "
+
+        for ss in sample_sets:
+            print ss
+
+        outdirpath = file_manager.get_output_root_path() + "/fracplottest/" + channel
+        plot_creator.make_val_plots(sample_sets, "m_vis", "training", outdirpath)
+
 
     # if "hephy.at" in os.environ["HOME"]:
     #     from Tools.Datacard.produce import Datacard, makePlot
