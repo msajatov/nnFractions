@@ -20,6 +20,7 @@ class ConfigParser:
         self.sample_sets = []
         self.target_categories = []
         self.variable_names = []
+        self.additional_variable_names = []
         self.weights = []
         self.lumi = 0
 
@@ -45,6 +46,7 @@ class ConfigParser:
         self._parse_lumi(config)
         self._parse_weights(config)
         self._parse_variable_names(config)
+        self._parse_additional_variable_names(config)
         self._parse_categories(config)
         self._parse_sample_sets(config)
 
@@ -128,6 +130,14 @@ class ConfigParser:
     def _parse_variable_names(self, config):
         print "Parsing variable names..."
         self.variable_names = self._assert_channel(config["variables"])
+
+    def _parse_additional_variable_names(self, config):
+        print "Parsing additional variable names..."
+        self.additional_variable_names = self._assert_channel(config["shifted_variables"])
+
+        for v in self.config["shifted_variables"]:
+            # if v in self.config["shifted_variables"]:
+                self.additional_variable_names.append(v+"*")
 
     def _parse_lumi(self, config):
         self.lumi = config["lumi"]

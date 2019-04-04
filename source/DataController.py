@@ -123,7 +123,7 @@ class DataController:
             snowflakes.append("THU*")
             snowflakes.append("*NNLO*")
 
-        branches = list(set(self.config_parser.variable_names + self.config_parser.weights + snowflakes))
+        branches = list(set(self.config_parser.variable_names + self.config_parser.weights + snowflakes + self.config_parser.additional_variable_names))
         #branches = list(set(self.config["variables"] + self.config["weights"] + snowflakes + self.addvar))
         if "EMB" in sample_path and "sf*" in branches:
             branches.remove("sf*")
