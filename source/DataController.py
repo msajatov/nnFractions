@@ -68,6 +68,7 @@ class DataController:
 
         # check if chunking is needed / requested
 
+        print "Entered read_for_prediction..."
         for_prediction = True
         # this may be one fold or two folds -> use parameter properly
         data_frame_iterator = self.loadForMe(sample_info, for_prediction)

@@ -62,7 +62,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
     file_manager.set_model_dirname(model_dir)
     file_manager.set_model_filename(model_name)
 
-    prediction_dir = "predictions_fracplot_oldcode_" + era
+    prediction_dir = "predictions_newcode_complete_" + era
     file_manager.set_prediction_dirname(prediction_dir)
 
     file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
@@ -81,7 +81,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
 
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
 
-        print "Filtered sample sets for training: "
+        print "Filtered sample sets for training: \n"
 
         for ss in sample_sets:
             print ss
@@ -119,7 +119,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
         parser = ConfigParser(channel, era, config)
         sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
 
-        print "Filtered sample sets for prediction: "
+        print "Filtered sample sets for prediction: \n"
 
         for ss in sample_sets:
             print ss
@@ -150,7 +150,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
 
         sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
 
-        print "Filtered sample sets for prediction frac plots: "
+        print "Filtered sample sets for prediction frac plots: \n"
 
         for ss in sample_sets:
            print ss
@@ -162,7 +162,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
 
         sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
 
-        print "Filtered sample sets for prediction val plots: "
+        print "Filtered sample sets for prediction val plots: \n"
 
         for ss in sample_sets:
             print ss
@@ -174,7 +174,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
 
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
 
-        print "Filtered sample sets for training frac plots: "
+        print "Filtered sample sets for training frac plots: \n"
 
         for ss in sample_sets:
            print ss
@@ -186,7 +186,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
 
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
 
-        print "Filtered sample sets for training val plots: "
+        print "Filtered sample sets for training val plots: \n"
 
         for ss in sample_sets:
             print ss
