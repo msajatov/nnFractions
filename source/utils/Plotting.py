@@ -388,12 +388,12 @@ def getColor(name):
     if name in ["ZTT","DY","real"]:                 return R.TColor.GetColor(248,206,104)
     if name in ["jetFakes"]:                        return R.TColor.GetColor(192,232,100)
     if name in ["data"]:                            return R.TColor.GetColor(0,0,0)
-    if name in ["predicted_prob_0"]:return R.TColor.GetColor(192,232,100)
-    if name in ["predicted_prob_1"]:return R.TColor.GetColor(0,100,0)
+    if name in ["predicted_prob_0"]:return R.TColor.GetColor(155,152,204)
+    if name in ["predicted_prob_1"]:return R.TColor.GetColor(222,90,106)
     if name in ["predicted_prob_2"]:
-        return R.TColor.GetColor(222,90,106)
+        return R.TColor.GetColor(250,202,255)
     if name in ["predicted_prob_3"]:
-        return R.TColor.GetColor(155,152,204)
+        return R.TColor.GetColor(248,206,104)
     else: return R.kYellow
 
 if __name__ == '__main__':
