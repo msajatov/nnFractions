@@ -67,6 +67,8 @@ class PlotCreator:
         histograms = {}
         root_path = self.file_manager.get_prediction_dirpath()
         sample_path = "{0}/{1}".format(root_path, sample_set.source_file_name)
+        sample_path = sample_path.replace("WJets", "W")
+        sample_path = sample_path.replace("Data", "data")
         select = sample_set.cut
 
         for i in range(0, 4):
@@ -82,6 +84,8 @@ class PlotCreator:
         histograms = {}
         root_path = self.file_manager.get_prediction_dirpath()
         sample_path = "{0}/{1}".format(root_path, sample_set.source_file_name)
+        sample_path = sample_path.replace("WJets", "W")
+        sample_path = sample_path.replace("Data", "data")
         select = sample_set.cut
 
         events = rp.read_root(paths=sample_path, where=select,
