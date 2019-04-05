@@ -133,9 +133,9 @@ class ConfigParser:
 
     def _parse_additional_variable_names(self, config):
         print "Parsing additional variable names..."
-        self.additional_variable_names = self._assert_channel(config["shifted_variables"])
+        self.additional_variable_names = self._assert_channel(config["addvar"])
 
-        for v in self.config["shifted_variables"]:
+        for v in config["shifted_variables"]:
             # if v in self.config["shifted_variables"]:
                 self.additional_variable_names.append(v+"*")
 
