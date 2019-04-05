@@ -121,9 +121,4 @@ nohup*
 run/
 
 # test folders
-2017bk/
-2017model/
-2017noshape/
-2017original/
-2017pred/
-2017sb/
+debug/
