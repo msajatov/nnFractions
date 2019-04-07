@@ -11,7 +11,7 @@ import copy
 
 
 def main():
-    bin_var = "m_vis"
+    bin_var = "pt_2"
     channel = "tt"
     era = "2017"
     config = "conf/frac_config_{0}_{1}.json".format(channel, era)
@@ -226,7 +226,7 @@ class PlotCreator:
             histograms["predicted_prob_{0}".format(i)] = hist
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                        "lumi": "35.87"}
+                        "lumi": "41.529"}
         outfilepath = "{0}/{1}_frac_{2}_{3}.png".format(outdirpath, prefix, "inclusive", bin_var)
         self.create_plot(histograms, descriptions, outfilepath)
 
@@ -241,7 +241,7 @@ class PlotCreator:
         return events
 
     def create_plot(self, histograms, descriptions, outfile):
-        pl.plot(histograms, canvas="linear", signal=[],
+        pl.simple_plot(histograms, canvas="linear", signal=[],
                 descriptions=descriptions, outfile=outfile)
 
     def create_normalized_plot(self, histos, descriptions, outfile):
@@ -300,8 +300,7 @@ class PlotCreator:
 
         self.create_normalized_plot(fraction_histo_dict, descriptions, "{0}_norm.png".format(outfile))
 
-        pl.plot(fraction_histo_dict, canvas="linear", signal=[],
-                descriptions=descriptions, outfile="{0}.png".format(outfile))
+        self.create_plot(fraction_histo_dict, descriptions, "{0}.png".format(outfile))
 
 if __name__ == '__main__':
     main()

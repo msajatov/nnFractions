@@ -38,6 +38,221 @@ def main():
 
     plot(histos,canvas = "linear")
 
+def simple_plot(histos, signal=[], canvas="semi", outfile="", descriptions={}):
+
+    print "Entering plot..."
+
+    data = histos.pop("data", None)
+    signal_hists = []
+
+    print "Length of histos:"
+    print str(len(histos))
+
+    for i, s in enumerate(signal):
+        tmp = histos.pop(s, None)
+        if tmp:
+            applySignalHistStyle(tmp, s, 3)
+            signal_hists.append(tmp)
+
+    yields = [(h.Integral(), name) for name, h in histos.items()]
+    yields.sort()
+    what = [y[1] for y in yields]
+
+    print "yields:"
+    print yields
+
+    print "what:"
+    print what
+
+    cumul = copy.deepcopy(histos[what[0]])
+    cumul.SetFillColorAlpha(33, 0.6);
+    applyHistStyle(histos[what[0]], what[0])
+
+    stack = R.THStack("stack", "")
+    stack.Add(copy.deepcopy(histos[what[0]]))
+
+    for h in what[1:]:
+        "Calling applyHistStyle:"
+        applyHistStyle(histos[h], h)
+        stack.Add(copy.deepcopy(histos[h]))
+        cumul.Add(histos[h])
+
+    if not data:
+        data = copy.deepcopy(cumul)
+
+    ratio = copy.deepcopy(data)
+    tmp = copy.deepcopy(cumul)
+    for i in xrange(tmp.GetNbinsX() + 1):
+        tmp.SetBinError(i, 0.0)
+    ratio.Divide(tmp)
+
+    ratio_error = copy.deepcopy(cumul)
+    for i in xrange(ratio_error.GetNbinsX() + 1):
+        ratio_error.SetBinError(i, 0.0)
+    ratio_error.Divide(cumul)
+    ratio_error.SetFillColorAlpha(33, 0.7)
+
+    if signal:
+        signal_ratio = copy.deepcopy(cumul)
+        for s in signal_hists:
+            signal_ratio.Add(copy.deepcopy(s))
+        signal_ratio.Divide(cumul)
+        applySignalHistStyle(signal_ratio, "sig", 2)
+
+    applySignalHistStyle(data, "data")
+    applyHistStyle(ratio, "")
+
+    if canvas == "semi":
+        leg = R.TLegend(0.82, 0.03, 0.98, 0.92)
+        leg.SetTextSize(0.025)
+    if canvas == "linear" or canvas == "log":
+        leg = R.TLegend(0.82, 0.29, 0.98, 0.92)
+        leg.SetTextSize(0.025)
+
+    # leg.AddEntry(data, "data obs.")
+
+    for n in reversed(what):
+        leg.AddEntry(histos[n], getFancyName(n))
+    for s in signal_hists:
+        leg.AddEntry(s, getFancyName(s.GetName()))
+
+    maxVal = stack.GetMaximum()
+    # maxVal = max(stack.GetMaximum(), data.GetMaximum()) * 1.2
+    dummy_up = copy.deepcopy(data)
+    dummy_up.Reset()
+    dummy_up.SetTitle("")
+    dummy_up.GetYaxis().SetRangeUser(0.5, 1.5)
+    dummy_up.GetYaxis().SetNdivisions(6)
+    dummy_up.GetXaxis().SetTitleSize(0.03)
+    # dummy_up.GetXaxis().SetTitleOffset(1)
+    dummy_up.GetXaxis().SetTitle(descriptions.get("xaxis", "some quantity"))
+
+    dummy_down = copy.deepcopy(data)
+    dummy_down.Reset()
+    dummy_down.SetTitle("")
+    dummy_down.GetYaxis().SetRangeUser(0.1, maxVal / 40)
+    dummy_down.GetXaxis().SetLabelSize(0)
+    dummy_down.GetXaxis().SetTitle("")
+
+    dummy_ratio = copy.deepcopy(ratio)
+    dummy_ratio.Reset()
+    dummy_ratio.SetTitle("")
+    dummy_ratio.GetYaxis().SetRangeUser(0.5, 1.5)
+    dummy_ratio.GetYaxis().SetNdivisions(6)
+    dummy_ratio.GetXaxis().SetTitleSize(0.12)
+    dummy_ratio.GetXaxis().SetTitleOffset(1)
+    dummy_ratio.GetXaxis().SetTitle(descriptions.get("xaxis", "some quantity"))
+
+    cms1 = R.TLatex(0.08, 0.93, "CMS")
+    cms2 = R.TLatex(0.16, 0.93, descriptions.get("plottype", "ProjectWork"))
+
+    chtex = {"et": r"e#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
+    ch = descriptions.get("channel", "  ")
+    ch = chtex.get(ch, ch)
+    channel = R.TLatex(0.75, 0.932, ch)
+
+    lumi = descriptions.get("lumi", "xx.y")
+    som = descriptions.get("CoM", "13")
+    l = lumi + r" fb^{-1}"
+    r = " ({0} TeV)".format(som)
+    righttop = R.TLatex(0.655, 0.932, l + r)
+
+    cms1.SetNDC();
+    cms2.SetNDC();
+    righttop.SetNDC();
+    channel.SetNDC();
+
+    if canvas == "semi":
+        cms1.SetTextSize(0.055)
+        cms2.SetTextFont(12)
+        cms2.SetTextSize(0.055)
+        righttop.SetTextSize(0.05)
+        channel.SetTextSize(0.06)
+
+        semi_info = R.TLatex(0.83, 0.2, "log-scale")
+        semi_info.SetTextAngle(90)
+        semi_info.SetNDC();
+        semi_info.SetTextSize(0.15)
+        semi_info.SetTextColor(R.TColor.GetColor(125, 125, 125))
+
+    if canvas == "linear" or canvas == "log":
+        cms1.SetTextSize(0.04);
+        cms2.SetTextFont(12)
+        cms2.SetTextSize(0.04);
+        righttop.SetTextSize(0.035);
+        channel.SetTextSize(0.045)
+
+    if canvas == "semi":
+        dummy_up.GetYaxis().SetRangeUser(maxVal / 40, maxVal)
+
+        cv = createRatioSemiLogCanvas("cv")
+
+        cv.cd(1)
+        dummy_up.Draw()
+        stack.Draw("same hist")
+        cumul.Draw("same e2")
+        data.Draw("same e1")
+        leg.Draw()
+        R.gPad.RedrawAxis()
+        cv.cd(2)
+        dummy_down.Draw()
+        stack.Draw("same hist")
+        cumul.Draw("same e2")
+        data.Draw("same e1")
+        for s in signal_hists:
+            s.Draw("same hist")
+
+        semi_info.Draw()
+
+        R.gPad.RedrawAxis()
+        cv.cd(3)
+        dummy_ratio.Draw()
+        ratio_error.Draw("same e2")
+        ratio.Draw("same e1")
+        if signal:
+            signal_ratio.Draw("same hist")
+        R.gPad.RedrawAxis()
+
+    if canvas == "linear" or canvas == "log":
+
+        if canvas == "linear": dummy_up.GetYaxis().SetRangeUser(0, maxVal)
+        if canvas == "log": dummy_up.GetYaxis().SetRangeUser(0.1, maxVal)
+        # dummy_up.GetXaxis().SetLabelSize(0)
+
+        # cv = createRatioCanvas("cv")
+        cv = createSimpleCanvas("cv")
+
+        cv.cd(1)
+        if canvas == "log": R.gPad.SetLogy()
+
+        dummy_up.Draw()
+        stack.Draw("same hist ")
+        # cumul.Draw("same e2")
+        # data.Draw("same e1")
+        leg.Draw()
+        R.gPad.RedrawAxis()
+        # cv.cd(2)
+        # dummy_ratio.Draw()
+        # ratio_error.Draw("same e2")
+        # ratio.Draw("same e1")
+        # if signal:
+        #     signal_ratio.Draw("same hist")
+        # R.gPad.RedrawAxis()
+
+    if not outfile:
+        outfile = "{0}_canvas.png".format(canvas)
+
+    cv.cd(1)
+    cms1.Draw()
+    cms2.Draw()
+    channel.Draw()
+    # righttop.Draw()
+    cv.SetName(outfile.replace(".root", ""))
+    # cv.SaveAs( "/".join([os.getcwd(),outfile]) )
+
+    print "Attempting to save to: " + outfile
+    cv.SaveAs(outfile)
+
 def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
 
     print "Entering plot..."
@@ -248,7 +463,48 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
     cv.SaveAs(outfile)
 
 
+def createSimpleCanvas(name):
 
+    cv = R.TCanvas(name, name, 10, 10, 800, 600)
+
+    # # this is the tricky part...
+    # # Divide with correct margins
+    cv.Divide(1, 1, 0.0, 0.0)
+
+    # Set Pad sizes
+    # cv.GetPad(1).SetPad(0.0, 0.45, 1., 1.0)
+    cv.GetPad(1).SetPad(0.0, 0.0, 1.0, 1.0)
+    # cv.GetPad(2).SetPad(0.0, 0.25, 1., 0.465)
+    # cv.GetPad(3).SetPad(0.0, 0.00, 1., 0.25)
+
+    cv.GetPad(1).SetFillStyle(4000)
+    # cv.GetPad(2).SetFillStyle(4000)
+    # cv.GetPad(3).SetFillStyle(4000)
+
+    # Set pad margins 1
+    cv.cd(1)
+    R.gPad.SetTopMargin(0.08)
+    R.gPad.SetBottomMargin(0.08)
+    R.gPad.SetLeftMargin(0.08)
+    R.gPad.SetRightMargin(0.2)
+
+    # cv.cd(2)
+    # R.gPad.SetTopMargin(0.05)
+    # R.gPad.SetLeftMargin(0.08)
+    # R.gPad.SetBottomMargin(0.05)
+    # R.gPad.SetRightMargin(0.2)
+    # R.gPad.SetLogy()
+    #
+    # # Set pad margins 2
+    # cv.cd(3)
+    # R.gPad.SetTopMargin(0.03)
+    # R.gPad.SetBottomMargin(0.3)
+    # R.gPad.SetLeftMargin(0.08)
+    # R.gPad.SetRightMargin(0.2)
+    # R.gPad.SetGridy()
+    #
+    # cv.cd(1)
+    return cv
 
 
 
