@@ -23,7 +23,8 @@ def main():
     parser.add_argument('-t', dest='train',   help='Train new model', action='store_true')
     parser.add_argument('-s', dest='shapes',   help='Predict shapes', action='store_true')
     parser.add_argument('-p', dest='predict', help='Make prediction', action='store_true')
-    parser.add_argument('-d', dest='draw', help='Draw', action='store_true')
+    parser.add_argument('-f', dest='fractions', help='Plot Fractions', action='store_true')
+    parser.add_argument('-d', dest='datacard', help='Datacard', action='store_true')
     parser.add_argument('-e', dest='era',  help='Era', choices=["2016", "2017"], required = True)
     parser.add_argument('--add_nominal', dest='add_nom', help='Add nominal samples to prediction', action='store_true')
     args = parser.parse_args()
@@ -38,19 +39,20 @@ def main():
         print "Not predicting shape templates."
     print "---------------------------"
         
-    run(samples = "conf/frac_config_{0}_{1}.json".format(args.channel, args.era),
+    run(samples="conf/frac_config_{0}_{1}.json".format(args.channel, args.era),
         channel=args.channel,
         era=args.era,
         use=args.model,
         train=args.train,
         shapes=args.shapes,
         predict=args.predict,
-        draw=args.draw,
+        fractions=args.fractions,
+        datacard=args.datacard,
         add_nominal=args.add_nom
         )
 
 
-def run(samples, channel, era, use, train=False, shapes=False, predict=False, draw=False, add_nominal=False):
+def run(samples, channel, era, use, train=False, shapes=False, predict=False, fractions=False, datacard=False, add_nominal=False):
 
     config = samples
 
@@ -67,7 +69,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
 
     file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
 
-    plot_dir = "/lin_fracplots/" + channel
+    plot_dir = "/complete_fracplots/" + channel
     file_manager.set_plot_dirname(plot_dir)
 
     print "debug:" + "\n"
@@ -140,7 +142,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
                 prediction_handler.handle(df, sample_info, first)
                 first = False
 
-    if draw:
+    if fractions:
 
         bin_var = "m_vis"
 
@@ -193,6 +195,27 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, dr
 
         outdirpath = file_manager.get_plot_dirpath()
         plot_creator.make_val_plots(sample_sets, bin_var, "training", outdirpath)
+
+
+    if datacard and "hephy.at" in os.environ["HOME"]:
+        from Tools.Datacard.produce import Datacard, makePlot
+        from Tools.CutObject.CutObject import Cut
+        from Tools.FakeFactor.FakeFactor import FakeFactor
+
+        Datacard.use_config = era + "/datacard_conf"
+        D = Datacard(channel=channel,
+                     variable="predicted_prob",
+                     era=era,
+                     real_est="mc",
+                     add_systematics = shapes,
+                     debug=True,
+                     use_cutfile = "conf/cuts_{0}.json".format(era))
+
+        FakeFactor.fractions = "{0}/datacard_conf/fractions/htt_ff_fractions_{0}.root".format(era)
+
+        D.create(era+"/"+use)
+        makePlot(channel, "ML", era+"/"+use, era, era+"/plots")
+
 
 
 if __name__ == '__main__':
