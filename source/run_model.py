@@ -64,7 +64,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, fr
     file_manager.set_model_dirname(model_dir)
     file_manager.set_model_filename(model_name)
 
-    prediction_dir = "predictions_newcode_complete_" + era
+    prediction_dir = "predictions_refactor_" + era
     file_manager.set_prediction_dirname(prediction_dir)
 
     file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))

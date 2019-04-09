@@ -49,10 +49,19 @@ class TrainingDataHandler(DataHandler):
 
         trainSet = self.applyScaler(scaler, trainSet, self.config_parser.variable_names)
 
+        target_names =self.config_parser.get_target_names()
+
+        print "debug target_names"
+        for key in target_names:
+            print key
+            print target_names[key]
+
         model = modelObject(parameter_file=parameters,
                             variables=self.config_parser.variable_names,
-                            target_names=self.config_parser.get_target_names)
+                            target_names=self.config_parser.get_target_names())
         model.train(trainSet)
+
+        print "attempting to save model to " + self.file_manager.get_model_filepath()
         model.save(self.file_manager.get_model_filepath())
 
     def trainScaler(self, folds, variables):

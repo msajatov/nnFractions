@@ -72,9 +72,9 @@ class ConfigParser:
         return self.target_categories
 
     def get_target_names(self):
-        target_names = []
+        target_names = {}
         for cat in self.target_categories:
-            target_names.append(cat.name)
+            target_names[cat.index] = cat.name
         return target_names
 
     def _parse_categories(self, config):
