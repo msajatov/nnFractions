@@ -56,7 +56,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, fr
 
     config = samples
 
-    model_dir = "models_long/" + era
+    model_dir = "models_refactor/" + era
     model_name = "{0}.{1}".format(channel, use)
 
     file_manager = FileManager("/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output")
@@ -82,6 +82,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, fr
         parser = ConfigParser(channel, era, config)
 
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
+        sample_sets = [sset for sset in sample_sets if (not "AR" in sset.name)]
 
         print "Filtered sample sets for training: \n"
 
