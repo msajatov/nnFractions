@@ -94,10 +94,12 @@ class PlotCreator:
             val_histo = self.get_histo_for_val(sample_set, branches, var)
             val_histo_summary.append(val_histo)
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                            "lumi": "35.87"}
+                            "lumi": "35.87", "title": "Fraction Validation"}
             outfilepath = "{0}/{1}_val_{2}_{3}.png".format(outdirpath, prefix, sample_set.name, bin_var)
             self.create_plot(val_histo, descriptions, outfilepath)
 
+        descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
+                        "lumi": "35.87", "title": "Fraction Validation"}
         outfilepath = "{0}/{1}_val_{2}_{3}.png".format(outdirpath, prefix, "inclusive", bin_var)
         outfileprefix = "{0}/{1}_val_{2}_{3}".format(outdirpath, prefix, "inclusive", bin_var)
         keys = ["val"]
@@ -121,10 +123,13 @@ class PlotCreator:
             frac_histos = self.get_histos_for_fractions(sample_set, branches, var)
             fraction_histo_summary.append(frac_histos)
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                            "lumi": "35.87"}
-            outfilepath = "{0}/{1}_frac_{2}_{3}.png".format(outdirpath, prefix, sample_set.name, bin_var)
-            self.create_plot(frac_histos, descriptions, outfilepath)
+                            "lumi": "35.87", "title": "Fractions"}
+            outfile = "{0}/{1}_frac_{2}_{3}".format(outdirpath, prefix, sample_set.name, bin_var)
+            self.create_plot(frac_histos, descriptions, "{0}.png".format(outfile))
+            self.create_normalized_plot(frac_histos, descriptions, "{0}_norm.png".format(outfile))
 
+        descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
+                        "lumi": "35.87", "title": "Fractions"}
         outfilepath = "{0}/{1}_frac_{2}_{3}.png".format(outdirpath, prefix, "inclusive", bin_var)
         outfileprefix = "{0}/{1}_frac_{2}_{3}".format(outdirpath, prefix, "inclusive", bin_var)
         keys = ["predicted_prob_0", "predicted_prob_1", "predicted_prob_2", "predicted_prob_3"]
@@ -140,6 +145,9 @@ class PlotCreator:
 
         events = rp.read_root(paths=sample_path, where=select,
                               columns=branches)
+
+        print "Found events for " + sample_set.name
+        print len(events.index)
 
         for i in range(0, 4):
             # events = rp.read_root(paths=sample_path, where=select,
@@ -197,7 +205,7 @@ class PlotCreator:
         histograms["val"] = hist
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                        "lumi": "35.87"}
+                        "lumi": "35.87", "title": "Fraction Validation"}
         outfilepath = "{0}/{1}_val_{2}_{3}.png".format(outdirpath, prefix, "inclusive", bin_var)
         self.create_plot(histograms, descriptions, outfilepath)
 
@@ -226,7 +234,7 @@ class PlotCreator:
             histograms["predicted_prob_{0}".format(i)] = hist
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                        "lumi": "41.529"}
+                        "lumi": "41.529", "title": "Fractions"}
         outfilepath = "{0}/{1}_frac_{2}_{3}.png".format(outdirpath, prefix, "inclusive", bin_var)
         self.create_plot(histograms, descriptions, outfilepath)
 

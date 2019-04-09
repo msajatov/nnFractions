@@ -120,7 +120,7 @@ def simple_plot(histos, signal=[], canvas="semi", outfile="", descriptions={}):
     # maxVal = max(stack.GetMaximum(), data.GetMaximum()) * 1.2
     dummy_up = copy.deepcopy(data)
     dummy_up.Reset()
-    dummy_up.SetTitle("")
+    dummy_up.SetTitle(descriptions.get("title", ""))
     dummy_up.GetYaxis().SetRangeUser(0.5, 1.5)
     dummy_up.GetYaxis().SetNdivisions(6)
     dummy_up.GetXaxis().SetTitleSize(0.03)
@@ -243,8 +243,8 @@ def simple_plot(histos, signal=[], canvas="semi", outfile="", descriptions={}):
         outfile = "{0}_canvas.png".format(canvas)
 
     cv.cd(1)
-    cms1.Draw()
-    cms2.Draw()
+    # cms1.Draw()
+    # cms2.Draw()
     channel.Draw()
     # righttop.Draw()
     cv.SetName(outfile.replace(".root", ""))

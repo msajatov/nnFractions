@@ -13,7 +13,7 @@ from ConfigParser import ConfigParser
 from TrainingDataHandler import TrainingDataHandler
 from PredictionDataHandler import PredictionDataHandler
 from Settings import Settings
-from PlotCreator import PlotCreator
+from histomerge import PlotCreator
 
 def main():
 
@@ -69,7 +69,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, fr
 
     file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
 
-    plot_dir = "/complete_fracplots/" + channel
+    plot_dir = "/AR_fracplots/" + channel
     file_manager.set_plot_dirname(plot_dir)
 
     print "debug:" + "\n"
@@ -150,51 +150,68 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, fr
         parser = ConfigParser(channel, era, config)
         plot_creator = PlotCreator(settings, file_manager, parser)
 
-        sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
+        sample_sets = [sset for sset in parser.sample_sets if "AR" in sset.name]
+        sample_sets = [sset for sset in sample_sets if not "EMB" in sset.name]
 
-        print "Filtered sample sets for prediction frac plots: \n"
-
-        for ss in sample_sets:
-           print ss
-
-        outdirpath = file_manager.get_plot_dirpath()
-        plot_creator.make_fraction_plots(sample_sets, bin_var, "full", outdirpath)
-
-        # ---------------------------------------------------------------------------------
-
-        sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
-
-        print "Filtered sample sets for prediction val plots: \n"
-
-        for ss in sample_sets:
-            print ss
-
-        outdirpath = file_manager.get_plot_dirpath()
-        plot_creator.make_val_plots(sample_sets, bin_var, "full", outdirpath)
-
-        # ---------------------------------------------------------------------------------
-
-        sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
-
-        print "Filtered sample sets for training frac plots: \n"
+        print "Filtered sample sets for AR frac plots: \n"
 
         for ss in sample_sets:
            print ss
 
         outdirpath = file_manager.get_plot_dirpath()
-        plot_creator.make_fraction_plots(sample_sets, bin_var, "training", outdirpath)
+        plot_creator.make_fraction_plots(sample_sets, bin_var, "AR", outdirpath)
 
-        # ---------------------------------------------------------------------------------
+        # bin_var = "m_vis"
+        #
+        # settings = Settings(use, channel, era)
+        # parser = ConfigParser(channel, era, config)
+        # plot_creator = PlotCreator(settings, file_manager, parser)
+        #
+        # sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
+        #
+        # print "Filtered sample sets for prediction frac plots: \n"
+        #
+        # for ss in sample_sets:
+        #    print ss
+        #
+        # outdirpath = file_manager.get_plot_dirpath()
+        # plot_creator.make_fraction_plots(sample_sets, bin_var, "full", outdirpath)
 
-        sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
-
-        print "Filtered sample sets for training val plots: \n"
-
-        for ss in sample_sets:
-            print ss
-
-        outdirpath = file_manager.get_plot_dirpath()
-        plot_creator.make_val_plots(sample_sets, bin_var, "training", outdirpath)
+        # # ---------------------------------------------------------------------------------
+        #
+        # sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
+        #
+        # print "Filtered sample sets for prediction val plots: \n"
+        #
+        # for ss in sample_sets:
+        #     print ss
+        #
+        # outdirpath = file_manager.get_plot_dirpath()
+        # plot_creator.make_val_plots(sample_sets, bin_var, "full", outdirpath)
+        #
+        # # ---------------------------------------------------------------------------------
+        #
+        # sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
+        #
+        # print "Filtered sample sets for training frac plots: \n"
+        #
+        # for ss in sample_sets:
+        #    print ss
+        #
+        # outdirpath = file_manager.get_plot_dirpath()
+        # plot_creator.make_fraction_plots(sample_sets, bin_var, "training", outdirpath)
+        #
+        # # ---------------------------------------------------------------------------------
+        #
+        # sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
+        #
+        # print "Filtered sample sets for training val plots: \n"
+        #
+        # for ss in sample_sets:
+        #     print ss
+        #
+        # outdirpath = file_manager.get_plot_dirpath()
+        # plot_creator.make_val_plots(sample_sets, bin_var, "training", outdirpath)
 
 
     if datacard and "hephy.at" in os.environ["HOME"]:
