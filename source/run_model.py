@@ -39,7 +39,7 @@ def main():
         print "Not predicting shape templates."
     print "---------------------------"
         
-    run(samples="conf/frac_config_{0}_{1}.json".format(args.channel, args.era),
+    run(samples="conf/simple_frac_config_{0}_{1}.json".format(args.channel, args.era),
         channel=args.channel,
         era=args.era,
         use=args.model,
@@ -56,7 +56,7 @@ def run(samples, channel, era, use, train=False, shapes=False, predict=False, fr
 
     config = samples
 
-    model_dir = "models_refactor/" + era
+    model_dir = "models_simple_refactor/" + era
     model_name = "{0}.{1}".format(channel, use)
 
     file_manager = FileManager("/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output")
