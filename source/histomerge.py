@@ -6,6 +6,8 @@ import root_pandas as rp
 from FileManager import FileManager
 from Settings import Settings
 from ConfigParser import ConfigParser
+from TargetCategory import TargetCategory
+from SampleSet import SampleSet
 from pandas import DataFrame, concat
 import copy
 
@@ -35,7 +37,7 @@ def main():
     outdirpath = file_manager.get_plot_dirpath()
 
     plot_creator.make_fraction_plots(sample_sets, bin_var, "histo_concat", outdirpath)
-    plot_creator.make_val_plots(sample_sets, bin_var, "histo_concat", outdirpath)
+    #plot_creator.make_val_plots(sample_sets, bin_var, "histo_concat", outdirpath)
     #plot_creator.plot_frac_histo_for_inclusive_samples(sample_sets, bin_var, "sample_concat", outdirpath)
     #plot_creator.plot_val_histo_for_inclusive_samples(sample_sets, bin_var, "sample_concat", outdirpath)
 
@@ -71,32 +73,30 @@ class PlotCreator:
         self.settings = settings
         self.file_manager = file_manager
         self.config_parser = config_parser
+        self.target_map = self.config_parser.get_target_names()
+        self.branch_frac_dict = self.get_branch_frac_dict()
 
-    # for each target category: plot the NN output (predicted_prob_i for category i)
-    # legend: samples
-    def make_category_plots(self, sample_sets, target_categories):
+    def get_branch_frac_dict(self):
+        branch_frac_dict = {}
+        for key in self.target_map:
+            print key
+            if key != -1:
+                frac_name = self.target_map[key]
+                branch_name = "predicted_prob_{0}".format(key)
+                branch_frac_dict[branch_name] = frac_name
+        return branch_frac_dict
 
-        #plot
-        pass
+    def get_frac_branches(self):
+        branches = list(self.branch_frac_dict.keys())
+        return branches
 
     def make_val_plots(self, sample_sets, bin_var, prefix, outdirpath):
         val_histo_summary = []
 
-        # branches = [bin_var,
-        #             "predicted_prob_0",
-        #             "predicted_prob_1",
-        #             "predicted_prob_2",
-        #             "predicted_prob_3"]
-
-        branches = [bin_var,
-                    "predicted_prob_0",
-                    "predicted_prob_1",
-                    "predicted_prob_2"]
-
         var = Var(bin_var, self.settings.channel)
 
         for sample_set in sample_sets:
-            val_histo = self.get_histo_for_val(sample_set, branches, var)
+            val_histo = self.get_histo_for_val(sample_set, var)
             val_histo_summary.append(val_histo)
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
                             "lumi": "35.87", "title": "Fraction Validation"}
@@ -105,32 +105,20 @@ class PlotCreator:
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
                         "lumi": "35.87", "title": "Fraction Validation"}
-        outfilepath = "{0}/{1}_val_{2}_{3}.png".format(outdirpath, prefix, "inclusive", bin_var)
         outfileprefix = "{0}/{1}_val_{2}_{3}".format(outdirpath, prefix, "inclusive", bin_var)
         keys = ["val"]
         self.create_inclusive_plot(var, keys, val_histo_summary, descriptions, outfileprefix)
         pass
 
     # for each sample individually (TTJ, VVT etc.) and inclusive (all together)
-    # legend: the 4 fractions, tt_jet, w_jet, qcd_jet, other
+    # legend: fractions, tt_jet, w_jet, qcd_jet, other
     def make_fraction_plots(self, sample_sets, bin_var, prefix, outdirpath):
         fraction_histo_summary = []
-
-        # branches = [bin_var,
-        #             "predicted_prob_0",
-        #             "predicted_prob_1",
-        #             "predicted_prob_2",
-        #             "predicted_prob_3"]
-
-        branches = [bin_var,
-                    "predicted_prob_0",
-                    "predicted_prob_1",
-                    "predicted_prob_2"]
 
         var = Var(bin_var, self.settings.channel)
 
         for sample_set in sample_sets:
-            frac_histos = self.get_histos_for_fractions(sample_set, branches, var)
+            frac_histos = self.get_histos_for_fractions(sample_set, var)
             fraction_histo_summary.append(frac_histos)
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
                             "lumi": "35.87", "title": "Fractions"}
@@ -140,54 +128,31 @@ class PlotCreator:
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
                         "lumi": "35.87", "title": "Fractions"}
-        outfilepath = "{0}/{1}_frac_{2}_{3}.png".format(outdirpath, prefix, "inclusive", bin_var)
         outfileprefix = "{0}/{1}_frac_{2}_{3}".format(outdirpath, prefix, "inclusive", bin_var)
-        # keys = ["predicted_prob_0", "predicted_prob_1", "predicted_prob_2", "predicted_prob_3"]
-        keys = ["predicted_prob_0", "predicted_prob_1", "predicted_prob_2"]
-        self.create_inclusive_plot(var, keys, fraction_histo_summary, descriptions, outfileprefix)
+        self.create_inclusive_plot(var, fraction_histo_summary, descriptions, outfileprefix)
         pass
 
-    def get_histos_for_fractions(self, sample_set, branches, var):
+    def get_histos_for_fractions(self, sample_set, var):
         histograms = {}
-        root_path = self.file_manager.get_prediction_dirpath()
-        sample_path = "{0}/{1}".format(root_path, sample_set.source_file_name)
-        sample_path = sample_path.replace("WJets", "W")
-        select = sample_set.cut
+        bin_var = var.name
+        branches = [bin_var] + self.get_frac_branches()
 
-        events = rp.read_root(paths=sample_path, where=select,
-                              columns=branches)
+        events = self.get_events_for_sample_set(sample_set, branches)
 
-        print "Found events for " + sample_set.name
-        print len(events.index)
-
-        # for i in range(0, 4):
-        #     # events = rp.read_root(paths=sample_path, where=select,
-        #     #                       columns=branches)
-        #     template = "test"
-        #     hist = self.fillHisto(events, template, "predicted_prob_{0}".format(i), var)
-        #     histograms["predicted_prob_{0}".format(i)] = hist
-
-        for i in range(0, 3):
-            # events = rp.read_root(paths=sample_path, where=select,
-            #                       columns=branches)
-            template = "test"
-            hist = self.fillHisto(events, template, "predicted_prob_{0}".format(i), var)
+        for i in range(0, len(self.get_frac_branches())):
+            hist = self.fillHisto(events, "", "predicted_prob_{0}".format(i), var)
             histograms["predicted_prob_{0}".format(i)] = hist
 
         return histograms
 
-    def get_histo_for_val(self, sample_set, branches, var):
+    def get_histo_for_val(self, sample_set, var):
         histograms = {}
-        root_path = self.file_manager.get_prediction_dirpath()
-        sample_path = "{0}/{1}".format(root_path, sample_set.source_file_name)
-        sample_path = sample_path.replace("WJets", "W")
-        select = sample_set.cut
+        bin_var = var.name
+        branches = [bin_var] + self.get_frac_branches()
 
-        events = rp.read_root(paths=sample_path, where=select,
-                              columns=branches)
-        template = "test"
+        events = self.get_events_for_sample_set(sample_set, branches)
 
-        hist = self.fillHisto(events, template, "1.0", var)
+        hist = self.fillHisto(events, "", "1.0", var)
         histograms["val"] = hist
 
         return histograms
@@ -207,65 +172,6 @@ class PlotCreator:
 
         return tmpHist
 
-    def plot_val_histo_for_inclusive_samples(self, sample_sets, bin_var, prefix, outdirpath):
-        event_collection = DataFrame()
-
-        branches = [bin_var]
-
-        var = Var(bin_var, self.settings.channel)
-
-        for sample_set in sample_sets:
-            events = self.get_events_for_sample_set(sample_set, branches)
-            event_collection = concat([event_collection, events], axis=0)
-
-        hist = self.fillHisto(event_collection, "", "1.0", var)
-        histograms = {}
-        histograms["val"] = hist
-
-        descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                        "lumi": "35.87", "title": "Fraction Validation"}
-        outfilepath = "{0}/{1}_val_{2}_{3}.png".format(outdirpath, prefix, "inclusive", bin_var)
-        self.create_plot(histograms, descriptions, outfilepath)
-
-    def plot_frac_histo_for_inclusive_samples(self, sample_sets, bin_var, prefix, outdirpath):
-        print "Entering plot frac inclusive"
-
-        event_collection = DataFrame()
-
-        # branches = [bin_var,
-        #             "predicted_prob_0",
-        #             "predicted_prob_1",
-        #             "predicted_prob_2",
-        #             "predicted_prob_3"]
-
-        branches = [bin_var,
-                    "predicted_prob_0",
-                    "predicted_prob_1",
-                    "predicted_prob_2"]
-
-        var = Var(bin_var, self.settings.channel)
-
-        for sample_set in sample_sets:
-            events = self.get_events_for_sample_set(sample_set, branches)
-            event_collection = concat([event_collection, events], axis=0)
-
-        histograms = {}
-
-        # for i in range(0, 4):
-        #     template = ""
-        #     hist = self.fillHisto(event_collection, template, "predicted_prob_{0}".format(i), var)
-        #     histograms["predicted_prob_{0}".format(i)] = hist
-
-        for i in range(0, 3):
-            template = ""
-            hist = self.fillHisto(event_collection, template, "predicted_prob_{0}".format(i), var)
-            histograms["predicted_prob_{0}".format(i)] = hist
-
-        descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                        "lumi": "41.529", "title": "Fractions"}
-        outfilepath = "{0}/{1}_frac_{2}_{3}.png".format(outdirpath, prefix, "inclusive", bin_var)
-        self.create_plot(histograms, descriptions, outfilepath)
-
     def get_events_for_sample_set(self, sample_set, branches):
         root_path = self.file_manager.get_prediction_dirpath()
         sample_path = "{0}/{1}".format(root_path, sample_set.source_file_name)
@@ -278,7 +184,7 @@ class PlotCreator:
 
     def create_plot(self, histograms, descriptions, outfile):
         pl.simple_plot(histograms, canvas="linear", signal=[],
-                descriptions=descriptions, outfile=outfile)
+                       descriptions=descriptions, outfile=outfile)
 
     def create_normalized_plot(self, histos, descriptions, outfile):
 
@@ -289,7 +195,7 @@ class PlotCreator:
         for key in histograms:
             frac_histo = histograms[key]
             bin_total_dict[key] = []
-            #iterate over bins
+            # iterate over bins
             nbinsx = frac_histo.GetXaxis().GetNbins()
             for i in range (0, nbinsx + 1):
                 bin_content = frac_histo.GetBinContent(i)
@@ -316,15 +222,16 @@ class PlotCreator:
 
         self.create_plot(histograms, descriptions, outfile)
 
-
-    def create_inclusive_plot(self, var, keys, histograms, descriptions, outfile):
+    def create_inclusive_plot(self, var, histograms, descriptions, outfile):
 
         if not histograms:
             print "Cannot create inslusive plots: List of histograms is empty!"#
             return
 
+        branches = self.get_frac_branches()
+
         fraction_histo_dict = {}
-        for key in keys:
+        for key in branches:
             fraction_histo_dict[key] = R.TH1F("", "", *(var.bins("def")))
 
         # iterate over source files
@@ -335,8 +242,8 @@ class PlotCreator:
                 fraction_histo_dict[key].Add(frac_histo)
 
         self.create_normalized_plot(fraction_histo_dict, descriptions, "{0}_norm.png".format(outfile))
-
         self.create_plot(fraction_histo_dict, descriptions, "{0}.png".format(outfile))
+
 
 if __name__ == '__main__':
     main()
