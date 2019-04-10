@@ -82,11 +82,16 @@ class PlotCreator:
     def make_val_plots(self, sample_sets, bin_var, prefix, outdirpath):
         val_histo_summary = []
 
+        # branches = [bin_var,
+        #             "predicted_prob_0",
+        #             "predicted_prob_1",
+        #             "predicted_prob_2",
+        #             "predicted_prob_3"]
+
         branches = [bin_var,
                     "predicted_prob_0",
                     "predicted_prob_1",
-                    "predicted_prob_2",
-                    "predicted_prob_3"]
+                    "predicted_prob_2"]
 
         var = Var(bin_var, self.settings.channel)
 
@@ -111,11 +116,16 @@ class PlotCreator:
     def make_fraction_plots(self, sample_sets, bin_var, prefix, outdirpath):
         fraction_histo_summary = []
 
+        # branches = [bin_var,
+        #             "predicted_prob_0",
+        #             "predicted_prob_1",
+        #             "predicted_prob_2",
+        #             "predicted_prob_3"]
+
         branches = [bin_var,
                     "predicted_prob_0",
                     "predicted_prob_1",
-                    "predicted_prob_2",
-                    "predicted_prob_3"]
+                    "predicted_prob_2"]
 
         var = Var(bin_var, self.settings.channel)
 
@@ -132,7 +142,8 @@ class PlotCreator:
                         "lumi": "35.87", "title": "Fractions"}
         outfilepath = "{0}/{1}_frac_{2}_{3}.png".format(outdirpath, prefix, "inclusive", bin_var)
         outfileprefix = "{0}/{1}_frac_{2}_{3}".format(outdirpath, prefix, "inclusive", bin_var)
-        keys = ["predicted_prob_0", "predicted_prob_1", "predicted_prob_2", "predicted_prob_3"]
+        # keys = ["predicted_prob_0", "predicted_prob_1", "predicted_prob_2", "predicted_prob_3"]
+        keys = ["predicted_prob_0", "predicted_prob_1", "predicted_prob_2"]
         self.create_inclusive_plot(var, keys, fraction_histo_summary, descriptions, outfileprefix)
         pass
 
@@ -149,7 +160,14 @@ class PlotCreator:
         print "Found events for " + sample_set.name
         print len(events.index)
 
-        for i in range(0, 4):
+        # for i in range(0, 4):
+        #     # events = rp.read_root(paths=sample_path, where=select,
+        #     #                       columns=branches)
+        #     template = "test"
+        #     hist = self.fillHisto(events, template, "predicted_prob_{0}".format(i), var)
+        #     histograms["predicted_prob_{0}".format(i)] = hist
+
+        for i in range(0, 3):
             # events = rp.read_root(paths=sample_path, where=select,
             #                       columns=branches)
             template = "test"
@@ -214,11 +232,16 @@ class PlotCreator:
 
         event_collection = DataFrame()
 
+        # branches = [bin_var,
+        #             "predicted_prob_0",
+        #             "predicted_prob_1",
+        #             "predicted_prob_2",
+        #             "predicted_prob_3"]
+
         branches = [bin_var,
                     "predicted_prob_0",
                     "predicted_prob_1",
-                    "predicted_prob_2",
-                    "predicted_prob_3"]
+                    "predicted_prob_2"]
 
         var = Var(bin_var, self.settings.channel)
 
@@ -228,7 +251,12 @@ class PlotCreator:
 
         histograms = {}
 
-        for i in range(0, 4):
+        # for i in range(0, 4):
+        #     template = ""
+        #     hist = self.fillHisto(event_collection, template, "predicted_prob_{0}".format(i), var)
+        #     histograms["predicted_prob_{0}".format(i)] = hist
+
+        for i in range(0, 3):
             template = ""
             hist = self.fillHisto(event_collection, template, "predicted_prob_{0}".format(i), var)
             histograms["predicted_prob_{0}".format(i)] = hist
