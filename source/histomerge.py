@@ -73,15 +73,15 @@ class PlotCreator:
         self.settings = settings
         self.file_manager = file_manager
         self.config_parser = config_parser
-        self.target_map = self.config_parser.get_target_names()
+        self.target_names = self.config_parser.get_target_names()
         self.branch_frac_dict = self.get_branch_frac_dict()
 
     def get_branch_frac_dict(self):
         branch_frac_dict = {}
-        for key in self.target_map:
+        for key in self.target_names:
             print key
             if key != -1:
-                frac_name = self.target_map[key]
+                frac_name = self.target_names[key]
                 branch_name = "predicted_prob_{0}".format(key)
                 branch_frac_dict[branch_name] = frac_name
         return branch_frac_dict
@@ -111,7 +111,7 @@ class PlotCreator:
         pass
 
     # for each sample individually (TTJ, VVT etc.) and inclusive (all together)
-    # legend: fractions, tt_jet, w_jet, qcd_jet, other
+    # legend: fractions, (tt_jet, w_jet, qcd_jet, other) or (tt, w, qcd)
     def make_fraction_plots(self, sample_sets, bin_var, prefix, outdirpath):
         fraction_histo_summary = []
 
@@ -187,45 +187,39 @@ class PlotCreator:
                        descriptions=descriptions, outfile=outfile)
 
     def create_normalized_plot(self, histos, descriptions, outfile):
+        frac_histos = self.normalize(histos)
+        self.create_plot(frac_histos, descriptions, outfile)
 
-        bin_total_dict = {}
-        histograms = copy.deepcopy(histos)
-
-        # iterate over fractions
-        for key in histograms:
-            frac_histo = histograms[key]
-            bin_total_dict[key] = []
-            # iterate over bins
-            nbinsx = frac_histo.GetXaxis().GetNbins()
-            for i in range (0, nbinsx + 1):
-                bin_content = frac_histo.GetBinContent(i)
-                bin_total_dict[key].append(bin_content)
-
-        # calculate total bin content for each bin
+    def normalize(self, histos):
         bin_totals = []
-        nbinsx = frac_histo.GetXaxis().GetNbins()
-        for i in range(0, nbinsx + 1):
-            bin_totals.append(0)
-            # iterate over fractions
-            for key in histograms:
-                bin_totals[i] += bin_total_dict[key][i]
+        frac_histos = copy.deepcopy(histos)
+
+        # get arbitrary entry from dict (number of bins is the same for all histos)
+        dummy_histo = frac_histos.itervalues().next()
+        nbinsx = dummy_histo.GetXaxis().GetNbins()
 
         # iterate over bins
-        nbinsx = frac_histo.GetXaxis().GetNbins()
         for i in range(0, nbinsx + 1):
-            for key in histograms:
-                frac_histo = histograms[key]
+            bin_totals.append(0)
+            # iterare over fractions to sum up all contributions
+            for key in frac_histos:
+                frac_histo = frac_histos[key]
+                bin_content = frac_histo.GetBinContent(i)
+                bin_totals[i] += bin_content
+            # iterate over fractions again and normalize
+            for key in frac_histos:
+                frac_histo = frac_histos[key]
                 bin_content = frac_histo.GetBinContent(i)
                 if bin_totals[i] != 0 and bin_content != 0:
                     normalized_content = bin_content / bin_totals[i]
                     frac_histo.SetBinContent(i, normalized_content)
 
-        self.create_plot(histograms, descriptions, outfile)
+        return frac_histos
 
     def create_inclusive_plot(self, var, histograms, descriptions, outfile):
 
         if not histograms:
-            print "Cannot create inslusive plots: List of histograms is empty!"#
+            print "Cannot create inclusive plots: List of histograms is empty!"
             return
 
         branches = self.get_frac_branches()
