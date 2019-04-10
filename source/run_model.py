@@ -38,8 +38,10 @@ def main():
     if not args.shapes:
         print "Not predicting shape templates."
     print "---------------------------"
-        
-    run(samples="conf/simple_frac_config_{0}_{1}.json".format(args.channel, args.era),
+
+    file_manager = FileManager("conf/path_config.json")
+
+    run(file_manager=file_manager,
         channel=args.channel,
         era=args.era,
         use=args.model,
@@ -52,24 +54,31 @@ def main():
         )
 
 
-def run(samples, channel, era, use, train=False, shapes=False, predict=False, fractions=False, datacard=False, add_nominal=False):
+def run(file_manager, channel, era, use, train=False, shapes=False, predict=False, fractions=False, datacard=False, add_nominal=False):
 
+    samples = file_manager.get_sample_config_path().format(channel, era)
     config = samples
 
-    model_dir = "models_simple_refactor/" + era
+    # model_dir = "models_simple_refactor/" + era
+    model_dir = file_manager.get_model_dirname()
+    model_dir = model_dir + "/" + era
     model_name = "{0}.{1}".format(channel, use)
 
-    file_manager = FileManager("/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output")
+    # file_manager = FileManager("/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output")
 
     file_manager.set_model_dirname(model_dir)
     file_manager.set_model_filename(model_name)
 
-    prediction_dir = "predictions_refactor_" + era
+    # prediction_dir = "predictions_refactor_" + era
+    prediction_dir = file_manager.get_prediction_dirname()
+    prediction_dir = prediction_dir + "/" + era
     file_manager.set_prediction_dirname(prediction_dir)
 
     file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
 
-    plot_dir = "/AR_fracplots/" + channel
+    # plot_dir = "/AR_fracplots/" + channel
+    plot_dir = file_manager.get_plot_dirname()
+    plot_dir = "{0}/{1}/{2}".format(plot_dir, era, channel)
     file_manager.set_plot_dirname(plot_dir)
 
     print "debug:" + "\n"

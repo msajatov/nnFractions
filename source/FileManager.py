@@ -1,8 +1,9 @@
 import os
+import json
 
 class FileManager():
 
-    def __init__(self, outputpath=""):
+    def __init__(self, path_config_path="", outputpath=""):
         self.outputpath = outputpath
         self.model_dirname = "models/default"
         self.model_dirpath = "{0}/{1}".format(self.outputpath, self.model_dirname)
@@ -25,6 +26,36 @@ class FileManager():
         self.plot_dirpath = "{0}/{1}".format(self.outputpath, self.plot_dirname)
 
         self.fractions_filepath = ""
+
+        self.sample_config_path = ""
+
+        if path_config_path:
+            print "parsing path config..."
+            self.parse_path_config(path_config_path)
+
+    def parse_path_config(self, path):
+        # parse config and return boolean to indicate success
+        try:
+            with open(path, "r") as FSO:
+                config = json.load(FSO)
+        except ValueError as e:
+            print e
+            print "Check {0}. Probably a ',' ".format(path)
+            #sys.exit(0)
+
+        self.outputpath = config["output_root_dir"]
+        self.model_dirname = config["model_dir"]
+        self.prediction_dirname = config["prediction_dir"]
+        self.scaler_dirname = self.model_dirname
+        self.plot_dirname = config["frac_plot_dir"]
+        self.datacard_dirname = config["datacard_dir"]
+        self.datacard_config_dirname = config["datacard_conf_dir"]
+        self.datacard_plot_dirname = config["datacard_plot_dir"]
+
+        self.sample_config_path = config["sample_config"]
+
+    def get_sample_config_path(self):
+        return self.sample_config_path
 
     def get_output_root_path(self):
         return self.outputpath
@@ -71,6 +102,9 @@ class FileManager():
         self.prediction_dirpath = "{0}/{1}".format(self.outputpath, self.prediction_dirname)
         if not os.path.exists(self.prediction_dirpath):
             os.makedirs(self.prediction_dirpath)
+
+    def get_prediction_dirname(self):
+        return self.prediction_dirname
 
     def get_prediction_dirpath(self):
         return self.prediction_dirpath
@@ -122,6 +156,9 @@ class FileManager():
         self.plot_dirpath = "{0}/{1}".format(self.outputpath, self.plot_dirname)
         if not os.path.exists(self.plot_dirpath):
             os.makedirs(self.plot_dirpath)
+
+    def get_plot_dirname(self):
+        return self.plot_dirname
 
     def get_plot_dirpath(self):
         return self.plot_dirpath

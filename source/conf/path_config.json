@@ -1,0 +1,10 @@
+{
+    "output_root_dir": "/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output",
+    "model_dir": "models/simple_refactor",
+    "prediction_dir": "predictions/simple_refactor",
+    "frac_plot_dir": "fracplots/simple_refactor",
+    "datacard_dir": "",
+    "datacard_conf_dir": "",
+    "datacard_plot_dir": "",
+    "sample_config": "conf/frac_config_{0}_{1}.json"
+}
