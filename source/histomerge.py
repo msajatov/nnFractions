@@ -106,9 +106,9 @@ class PlotCreator:
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
                         "lumi": "35.87", "title": "Fraction Validation"}
         outfileprefix = "{0}/{1}_val_{2}_{3}".format(outdirpath, prefix, "inclusive", bin_var)
-        keys = ["val"]
-        self.create_inclusive_plot(var, keys, val_histo_summary, descriptions, outfileprefix)
-        pass
+
+        inclusive_histos = self.get_inclusive(var, val_histo_summary)
+        self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
 
     # for each sample individually (TTJ, VVT etc.) and inclusive (all together)
     # legend: fractions, (tt_jet, w_jet, qcd_jet, other) or (tt, w, qcd)
@@ -129,8 +129,10 @@ class PlotCreator:
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
                         "lumi": "35.87", "title": "Fractions"}
         outfileprefix = "{0}/{1}_frac_{2}_{3}".format(outdirpath, prefix, "inclusive", bin_var)
-        self.create_inclusive_plot(var, fraction_histo_summary, descriptions, outfileprefix)
-        pass
+
+        inclusive_histos = self.get_inclusive(var, fraction_histo_summary)
+        self.create_normalized_plot(inclusive_histos, descriptions, "{0}_norm.png".format(outfileprefix))
+        self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
 
     def get_histos_for_fractions(self, sample_set, var):
         histograms = {}
@@ -140,7 +142,7 @@ class PlotCreator:
         events = self.get_events_for_sample_set(sample_set, branches)
 
         for i in range(0, len(self.get_frac_branches())):
-            hist = self.fillHisto(events, "", "predicted_prob_{0}".format(i), var)
+            hist = self.fill_histo(events, "", "predicted_prob_{0}".format(i), var)
             histograms["predicted_prob_{0}".format(i)] = hist
 
         return histograms
@@ -148,16 +150,16 @@ class PlotCreator:
     def get_histo_for_val(self, sample_set, var):
         histograms = {}
         bin_var = var.name
-        branches = [bin_var] + self.get_frac_branches()
+        branches = [bin_var]
 
         events = self.get_events_for_sample_set(sample_set, branches)
 
-        hist = self.fillHisto(events, "", "1.0", var)
+        hist = self.fill_histo(events, "", "1.0", var)
         histograms["val"] = hist
 
         return histograms
 
-    def fillHisto(self, events, template, weight, var):
+    def fill_histo(self, events, template, weight, var):
         tmpHist = R.TH1F(template, template, *(var.bins("def")))
 
         tmpHist.Sumw2(True)
@@ -194,14 +196,14 @@ class PlotCreator:
         bin_totals = []
         frac_histos = copy.deepcopy(histos)
 
-        # get arbitrary entry from dict (number of bins is the same for all histos)
+        # get arbitrary entry from dict (number of bins must be the same for all histos)
         dummy_histo = frac_histos.itervalues().next()
         nbinsx = dummy_histo.GetXaxis().GetNbins()
 
         # iterate over bins
         for i in range(0, nbinsx + 1):
             bin_totals.append(0)
-            # iterare over fractions to sum up all contributions
+            # iterate over fractions to sum up all contributions
             for key in frac_histos:
                 frac_histo = frac_histos[key]
                 bin_content = frac_histo.GetBinContent(i)
@@ -216,16 +218,19 @@ class PlotCreator:
 
         return frac_histos
 
-    def create_inclusive_plot(self, var, histograms, descriptions, outfile):
-
-        if not histograms:
-            print "Cannot create inclusive plots: List of histograms is empty!"
+    def get_inclusive(self, var, input_histos):
+        if not input_histos:
+            print "Cannot create inclusive histograms: List of histograms is empty!"
             return
 
-        branches = self.get_frac_branches()
+        histograms = copy.deepcopy(input_histos)
+
+        # get first list entry (arbitrary, number of histos must be the same for all entries)
+        dummy_frac_histos = histograms[0]
+        keys = dummy_frac_histos.keys()
 
         fraction_histo_dict = {}
-        for key in branches:
+        for key in keys:
             fraction_histo_dict[key] = R.TH1F("", "", *(var.bins("def")))
 
         # iterate over source files
@@ -235,8 +240,7 @@ class PlotCreator:
                 frac_histo = histos[key]
                 fraction_histo_dict[key].Add(frac_histo)
 
-        self.create_normalized_plot(fraction_histo_dict, descriptions, "{0}_norm.png".format(outfile))
-        self.create_plot(fraction_histo_dict, descriptions, "{0}.png".format(outfile))
+        return fraction_histo_dict
 
 
 if __name__ == '__main__':
