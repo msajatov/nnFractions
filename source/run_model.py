@@ -13,7 +13,7 @@ from ConfigParser import ConfigParser
 from TrainingDataHandler import TrainingDataHandler
 from PredictionDataHandler import PredictionDataHandler
 from Settings import Settings
-from histomerge import PlotCreator
+from PlotCreator import PlotCreator
 
 def main():
 
