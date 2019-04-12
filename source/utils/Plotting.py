@@ -40,13 +40,13 @@ def main():
 
 def simple_plot(histos, signal=[], canvas="semi", outfile="", descriptions={}):
 
-    print "Entering plot..."
+    # print "Entering plot..."
 
     data = histos.pop("data", None)
     signal_hists = []
 
-    print "Length of histos:"
-    print str(len(histos))
+    # print "Length of histos:"
+    # print str(len(histos))
 
     for i, s in enumerate(signal):
         tmp = histos.pop(s, None)
@@ -58,11 +58,11 @@ def simple_plot(histos, signal=[], canvas="semi", outfile="", descriptions={}):
     yields.sort()
     what = [y[1] for y in yields]
 
-    print "yields:"
-    print yields
-
-    print "what:"
-    print what
+    # print "yields:"
+    # print yields
+    #
+    # print "what:"
+    # print what
 
     cumul = copy.deepcopy(histos[what[0]])
     cumul.SetFillColorAlpha(33, 0.6);
@@ -583,7 +583,7 @@ def createRatioCanvas(name):
     return cv
 
 def applyHistStyle(hist, name):
-    print "Applying hist style:"
+    # print "Applying hist style:"
     hist.GetXaxis().SetLabelFont(63)
     hist.GetXaxis().SetLabelSize(14)
     hist.GetYaxis().SetLabelFont(63)
@@ -592,7 +592,7 @@ def applyHistStyle(hist, name):
     hist.SetLineColor( R.kBlack )
 
 def applySignalHistStyle(hist, name, width = 1):
-    print "Applying signal hist style:"
+    # print "Applying signal hist style:"
     hist.GetXaxis().SetLabelFont(63)
     hist.GetXaxis().SetLabelSize(14)
     hist.GetYaxis().SetLabelFont(63)
@@ -629,8 +629,8 @@ def getFancyName(name):
 
 
 def getColor(name):
-    print "Name in getColor is:"
-    print name
+    # print "Name in getColor is:"
+    # print name
     if name in ["TT","TTT","TTJ","jetFakes_TT"]:    return R.TColor.GetColor(155,152,204)
     if name in ["sig"]:                             return R.kRed
     if name in ["bkg"]:                             return R.kBlue
