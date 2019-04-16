@@ -3,7 +3,8 @@ from Reader import Reader
 def main():
 
     fractions = True
-    simple = True
+    simple = False
+    emb = True
     era = "2017"
 
     if not fractions:
@@ -52,22 +53,41 @@ def main():
                 print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"mt":{mt}, "et":{et}, "tt":{tt} '.format(
                     **class_weights[cl]) + '},'
         else:
-            samples = "conf/frac_config_{0}_{1}.json"
+            if emb:
+                samples = "conf/emb_frac_config_{0}_{1}.json"
 
-            train_weights = {}
-            for channel in ["mt", "et", "tt"]:
-                train_weights[channel] = getWeights(samples.format(channel, era), channel)
+                train_weights = {}
+                for channel in ["mt", "et", "tt"]:
+                    train_weights[channel] = getWeights(samples.format(channel, era), channel)
 
-            class_weights = {}
-            for cl in ["tt_jet", "w_jet", "qcd_jet", "other"]:
-                class_weights[cl] = {}
-                for ch in ["mt", "et", "tt"]:
-                    tmp = train_weights.get(ch, {})
-                    class_weights[cl][ch] = tmp.get(cl, 0)
+                class_weights = {}
+                for cl in ["tt", "w", "qcd", "real"]:
+                    class_weights[cl] = {}
+                    for ch in ["mt", "et", "tt"]:
+                        tmp = train_weights.get(ch, {})
+                        class_weights[cl][ch] = tmp.get(cl, 0)
 
-            for cl in class_weights:
-                print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"mt":{mt}, "et":{et}, "tt":{tt} '.format(
-                    **class_weights[cl]) + '},'
+                for cl in class_weights:
+                    print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"mt":{mt}, "et":{et}, "tt":{tt} '.format(
+                        **class_weights[cl]) + '},'
+
+            else:
+                samples = "conf/frac_config_{0}_{1}.json"
+
+                train_weights = {}
+                for channel in ["mt", "et", "tt"]:
+                    train_weights[channel] = getWeights(samples.format(channel, era), channel)
+
+                class_weights = {}
+                for cl in ["tt_jet", "w_jet", "qcd_jet", "other"]:
+                    class_weights[cl] = {}
+                    for ch in ["mt", "et", "tt"]:
+                        tmp = train_weights.get(ch, {})
+                        class_weights[cl][ch] = tmp.get(cl, 0)
+
+                for cl in class_weights:
+                    print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"mt":{mt}, "et":{et}, "tt":{tt} '.format(
+                        **class_weights[cl]) + '},'
 
 
 def getWeights(samples, channel):
