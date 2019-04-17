@@ -20,6 +20,7 @@ class PredictionDataHandler(DataHandler):
         #do something here (similar to what sandbox in run_model does)
 
         path = "NOMINAL_ntuple_" + sample_info["histname"].split("_")[0]
+        path = path.replace("data", "Data")
         self.sandbox(self.settings.channel, self.model, self.scaler, data_frame, self.config_parser.variable_names, path, self.file_manager.get_prediction_dirpath(), first, sample_info )
         pass
 
