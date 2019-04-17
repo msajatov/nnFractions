@@ -162,6 +162,7 @@ def run(file_manager, channel, era, use, train=False, shapes=False, predict=Fals
 
         sample_sets = [sset for sset in parser.sample_sets if "AR" in sset.name]
         sample_sets = [sset for sset in sample_sets if not "EMB" in sset.name]
+        #sample_sets = [sset for sset in sample_sets if not "DY" in sset.name]
 
         print "Filtered sample sets for AR frac plots: \n"
 
@@ -169,7 +170,14 @@ def run(file_manager, channel, era, use, train=False, shapes=False, predict=Fals
            print ss
 
         outdirpath = file_manager.get_plot_dirpath()
+
+
+    #tn = {0:"tt", 1:"w", 2:"qcd"}
+
+        #plot_creator.set_target_names(tn)
+
         plot_creator.make_fraction_plots(sample_sets, bin_var, "AR", outdirpath)
+        # plot_creator.make_val_plots(sample_sets, bin_var, "AR", outdirpath)
 
         # bin_var = "m_vis"
         #
