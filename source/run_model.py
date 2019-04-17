@@ -53,7 +53,7 @@ def main():
 
 def run(channel, era, use, train=False, shapes=False, predict=False, fractions=False, datacard=False, add_nominal=False):
 
-    file_manager = FileManager("conf/path_config_test.json")
+    file_manager = FileManager("conf/path_config.json")
 
     samples = file_manager.get_sample_config_path().format(channel, era)
     config = samples
@@ -61,7 +61,7 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
 
     if train:
 
-        model_file_manager = ModelFileManager("conf/path_config_test.json")
+        model_file_manager = ModelFileManager("conf/path_config.json")
         set_up_model_file_manager(model_file_manager, settings)
 
         parser = ConfigParser(channel, era, config)
@@ -86,7 +86,7 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
 
     elif predict:
 
-        prediction_file_manager = PredictionFileManager("conf/path_config_test.json")
+        prediction_file_manager = PredictionFileManager("conf/path_config.json")
         set_up_prediction_file_manager(prediction_file_manager, settings)
 
         if os.path.exists(prediction_file_manager.get_scaler_filepath()):
@@ -134,7 +134,7 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
 
     if fractions:
 
-        frac_plot_file_manager = FractionPlotFileManager("conf/path_config_test.json")
+        frac_plot_file_manager = FractionPlotFileManager("conf/path_config.json")
         set_up_fraction_plot_file_manager(frac_plot_file_manager, settings)
 
         bin_var = "m_vis"
