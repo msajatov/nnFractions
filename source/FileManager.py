@@ -1,37 +1,19 @@
 import os
 import json
+from PathObject import DirPathObject, FilePathObject
+
 
 class FileManager():
 
-    def __init__(self, path_config_path="", outputpath=""):
-        self.outputpath = outputpath
-        self.model_dirname = "models/default"
-        self.model_dirpath = "{0}/{1}".format(self.outputpath, self.model_dirname)
-        self.model_filename = "empty"
-        self.model_filepath = "empty"
-        self.scaler_dirname = "models/default"
-        self.scaler_dirpath = "{0}/{1}".format(self.outputpath, self.model_dirname)
-        self.scaler_filename = "empty"
-        self.scaler_filepath = "empty"
-        self.prediction_dirname = "predictions/default"
-        self.prediction_dirpath = "{0}/{1}/".format(self.outputpath, self.prediction_dirname)
-        self.datacard_config_dirname = "datacard/conf/default"
-        self.datacard_config_dirpath = "{0}/{1}".format(self.outputpath, self.datacard_config_dirname)
-        self.datacard_dirname = "datacard/default"
-        self.datacard_dirpath = "{0}/{1}".format(self.outputpath, self.datacard_dirname)
-        self.datacard_plot_dirname = "datacard/plot/default"
-        self.datacard_plot_dirpath = "{0}/{1}".format(self.outputpath, self.datacard_plot_dirname)
+    def __init__(self, path_config_path):
 
-        self.plot_dirname = "plots/default"
-        self.plot_dirpath = "{0}/{1}".format(self.outputpath, self.plot_dirname)
+        self.paths = {}
+        self.config = {}
 
-        self.fractions_filepath = ""
-
+        self.outputpath = ""
         self.sample_config_path = ""
 
-        if path_config_path:
-            print "parsing path config..."
-            self.parse_path_config(path_config_path)
+        FileManager.parse_path_config(self, path_config_path)
 
     def parse_path_config(self, path):
         # parse config and return boolean to indicate success
@@ -43,124 +25,199 @@ class FileManager():
             print "Check {0}. Probably a ',' ".format(path)
             #sys.exit(0)
 
-        self.outputpath = config["output_root_dir"]
-        self.model_dirname = config["model_dir"]
-        self.prediction_dirname = config["prediction_dir"]
-        self.scaler_dirname = self.model_dirname
-        self.plot_dirname = config["frac_plot_dir"]
-        self.datacard_dirname = config["datacard_dir"]
-        self.datacard_config_dirname = config["datacard_conf_dir"]
-        self.datacard_plot_dirname = config["datacard_plot_dir"]
-
-        self.sample_config_path = config["sample_config"]
+        self.config = config
+        self.outputpath = config["output"]["output_root_dir"]
+        self.sample_config_path = config["samples"]["sample_config"]
 
     def get_sample_config_path(self):
         return self.sample_config_path
 
-    def get_output_root_path(self):
-        return self.outputpath
+    def get_dir_path(self, type):
+        if type in self.paths:
+            return self.paths[type].get_path()
+        else:
+            print type + " not found in registered paths!"
+
+    def get_dir_name(self, type):
+        if type in self.paths:
+            return self.paths[type].get_name()
+        else:
+            print type + " not found in registered paths!"
+
+    def set_dir_name(self, type, dir_name):
+        if type in self.paths:
+            return self.paths[type].set_name(dir_name)
+        else:
+            print type + " not found in registered paths!"
+
+
+class ModelFileManager(FileManager):
+
+    def __init__(self, path_config_path):
+        FileManager.__init__(self, path_config_path)
+        self.filepaths = {}
+        if path_config_path:
+            print "parsing path config..."
+            self.parse_path_config(path_config_path)
+
+    def parse_path_config(self, path):
+
+        conf = self.config["model"]
+
+        path = conf["model_output_dir"]
+        type = "model_output_dir"
+        self.paths["model_output_dir"] = DirPathObject(type, self.outputpath, path)
+
+        # sic! use model_output_dir for scaler_output_dir
+        path = conf["model_output_dir"]
+        type = "scaler_output_dir"
+        self.paths["scaler_output_dir"] = DirPathObject(type, self.outputpath, path)
 
     def set_model_filename(self, name):
-        self.model_filename = name
-        self.model_filepath = "{0}/{1}".format(self.model_dirpath, self.model_filename)
+        model_dir_path = self.paths["model_output_dir"].get_path()
+        self.filepaths["model_file"] = FilePathObject("model_file", model_dir_path, name)
 
     def set_scaler_filename(self, name):
-        self.scaler_filename = name
-        self.scaler_filepath = "{0}/{1}".format(self.scaler_dirpath, self.scaler_filename)
-
-    def set_model_dirname(self, model_dir):
-        # used as root dir for both model and scaler
-        self.model_dirname = model_dir
-        self.model_dirpath = "{0}/{1}".format(self.outputpath, self.model_dirname)
-
-        self.scaler_dirname = model_dir
-        self.scaler_dirpath = "{0}/{1}".format(self.outputpath, self.model_dirname)
-
-        if not os.path.exists(self.model_dirpath):
-            os.makedirs(self.model_dirpath)
-
-    def get_model_dirname(self):
-        return self.model_dirname
-
-    def get_model_dirpath(self):
-        return self.model_dirpath
+        scaler_dir_path = self.paths["scaler_output_dir"].get_path()
+        self.filepaths["scaler_file"] = FilePathObject("scaler_file", scaler_dir_path, name)
 
     def get_model_filename(self):
-        return self.model_filename
+        type = "model_file"
+        if type in self.filepaths:
+            return self.filepaths[type].get_name()
+        else:
+            print type + " not found in registered filepaths!"
 
     def get_model_filepath(self):
-        return self.model_filepath
+        type = "model_file"
+        if type in self.filepaths:
+            return self.filepaths[type].get_path()
+        else:
+            print type + " not found in registered filepaths!"
 
     def get_scaler_filename(self):
-        return self.scaler_filename
+        type = "scaler_file"
+        if type in self.filepaths:
+            return self.filepaths[type].get_name()
+        else:
+            print type + " not found in registered filepaths!"
 
     def get_scaler_filepath(self):
-        return self.scaler_filepath
+        type = "scaler_file"
+        if type in self.filepaths:
+            return self.filepaths[type].get_path()
+        else:
+            print type + " not found in registered filepaths!"
 
-    def set_prediction_dirname(self, prediction_dir):
-        self.prediction_dirname = prediction_dir
-        self.prediction_dirpath = "{0}/{1}".format(self.outputpath, self.prediction_dirname)
-        if not os.path.exists(self.prediction_dirpath):
-            os.makedirs(self.prediction_dirpath)
 
-    def get_prediction_dirname(self):
-        return self.prediction_dirname
+class PredictionFileManager(FileManager):
 
-    def get_prediction_dirpath(self):
-        return self.prediction_dirpath
+    def __init__(self, path_config_path):
+        FileManager.__init__(self, path_config_path)
+        self.filepaths = {}
+        if path_config_path:
+            print "parsing path config..."
+            self.parse_path_config(path_config_path)
 
-    def set_datacard_config_dirname(self, datacard_config_dir):
-        self.datacard_config_dirname = datacard_config_dir
-        self.datacard_config_dirpath = "{0}/{1}".format(self.outputpath, self.datacard_config_dirname)
-        if not os.path.exists(self.datacard_config_dirpath):
-            print "Warning: Datacard config dir does not exist ({0})".format(self.datacard_config_dirpath)
+    def parse_path_config(self, path):
 
-    def get_datacard_config_dirpath(self):
-        return self.datacard_config_dirpath
+        conf = self.config["prediction"]
 
-    def get_datacard_config_dirname(self):
-        return self.datacard_config_dirname
+        path = conf["model_input_dir"]
+        type = "model_input_dir"
+        self.paths["model_input_dir"] = DirPathObject(type, self.outputpath, path)
 
-    def set_datacard_output_dirname(self, datacard_dir):
-        self.datacard_dirname = datacard_dir
-        self.datacard_dirpath = "{0}/{1}".format(self.outputpath, self.datacard_dirname)
-        if not os.path.exists(self.datacard_dirpath):
-            print "Warning: Datacard config dir does not exist ({0})".format(self.datacard_dirpath)
+        # sic! use model_input_dir for scaler_input_dir
+        path = conf["model_input_dir"]
+        type = "scaler_input_dir"
+        self.paths["scaler_input_dir"] = DirPathObject(type, self.outputpath, path)
 
-    def get_datacard_output_dirpath(self):
-        return self.datacard_dirpath
+        path = conf["prediction_output_dir"]
+        type = "prediction_output_dir"
+        self.paths["prediction_output_dir"] = DirPathObject(type, self.outputpath, path)
 
-    def get_datacard_output_dirname(self):
-        return self.datacard_dirname
 
-    def set_datacard_plot_dirname(self, datacard_dir):
-        self.datacard_plot_dirname = datacard_dir
-        self.datacard_plot_dirpath = "{0}/{1}".format(self.outputpath, self.datacard_plot_dirname)
-        if not os.path.exists(self.datacard_plot_dirpath):
-            print "Warning: Datacard config dir does not exist ({0})".format(self.datacard_plot_dirpath)
+    def set_model_filename(self, name):
+        model_dir_path = self.paths["model_input_dir"].get_path()
+        self.filepaths["model_file"] = FilePathObject("model_file", model_dir_path, name)
 
-    def get_datacard_plot_dirpath(self):
-        return self.datacard_plot_dirpath
+    def set_scaler_filename(self, name):
+        scaler_dir_path = self.paths["scaler_input_dir"].get_path()
+        self.filepaths["scaler_file"] = FilePathObject("scaler_file", scaler_dir_path, name)
 
-    def get_datacard_plot_dirname(self):
-        return self.datacard_plot_dirname
+    def get_model_filename(self):
+        type = "model_file"
+        if type in self.filepaths:
+            return self.filepaths[type].get_name()
+        else:
+            print type + " not found in registered filepaths!"
 
-    def set_fractions_filepath(self, path):
-        self.fractions_filepath = path
+    def get_model_filepath(self):
+        type = "model_file"
+        if type in self.filepaths:
+            return self.filepaths[type].get_path()
+        else:
+            print type + " not found in registered filepaths!"
 
-    def get_fractions_filepath(self):
-        return self.get_fractions_filepath()
+    def get_scaler_filename(self):
+        type = "scaler_file"
+        if type in self.filepaths:
+            return self.filepaths[type].get_name()
+        else:
+            print type + " not found in registered filepaths!"
 
-    def set_plot_dirname(self, dirname):
-        self.plot_dirname = dirname
-        self.plot_dirpath = "{0}/{1}".format(self.outputpath, self.plot_dirname)
-        if not os.path.exists(self.plot_dirpath):
-            os.makedirs(self.plot_dirpath)
+    def get_scaler_filepath(self):
+        type = "scaler_file"
+        if type in self.filepaths:
+            return self.filepaths[type].get_path()
+        else:
+            print type + " not found in registered filepaths!"
 
-    def get_plot_dirname(self):
-        return self.plot_dirname
 
-    def get_plot_dirpath(self):
-        return self.plot_dirpath
+class FractionPlotFileManager(FileManager):
+
+    def __init__(self, path_config_path):
+        FileManager.__init__(self, path_config_path)
+        if path_config_path:
+            print "parsing path config..."
+            self.parse_path_config(path_config_path)
+
+    def parse_path_config(self, path):
+
+        conf = self.config["fracplots"]
+
+        path = conf["prediction_input_dir"]
+        type = "prediction_input_dir"
+        self.paths["prediction_input_dir"] = DirPathObject(type, self.outputpath, path)
+
+        path = conf["fracplot_output_dir"]
+        type = "fracplot_output_dir"
+        self.paths["fracplot_output_dir"] = DirPathObject(type, self.outputpath, path)
+
+
+class DatacardFileManager(FileManager):
+
+    def __init__(self, path_config_path):
+        FileManager.__init__(self, path_config_path)
+        self.fractions_filepath = ""
+        if path_config_path:
+            print "parsing path config..."
+            self.parse_path_config(path_config_path)
+
+    def parse_path_config(self, path):
+
+        conf = self.config["datacard"]
+
+        path = conf["datacard_dir"]
+        type = "datacard_dir"
+        self.paths["datacard_dir"] = DirPathObject(type, self.outputpath, path)
+
+        path = conf["datacard_conf_dir"]
+        type = "datacard_conf_dir"
+        self.paths["datacard_conf_dir"] = DirPathObject(type, self.outputpath, path)
+
+        path = conf["datacard_plot_dir"]
+        type = "datacard_plot_dir"
+        self.paths["datacard_plot_dir"] = DirPathObject(type, self.outputpath, path)
 
 

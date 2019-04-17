@@ -6,7 +6,7 @@ from glob import glob
 import argparse
 import cPickle
 import keras
-from FileManager import FileManager
+from FileManager import FileManager, ModelFileManager, PredictionFileManager, FractionPlotFileManager
 from DataController import DataController
 from DataReader import DataReader
 from ConfigParser import ConfigParser
@@ -39,10 +39,7 @@ def main():
         print "Not predicting shape templates."
     print "---------------------------"
 
-    file_manager = FileManager("conf/path_config.json")
-
-    run(file_manager=file_manager,
-        channel=args.channel,
+    run(channel=args.channel,
         era=args.era,
         use=args.model,
         train=args.train,
@@ -54,40 +51,59 @@ def main():
         )
 
 
-def run(file_manager, channel, era, use, train=False, shapes=False, predict=False, fractions=False, datacard=False, add_nominal=False):
+def run(channel, era, use, train=False, shapes=False, predict=False, fractions=False, datacard=False, add_nominal=False):
+
+    file_manager = FileManager("conf/path_config_test.json")
 
     samples = file_manager.get_sample_config_path().format(channel, era)
     config = samples
 
     # model_dir = "models_simple_refactor/" + era
-    model_dir = file_manager.get_model_dirname()
-    model_dir = model_dir + "/" + era
-    model_name = "{0}.{1}".format(channel, use)
+    # model_dir = file_manager.get_model_dirname()
+    # model_dir = model_dir + "/" + era
+    # model_name = "{0}.{1}".format(channel, use)
 
     # file_manager = FileManager("/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output")
 
-    file_manager.set_model_dirname(model_dir)
-    file_manager.set_model_filename(model_name)
+    # file_manager.set_model_dirname(model_dir)
+    # file_manager.set_model_filename(model_name)
 
     # prediction_dir = "predictions_refactor_" + era
-    prediction_dir = file_manager.get_prediction_dirname()
-    prediction_dir = prediction_dir + "/" + era
-    file_manager.set_prediction_dirname(prediction_dir)
+    # prediction_dir = file_manager.get_prediction_dirname()
+    # prediction_dir = prediction_dir + "/" + era
+    # file_manager.set_prediction_dirname(prediction_dir)
 
-    file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
+    # file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
 
     # plot_dir = "/AR_fracplots/" + channel
-    plot_dir = file_manager.get_plot_dirname()
-    plot_dir = "{0}/{1}/{2}".format(plot_dir, era, channel)
-    file_manager.set_plot_dirname(plot_dir)
+    # plot_dir = file_manager.get_plot_dirname()
+    # plot_dir = "{0}/{1}/{2}".format(plot_dir, era, channel)
+    # file_manager.set_plot_dirname(plot_dir)
 
-    print "debug:" + "\n"
-    print file_manager.get_model_dirpath() + "\n"
-    print file_manager.get_model_filepath() + "\n"
-    print file_manager.get_model_dirname() + "\n"
-    print file_manager.get_model_filename() + "\n"
+    # print "debug:" + "\n"
+    # print file_manager.get_model_dirpath() + "\n"
+    # print file_manager.get_model_filepath() + "\n"
+    # print file_manager.get_model_dirname() + "\n"
+    # print file_manager.get_model_filename() + "\n"
 
+    settings = Settings(use, channel, era)
     if train:
+
+        # model_file_manager = ModelFileManager("conf/path_config_test.json")
+        #
+        # model_dir = model_file_manager.get_dir_name("model_output_dir")
+        # model_dir = model_dir + "/" + era
+        # model_name = "{0}.{1}".format(channel, use)
+        #
+        # model_file_manager.set_dir_name("model_output_dir", model_dir)
+        # model_file_manager.set_dir_name("scaler_output_dir", model_dir)
+        # model_file_manager.set_model_filename(model_name)
+        #
+        # model_file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
+
+        model_file_manager = ModelFileManager("conf/path_config_test.json")
+        set_up_model_file_manager(model_file_manager, settings)
+
         parser = ConfigParser(channel, era, config)
 
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
@@ -99,7 +115,7 @@ def run(file_manager, channel, era, use, train=False, shapes=False, predict=Fals
             print ss
 
         settings = Settings(use, channel, era)
-        training_handler = TrainingDataHandler(settings, file_manager, parser, 0, 0)
+        training_handler = TrainingDataHandler(settings, model_file_manager, parser, 0, 0)
         controller = DataController(parser.data_root_path, 2, parser, settings, sample_sets=[])
 
         sample_info_dicts = controller.prepare(sample_sets)
@@ -107,14 +123,36 @@ def run(file_manager, channel, era, use, train=False, shapes=False, predict=Fals
 
         training_handler.handle(training_folds)
 
+    #     TODO: save model to "model" and scaler to "scaler" variable
+
     elif predict:
-        if os.path.exists(file_manager.get_scaler_filepath()):
+
+        # prediction_file_manager = PredictionFileManager("conf/path_config_test.json")
+        #
+        # model_dir = prediction_file_manager.get_dir_name("model_input_dir")
+        # model_dir = model_dir + "/" + era
+        # model_name = "{0}.{1}".format(channel, use)
+        #
+        # prediction_file_manager.set_dir_name("model_input_dir", model_dir)
+        # prediction_file_manager.set_dir_name("scaler_input_dir", model_dir)
+        # prediction_file_manager.set_model_filename(model_name)
+        #
+        # prediction_dir = prediction_file_manager.get_dir_name("prediction_output_dir")
+        # prediction_dir = prediction_dir + "/" + era
+        # prediction_file_manager.set_dir_name("prediction_output_dir", prediction_dir)
+        #
+        # prediction_file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
+
+        prediction_file_manager = PredictionFileManager("conf/path_config_test.json")
+        set_up_prediction_file_manager(prediction_file_manager, settings)
+
+        if os.path.exists(prediction_file_manager.get_scaler_filepath()):
             print "Loading Scaler"
-            with open(file_manager.get_scaler_filepath(), "rb") as FSO:
+            with open(prediction_file_manager.get_scaler_filepath(), "rb") as FSO:
                 tmp = cPickle.load(FSO)
                 scaler = [tmp, tmp]
         else:
-            print "Fatal: Scaler file not found at {0}. Train model using -t first.".format(file_manager.get_scaler_filepath())
+            print "Fatal: Scaler file not found at {0}. Train model using -t first.".format(prediction_file_manager.get_scaler_filepath())
             return
 
         print "Loading model and predicting."
@@ -125,7 +163,7 @@ def run(file_manager, channel, era, use, train=False, shapes=False, predict=Fals
             print "Using keras..."
             from KerasModel import KerasObject as modelObject
 
-        model = modelObject(filename=file_manager.get_model_filepath())
+        model = modelObject(filename=prediction_file_manager.get_model_filepath())
 
     if predict:
         parser = ConfigParser(channel, era, config)
@@ -137,7 +175,7 @@ def run(file_manager, channel, era, use, train=False, shapes=False, predict=Fals
             print ss
 
         settings = Settings(use, channel, era)
-        prediction_handler = PredictionDataHandler(settings, file_manager, parser, model, scaler)
+        prediction_handler = PredictionDataHandler(settings, prediction_file_manager, parser, model, scaler)
         controller = DataController(parser.data_root_path, 2, parser, settings, sample_sets=[])
 
         sample_info_dicts = controller.prepare(sample_sets)
@@ -154,11 +192,24 @@ def run(file_manager, channel, era, use, train=False, shapes=False, predict=Fals
 
     if fractions:
 
+        # frac_plot_file_manager = FractionPlotFileManager("conf/path_config_test.json")
+        #
+        # prediction_dir = frac_plot_file_manager.get_dir_name("prediction_input_dir")
+        # prediction_dir = prediction_dir + "/" + era
+        # frac_plot_file_manager.set_dir_name("prediction_input_dir", prediction_dir)
+        #
+        # plot_dir = frac_plot_file_manager.get_dir_name("fracplot_output_dir")
+        # plot_dir = "{0}/{1}/{2}".format(plot_dir, era, channel)
+        # frac_plot_file_manager.set_dir_name("fracplot_output_dir", plot_dir)
+
+        frac_plot_file_manager = FractionPlotFileManager("conf/path_config_test.json")
+        set_up_fraction_plot_file_manager(frac_plot_file_manager, settings)
+
         bin_var = "m_vis"
 
         settings = Settings(use, channel, era)
         parser = ConfigParser(channel, era, config)
-        plot_creator = PlotCreator(settings, file_manager, parser)
+        plot_creator = PlotCreator(settings, frac_plot_file_manager, parser)
 
         sample_sets = [sset for sset in parser.sample_sets if "AR" in sset.name]
         sample_sets = [sset for sset in sample_sets if not "EMB" in sset.name]
@@ -169,7 +220,7 @@ def run(file_manager, channel, era, use, train=False, shapes=False, predict=Fals
         for ss in sample_sets:
            print ss
 
-        outdirpath = file_manager.get_plot_dirpath()
+        outdirpath = frac_plot_file_manager.get_dir_path("fracplot_output_dir")
 
 
     #tn = {0:"tt", 1:"w", 2:"qcd"}
@@ -251,6 +302,55 @@ def run(file_manager, channel, era, use, train=False, shapes=False, predict=Fals
         D.create(era+"/"+use)
         makePlot(channel, "ML", era+"/"+use, era, era+"/plots")
 
+
+def set_up_model_file_manager(model_file_manager, settings):
+    era = settings.era
+    use = settings.ml_type
+    channel = settings.channel
+
+    model_dir = model_file_manager.get_dir_name("model_output_dir")
+    model_dir = model_dir + "/" + era
+    model_name = "{0}.{1}".format(channel, use)
+
+    model_file_manager.set_dir_name("model_output_dir", model_dir)
+    model_file_manager.set_dir_name("scaler_output_dir", model_dir)
+    model_file_manager.set_model_filename(model_name)
+
+    model_file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
+
+
+def set_up_prediction_file_manager(prediction_file_manager, settings):
+    era = settings.era
+    use = settings.ml_type
+    channel = settings.channel
+
+    model_dir = prediction_file_manager.get_dir_name("model_input_dir")
+    model_dir = model_dir + "/" + era
+    model_name = "{0}.{1}".format(channel, use)
+
+    prediction_file_manager.set_dir_name("model_input_dir", model_dir)
+    prediction_file_manager.set_dir_name("scaler_input_dir", model_dir)
+    prediction_file_manager.set_model_filename(model_name)
+
+    prediction_dir = prediction_file_manager.get_dir_name("prediction_output_dir")
+    prediction_dir = prediction_dir + "/" + era
+    prediction_file_manager.set_dir_name("prediction_output_dir", prediction_dir)
+
+    prediction_file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
+
+
+def set_up_fraction_plot_file_manager(frac_plot_file_manager, settings):
+    era = settings.era
+    use = settings.ml_type
+    channel = settings.channel
+
+    prediction_dir = frac_plot_file_manager.get_dir_name("prediction_input_dir")
+    prediction_dir = prediction_dir + "/" + era
+    frac_plot_file_manager.set_dir_name("prediction_input_dir", prediction_dir)
+
+    plot_dir = frac_plot_file_manager.get_dir_name("fracplot_output_dir")
+    plot_dir = "{0}/{1}/{2}".format(plot_dir, era, channel)
+    frac_plot_file_manager.set_dir_name("fracplot_output_dir", plot_dir)
 
 
 if __name__ == '__main__':

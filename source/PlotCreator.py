@@ -120,7 +120,7 @@ class PlotCreator:
         return tmpHist
 
     def get_events_for_sample_set(self, sample_set, branches):
-        root_path = self.file_manager.get_prediction_dirpath()
+        root_path = self.file_manager.get_dir_path("prediction_input_dir")
         sample_path = "{0}/{1}".format(root_path, sample_set.source_file_name)
         sample_path = sample_path.replace("WJets", "W")
         select = sample_set.cut

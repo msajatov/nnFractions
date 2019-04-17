@@ -21,7 +21,7 @@ class PredictionDataHandler(DataHandler):
 
         path = "NOMINAL_ntuple_" + sample_info["histname"].split("_")[0]
         path = path.replace("data", "Data")
-        self.sandbox(self.settings.channel, self.model, self.scaler, data_frame, self.config_parser.variable_names, path, self.file_manager.get_prediction_dirpath(), first, sample_info )
+        self.sandbox(self.settings.channel, self.model, self.scaler, data_frame, self.config_parser.variable_names, path, self.file_manager.get_dir_path("prediction_output_dir"), first, sample_info )
         pass
 
     def sandbox(self, channel, model, scaler, data_frame, variables, outname, outpath, first, config=None ):
