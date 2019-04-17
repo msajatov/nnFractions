@@ -57,49 +57,9 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
 
     samples = file_manager.get_sample_config_path().format(channel, era)
     config = samples
-
-    # model_dir = "models_simple_refactor/" + era
-    # model_dir = file_manager.get_model_dirname()
-    # model_dir = model_dir + "/" + era
-    # model_name = "{0}.{1}".format(channel, use)
-
-    # file_manager = FileManager("/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output")
-
-    # file_manager.set_model_dirname(model_dir)
-    # file_manager.set_model_filename(model_name)
-
-    # prediction_dir = "predictions_refactor_" + era
-    # prediction_dir = file_manager.get_prediction_dirname()
-    # prediction_dir = prediction_dir + "/" + era
-    # file_manager.set_prediction_dirname(prediction_dir)
-
-    # file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
-
-    # plot_dir = "/AR_fracplots/" + channel
-    # plot_dir = file_manager.get_plot_dirname()
-    # plot_dir = "{0}/{1}/{2}".format(plot_dir, era, channel)
-    # file_manager.set_plot_dirname(plot_dir)
-
-    # print "debug:" + "\n"
-    # print file_manager.get_model_dirpath() + "\n"
-    # print file_manager.get_model_filepath() + "\n"
-    # print file_manager.get_model_dirname() + "\n"
-    # print file_manager.get_model_filename() + "\n"
-
     settings = Settings(use, channel, era)
-    if train:
 
-        # model_file_manager = ModelFileManager("conf/path_config_test.json")
-        #
-        # model_dir = model_file_manager.get_dir_name("model_output_dir")
-        # model_dir = model_dir + "/" + era
-        # model_name = "{0}.{1}".format(channel, use)
-        #
-        # model_file_manager.set_dir_name("model_output_dir", model_dir)
-        # model_file_manager.set_dir_name("scaler_output_dir", model_dir)
-        # model_file_manager.set_model_filename(model_name)
-        #
-        # model_file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
+    if train:
 
         model_file_manager = ModelFileManager("conf/path_config_test.json")
         set_up_model_file_manager(model_file_manager, settings)
@@ -114,7 +74,6 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         for ss in sample_sets:
             print ss
 
-        settings = Settings(use, channel, era)
         training_handler = TrainingDataHandler(settings, model_file_manager, parser, 0, 0)
         controller = DataController(parser.data_root_path, 2, parser, settings, sample_sets=[])
 
@@ -126,22 +85,6 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
     #     TODO: save model to "model" and scaler to "scaler" variable
 
     elif predict:
-
-        # prediction_file_manager = PredictionFileManager("conf/path_config_test.json")
-        #
-        # model_dir = prediction_file_manager.get_dir_name("model_input_dir")
-        # model_dir = model_dir + "/" + era
-        # model_name = "{0}.{1}".format(channel, use)
-        #
-        # prediction_file_manager.set_dir_name("model_input_dir", model_dir)
-        # prediction_file_manager.set_dir_name("scaler_input_dir", model_dir)
-        # prediction_file_manager.set_model_filename(model_name)
-        #
-        # prediction_dir = prediction_file_manager.get_dir_name("prediction_output_dir")
-        # prediction_dir = prediction_dir + "/" + era
-        # prediction_file_manager.set_dir_name("prediction_output_dir", prediction_dir)
-        #
-        # prediction_file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
 
         prediction_file_manager = PredictionFileManager("conf/path_config_test.json")
         set_up_prediction_file_manager(prediction_file_manager, settings)
@@ -174,7 +117,6 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         for ss in sample_sets:
             print ss
 
-        settings = Settings(use, channel, era)
         prediction_handler = PredictionDataHandler(settings, prediction_file_manager, parser, model, scaler)
         controller = DataController(parser.data_root_path, 2, parser, settings, sample_sets=[])
 
@@ -192,22 +134,11 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
 
     if fractions:
 
-        # frac_plot_file_manager = FractionPlotFileManager("conf/path_config_test.json")
-        #
-        # prediction_dir = frac_plot_file_manager.get_dir_name("prediction_input_dir")
-        # prediction_dir = prediction_dir + "/" + era
-        # frac_plot_file_manager.set_dir_name("prediction_input_dir", prediction_dir)
-        #
-        # plot_dir = frac_plot_file_manager.get_dir_name("fracplot_output_dir")
-        # plot_dir = "{0}/{1}/{2}".format(plot_dir, era, channel)
-        # frac_plot_file_manager.set_dir_name("fracplot_output_dir", plot_dir)
-
         frac_plot_file_manager = FractionPlotFileManager("conf/path_config_test.json")
         set_up_fraction_plot_file_manager(frac_plot_file_manager, settings)
 
         bin_var = "m_vis"
 
-        settings = Settings(use, channel, era)
         parser = ConfigParser(channel, era, config)
         plot_creator = PlotCreator(settings, frac_plot_file_manager, parser)
 
@@ -232,34 +163,9 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
 
         # bin_var = "m_vis"
         #
-        # settings = Settings(use, channel, era)
         # parser = ConfigParser(channel, era, config)
         # plot_creator = PlotCreator(settings, file_manager, parser)
-        #
-        # sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
-        #
-        # print "Filtered sample sets for prediction frac plots: \n"
-        #
-        # for ss in sample_sets:
-        #    print ss
-        #
-        # outdirpath = file_manager.get_plot_dirpath()
-        # plot_creator.make_fraction_plots(sample_sets, bin_var, "full", outdirpath)
 
-        # # ---------------------------------------------------------------------------------
-        #
-        # sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
-        #
-        # print "Filtered sample sets for prediction val plots: \n"
-        #
-        # for ss in sample_sets:
-        #     print ss
-        #
-        # outdirpath = file_manager.get_plot_dirpath()
-        # plot_creator.make_val_plots(sample_sets, bin_var, "full", outdirpath)
-        #
-        # # ---------------------------------------------------------------------------------
-        #
         # sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
         #
         # print "Filtered sample sets for training frac plots: \n"
@@ -270,17 +176,7 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         # outdirpath = file_manager.get_plot_dirpath()
         # plot_creator.make_fraction_plots(sample_sets, bin_var, "training", outdirpath)
         #
-        # # ---------------------------------------------------------------------------------
-        #
-        # sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
-        #
-        # print "Filtered sample sets for training val plots: \n"
-        #
-        # for ss in sample_sets:
-        #     print ss
-        #
-        # outdirpath = file_manager.get_plot_dirpath()
-        # plot_creator.make_val_plots(sample_sets, bin_var, "training", outdirpath)
+
 
 
     if datacard and "hephy.at" in os.environ["HOME"]:
