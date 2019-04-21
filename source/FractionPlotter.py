@@ -12,14 +12,16 @@ from pandas import DataFrame, concat
 import copy
 
 
-class PlotCreator:
+class FractionPlotter:
 
     def __init__(self, settings, file_manager, config_parser):
         self.settings = settings
         self.file_manager = file_manager
         self.config_parser = config_parser
         self.target_names = self.config_parser.get_target_names()
-        self.branch_frac_dict = self.get_branch_frac_dict()
+
+    def set_target_names(self, target_names):
+        self.target_names = target_names
 
     def get_branch_frac_dict(self):
         branch_frac_dict = {}
@@ -32,7 +34,7 @@ class PlotCreator:
         return branch_frac_dict
 
     def get_frac_branches(self):
-        branches = list(self.branch_frac_dict.keys())
+        branches = list(self.get_branch_frac_dict().keys())
         return branches
 
     def make_val_plots(self, sample_sets, bin_var, prefix, outdirpath):
@@ -86,9 +88,20 @@ class PlotCreator:
 
         events = self.get_events_for_sample_set(sample_set, branches)
 
+        dict = self.get_branch_frac_dict()
+
         for i in range(0, len(self.get_frac_branches())):
+            print "index is:"
+            print i
             hist = self.fill_histo(events, "", "predicted_prob_{0}".format(i), var)
-            histograms["predicted_prob_{0}".format(i)] = hist
+            frac_name = dict["predicted_prob_{0}".format(i)]
+            histograms[frac_name] = hist
+
+        # for i in xrange(len(self.get_frac_branches()) - 1, -1, -1):
+        #     print "index is:"
+        #     print i
+        #     hist = self.fill_histo(events, "", "predicted_prob_{0}".format(i), var)
+        #     histograms["predicted_prob_{0}".format(i)] = hist
 
         return histograms
 
@@ -130,7 +143,10 @@ class PlotCreator:
         return events
 
     def create_plot(self, histograms, descriptions, outfile):
-        pl.simple_plot(histograms, canvas="linear", signal=[],
+        sorted = self.sort_by_target_names(histograms)
+        print sorted
+
+        pl.simple_plot(sorted, canvas="linear", signal=[],
                        descriptions=descriptions, outfile=outfile)
 
     def create_normalized_plot(self, histos, descriptions, outfile):
@@ -187,3 +203,51 @@ class PlotCreator:
 
         return fraction_histo_dict
 
+    def get_target_name_list(self):
+        return [kvp.value() for kvp in self.target_names]
+
+    def sort_by_yields(self, histograms):
+
+        print "histograms:"
+        print histograms
+
+        yields = [(h.Integral(), (name, h)) for name, h in histograms.items()]
+        yields.sort()
+        sorted = [copy.deepcopy(y[1]) for y in yields]
+
+        return sorted
+
+    def sort_by_target_names(self, histograms):
+
+        print "histograms:"
+        print histograms
+
+        names = [(name, (name, h)) for name, h in histograms.items()]
+        names.sort(key=get_index_for_fraction_name)
+        sorted = [copy.deepcopy(n[1]) for n in names]
+
+        return sorted
+
+    def convert_to_list(self, histograms):
+        list = [copy.deepcopy((k, v)) for k, v in histograms.items()]
+        return list
+
+def get_index_for_fraction_name(listitem):
+    name = listitem[0]
+
+    if name == "tt":
+        print "name is tt"
+        return 0
+    elif name == "w":
+        print "name is w"
+        return 1
+    elif name == "qcd":
+        print "name is qcd"
+        return 2
+    elif name == "real":
+        print "name is real"
+        return 3
+    else:
+        print "name is something else:"
+        print name
+        return 4

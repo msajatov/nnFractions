@@ -38,44 +38,29 @@ def main():
 
     plot(histos,canvas = "linear")
 
+
+
 def simple_plot(histos, signal=[], canvas="semi", outfile="", descriptions={}):
 
-    # print "Entering plot..."
+    data = None
+    what = [h[0] for h in histos]
+    hist = [h[1] for h in histos]
 
-    data = histos.pop("data", None)
-    signal_hists = []
-
-    # print "Length of histos:"
-    # print str(len(histos))
-
-    for i, s in enumerate(signal):
-        tmp = histos.pop(s, None)
-        if tmp:
-            applySignalHistStyle(tmp, s, 3)
-            signal_hists.append(tmp)
-
-    yields = [(h.Integral(), name) for name, h in histos.items()]
-    yields.sort()
-    what = [y[1] for y in yields]
-
-    # print "yields:"
-    # print yields
-    #
     # print "what:"
     # print what
 
-    cumul = copy.deepcopy(histos[what[0]])
-    cumul.SetFillColorAlpha(33, 0.6);
-    applyHistStyle(histos[what[0]], what[0])
+    cumul = copy.deepcopy(hist[0])
+    cumul.SetFillColorAlpha(33, 0.6)
+    applyHistStyle(hist[0], what[0])
 
     stack = R.THStack("stack", "")
-    stack.Add(copy.deepcopy(histos[what[0]]))
+    stack.Add(copy.deepcopy(hist[0]))
 
-    for h in what[1:]:
+    for h in histos[1:]:
         "Calling applyHistStyle:"
-        applyHistStyle(histos[h], h)
-        stack.Add(copy.deepcopy(histos[h]))
-        cumul.Add(histos[h])
+        applyHistStyle(h[1], h[0])
+        stack.Add(copy.deepcopy(h[1]))
+        cumul.Add(h[1])
 
     if not data:
         data = copy.deepcopy(cumul)
@@ -109,12 +94,8 @@ def simple_plot(histos, signal=[], canvas="semi", outfile="", descriptions={}):
         leg = R.TLegend(0.82, 0.29, 0.98, 0.92)
         leg.SetTextSize(0.025)
 
-    # leg.AddEntry(data, "data obs.")
-
-    for n in reversed(what):
-        leg.AddEntry(histos[n], getFancyName(n))
-    for s in signal_hists:
-        leg.AddEntry(s, getFancyName(s.GetName()))
+    for h in histos:
+        leg.AddEntry(h[1], getFancyName(h[0]))
 
     maxVal = stack.GetMaximum()
     # maxVal = max(stack.GetMaximum(), data.GetMaximum()) * 1.2
@@ -250,7 +231,7 @@ def simple_plot(histos, signal=[], canvas="semi", outfile="", descriptions={}):
     cv.SetName(outfile.replace(".root", ""))
     # cv.SaveAs( "/".join([os.getcwd(),outfile]) )
 
-    print "Attempting to save to: " + outfile
+    # print "Attempting to save to: " + outfile
     cv.SaveAs(outfile)
 
 def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
@@ -466,20 +447,11 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
 def createSimpleCanvas(name):
 
     cv = R.TCanvas(name, name, 10, 10, 800, 600)
-
-    # # this is the tricky part...
-    # # Divide with correct margins
     cv.Divide(1, 1, 0.0, 0.0)
 
     # Set Pad sizes
-    # cv.GetPad(1).SetPad(0.0, 0.45, 1., 1.0)
     cv.GetPad(1).SetPad(0.0, 0.0, 1.0, 1.0)
-    # cv.GetPad(2).SetPad(0.0, 0.25, 1., 0.465)
-    # cv.GetPad(3).SetPad(0.0, 0.00, 1., 0.25)
-
     cv.GetPad(1).SetFillStyle(4000)
-    # cv.GetPad(2).SetFillStyle(4000)
-    # cv.GetPad(3).SetFillStyle(4000)
 
     # Set pad margins 1
     cv.cd(1)
@@ -487,23 +459,6 @@ def createSimpleCanvas(name):
     R.gPad.SetBottomMargin(0.08)
     R.gPad.SetLeftMargin(0.08)
     R.gPad.SetRightMargin(0.2)
-
-    # cv.cd(2)
-    # R.gPad.SetTopMargin(0.05)
-    # R.gPad.SetLeftMargin(0.08)
-    # R.gPad.SetBottomMargin(0.05)
-    # R.gPad.SetRightMargin(0.2)
-    # R.gPad.SetLogy()
-    #
-    # # Set pad margins 2
-    # cv.cd(3)
-    # R.gPad.SetTopMargin(0.03)
-    # R.gPad.SetBottomMargin(0.3)
-    # R.gPad.SetLeftMargin(0.08)
-    # R.gPad.SetRightMargin(0.2)
-    # R.gPad.SetGridy()
-    #
-    # cv.cd(1)
     return cv
 
 
@@ -619,10 +574,10 @@ def getFancyName(name):
     if name == "EWKZ":              return r"EWKZ"
     if name in ["qqH","qqH125"]:    return "VBF"
     if name in ["ggH","ggH125"]:    return "ggF"
-    if name in "predicted_prob_0":   return "tt_jet"
-    if name in "predicted_prob_1":   return "w_jet"
-    if name in "predicted_prob_2":   return "qcd_jet"
-    if name in "predicted_prob_3":   return "other"
+    # if name in "predicted_prob_0":  return "tt"
+    # if name in "predicted_prob_1":  return "w"
+    # if name in "predicted_prob_2":  return "qcd"
+    # if name in "predicted_prob_3":  return "real"
 
     return name
 
@@ -631,25 +586,23 @@ def getFancyName(name):
 def getColor(name):
     # print "Name in getColor is:"
     # print name
-    if name in ["TT","TTT","TTJ","jetFakes_TT"]:    return R.TColor.GetColor(155,152,204)
+    if name in ["TT","TTT","TTJ","jetFakes_TT", "tt"]:    return R.TColor.GetColor(155,152,204)
     if name in ["sig"]:                             return R.kRed
     if name in ["bkg"]:                             return R.kBlue
     if name in ["qqH","qqH125"]:                    return R.TColor.GetColor(0,100,0)
     if name in ["ggH","ggH125"]:                    return R.TColor.GetColor(0,0,100)
-    if name in ["W","jetFakes_W"]:                  return R.TColor.GetColor(222,90,106)
+    if name in ["W","jetFakes_W", "w"]:                  return R.TColor.GetColor(222,90,106)
     if name in ["VV","VVJ","VVT"]:                  return R.TColor.GetColor(175,35,80)
     if name in ["ZL","ZJ","ZLJ"]:                   return R.TColor.GetColor(100,192,232)
     if name in ["EWKZ"]:                            return R.TColor.GetColor(8,247,183)
-    if name in ["QCD","WSS","jetFakes_QCD"]:        return R.TColor.GetColor(250,202,255)
+    if name in ["QCD","WSS","jetFakes_QCD", "qcd"]:        return R.TColor.GetColor(250,202,255)
     if name in ["ZTT","DY","real"]:                 return R.TColor.GetColor(248,206,104)
     if name in ["jetFakes"]:                        return R.TColor.GetColor(192,232,100)
     if name in ["data"]:                            return R.TColor.GetColor(0,0,0)
-    if name in ["predicted_prob_0"]:return R.TColor.GetColor(155,152,204)
-    if name in ["predicted_prob_1"]:return R.TColor.GetColor(222,90,106)
-    if name in ["predicted_prob_2"]:
-        return R.TColor.GetColor(250,202,255)
-    if name in ["predicted_prob_3"]:
-        return R.TColor.GetColor(248,206,104)
+    # if name in ["predicted_prob_0"]:                return R.TColor.GetColor(155,152,204)
+    # if name in ["predicted_prob_1"]:                return R.TColor.GetColor(222,90,106)
+    # if name in ["predicted_prob_2"]:                return R.TColor.GetColor(250,202,255)
+    # if name in ["predicted_prob_3"]:                return R.TColor.GetColor(248,206,104)
     else: return R.kYellow
 
 if __name__ == '__main__':

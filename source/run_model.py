@@ -13,7 +13,7 @@ from ConfigParser import ConfigParser
 from TrainingDataHandler import TrainingDataHandler
 from PredictionDataHandler import PredictionDataHandler
 from Settings import Settings
-from PlotCreator import PlotCreator
+from FractionPlotter import FractionPlotter
 
 def main():
 
@@ -140,11 +140,11 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         bin_var = "m_vis"
 
         parser = ConfigParser(channel, era, config)
-        plot_creator = PlotCreator(settings, frac_plot_file_manager, parser)
+        plotter = FractionPlotter(settings, frac_plot_file_manager, parser)
 
         sample_sets = [sset for sset in parser.sample_sets if "AR" in sset.name]
-        sample_sets = [sset for sset in sample_sets if not "EMB" in sset.name]
-        #sample_sets = [sset for sset in sample_sets if not "DY" in sset.name]
+        # sample_sets = [sset for sset in sample_sets if not "EMB" in sset.name]
+        sample_sets = [sset for sset in sample_sets if not "DY" in sset.name]
 
         print "Filtered sample sets for AR frac plots: \n"
 
@@ -158,7 +158,7 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
 
         #plot_creator.set_target_names(tn)
 
-        plot_creator.make_fraction_plots(sample_sets, bin_var, "AR", outdirpath)
+        plotter.make_fraction_plots(sample_sets, bin_var, "AR", outdirpath)
         # plot_creator.make_val_plots(sample_sets, bin_var, "AR", outdirpath)
 
         # bin_var = "m_vis"
