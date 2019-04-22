@@ -14,7 +14,7 @@ from TrainingDataHandler import TrainingDataHandler
 from PredictionDataHandler import PredictionDataHandler
 from Settings import Settings
 from FractionPlotter import FractionPlotter
-from Logger import TrainingLogger
+from Logger import TrainingLogger, PredictionLogger
 
 def main():
 
@@ -115,6 +115,9 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         model = modelObject(filename=prediction_file_manager.get_model_filepath())
 
     if predict:
+
+        # TODO: set up prediction_file_manager in case a chain is used
+
         parser = ConfigParser(channel, era, config)
         sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
 
@@ -122,6 +125,11 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
 
         for ss in sample_sets:
             print ss
+
+        logger = PredictionLogger(settings, prediction_file_manager, sample_sets)
+
+        print "attempt logging"
+        logger.log()
 
         prediction_handler = PredictionDataHandler(settings, prediction_file_manager, parser, model, scaler)
         controller = DataController(parser.data_root_path, 2, parser, settings, sample_sets=[])
