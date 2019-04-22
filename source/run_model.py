@@ -14,7 +14,7 @@ from TrainingDataHandler import TrainingDataHandler
 from PredictionDataHandler import PredictionDataHandler
 from Settings import Settings
 from FractionPlotter import FractionPlotter
-from Logger import TrainingLogger, PredictionLogger
+from Logger import TrainingLogger, PredictionLogger, FractionPlotLogger
 
 def main():
 
@@ -161,6 +161,11 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         sample_sets = [sset for sset in parser.sample_sets if "AR" in sset.name]
         # sample_sets = [sset for sset in sample_sets if not "EMB" in sset.name]
         sample_sets = [sset for sset in sample_sets if not "DY" in sset.name]
+
+        logger = FractionPlotLogger(settings, frac_plot_file_manager, sample_sets)
+
+        print "attempt logging"
+        logger.log()
 
         print "Filtered sample sets for AR frac plots: \n"
 
