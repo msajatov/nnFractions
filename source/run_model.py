@@ -75,7 +75,7 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         for ss in sample_sets:
             print ss
 
-        logger = TrainingLogger(settings, model_file_manager, sample_sets)
+        logger = TrainingLogger(settings, model_file_manager, sample_sets, parser)
 
         print "attempt logging"
         logger.log()
@@ -126,7 +126,7 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         for ss in sample_sets:
             print ss
 
-        logger = PredictionLogger(settings, prediction_file_manager, sample_sets)
+        logger = PredictionLogger(settings, prediction_file_manager, sample_sets, parser)
 
         print "attempt logging"
         logger.log()
@@ -162,10 +162,7 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         sample_sets = [sset for sset in sample_sets if not "EMB" in sset.name]
         # sample_sets = [sset for sset in sample_sets if not "DY" in sset.name]
 
-        logger = FractionPlotLogger(settings, frac_plot_file_manager, sample_sets)
 
-        print "attempt logging"
-        logger.log()
 
         print "Filtered sample sets for AR frac plots: \n"
 
@@ -176,12 +173,14 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
 
         outdirpath = frac_plot_file_manager.get_dir_path("fracplot_output_dir")
 
+        logger = FractionPlotLogger(settings, frac_plot_file_manager, sample_sets, parser)
 
+        tn = {0:"tt", 1:"w", 2:"qcd"}
+        plotter.set_target_names(tn)
+        logger.set_target_names(tn)
 
-
-        # tn = {0:"tt", 1:"w", 2:"qcd"}
-
-        # plotter.set_target_names(tn)
+        print "attempt logging"
+        logger.log()
 
         plotter.make_fraction_plots(sample_sets, bin_var, "AR", outdirpath)
 

@@ -77,6 +77,9 @@ class ConfigParser:
             target_names[cat.index] = cat.name
         return target_names
 
+    def get_target_name_list(self):
+        return [cat.name for cat in self.target_categories]
+
     def _parse_categories(self, config):
         print "Parsing categories..."
         cat = TargetCategory("none", 1)
