@@ -14,6 +14,7 @@ from TrainingDataHandler import TrainingDataHandler
 from PredictionDataHandler import PredictionDataHandler
 from Settings import Settings
 from FractionPlotter import FractionPlotter
+from Logger import TrainingLogger
 
 def main():
 
@@ -73,6 +74,11 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
 
         for ss in sample_sets:
             print ss
+
+        logger = TrainingLogger(settings, model_file_manager, sample_sets)
+
+        print "attempt logging"
+        logger.log()
 
         training_handler = TrainingDataHandler(settings, model_file_manager, parser, 0, 0)
         controller = DataController(parser.data_root_path, 2, parser, settings, sample_sets=[])
