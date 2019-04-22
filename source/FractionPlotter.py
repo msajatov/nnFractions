@@ -48,12 +48,12 @@ class FractionPlotter:
             val_histo_summary.append(val_histo)
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
                             "lumi": "35.87", "title": "Fraction Validation"}
-            outfilepath = "{0}/{1}_val_{2}_{3}.png".format(outdirpath, prefix, sample_set.name, bin_var)
+            outfilepath = "{0}/{1}_{2}_val_{3}_{4}.png".format(outdirpath, self.settings.channel, prefix, sample_set.name, bin_var)
             self.create_plot(val_histo, descriptions, outfilepath)
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
                         "lumi": "35.87", "title": "Fraction Validation"}
-        outfileprefix = "{0}/{1}_val_{2}_{3}".format(outdirpath, prefix, "inclusive", bin_var)
+        outfileprefix = "{0}/{1}_{2}_val_{3}_{4}".format(outdirpath, self.settings.channel, prefix, "inclusive", bin_var)
 
         inclusive_histos = self.get_inclusive(var, val_histo_summary)
         self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
@@ -70,13 +70,13 @@ class FractionPlotter:
             fraction_histo_summary.append(frac_histos)
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
                             "lumi": "35.87", "title": "Fractions"}
-            outfile = "{0}/{1}_frac_{2}_{3}".format(outdirpath, prefix, sample_set.name, bin_var)
+            outfile = "{0}/{1}_{2}_frac_{3}_{4}".format(outdirpath, self.settings.channel, prefix, sample_set.name, bin_var)
             self.create_plot(frac_histos, descriptions, "{0}.png".format(outfile))
             self.create_normalized_plot(frac_histos, descriptions, "{0}_norm.png".format(outfile))
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
                         "lumi": "35.87", "title": "Fractions"}
-        outfileprefix = "{0}/{1}_frac_{2}_{3}".format(outdirpath, prefix, "inclusive", bin_var)
+        outfileprefix = "{0}/{1}_{2}_frac_{3}_{4}".format(outdirpath, self.settings.channel, prefix, "inclusive", bin_var)
 
         inclusive_histos = self.get_inclusive(var, fraction_histo_summary)
         self.create_normalized_plot(inclusive_histos, descriptions, "{0}_norm.png".format(outfileprefix))

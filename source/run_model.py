@@ -159,8 +159,8 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         # TODO: fix AR samples in config to avoid this if statement
 
         sample_sets = [sset for sset in parser.sample_sets if "AR" in sset.name]
-        # sample_sets = [sset for sset in sample_sets if not "EMB" in sset.name]
-        sample_sets = [sset for sset in sample_sets if not "DY" in sset.name]
+        sample_sets = [sset for sset in sample_sets if not "EMB" in sset.name]
+        # sample_sets = [sset for sset in sample_sets if not "DY" in sset.name]
 
         logger = FractionPlotLogger(settings, frac_plot_file_manager, sample_sets)
 
@@ -253,7 +253,7 @@ def set_up_fraction_plot_file_manager(frac_plot_file_manager, settings):
     frac_plot_file_manager.set_dir_name("prediction_input_dir", prediction_dir)
 
     plot_dir = frac_plot_file_manager.get_dir_name("fracplot_output_dir")
-    plot_dir = "{0}/{1}/{2}".format(plot_dir, era, channel)
+    plot_dir = "{0}/{1}".format(plot_dir, era)
     frac_plot_file_manager.set_dir_name("fracplot_output_dir", plot_dir)
 
 
