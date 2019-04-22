@@ -142,6 +142,8 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         parser = ConfigParser(channel, era, config)
         plotter = FractionPlotter(settings, frac_plot_file_manager, parser)
 
+        # TODO: fix AR samples in config to avoid this if statement
+
         sample_sets = [sset for sset in parser.sample_sets if "AR" in sset.name]
         # sample_sets = [sset for sset in sample_sets if not "EMB" in sset.name]
         sample_sets = [sset for sset in sample_sets if not "DY" in sset.name]
@@ -149,35 +151,22 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         print "Filtered sample sets for AR frac plots: \n"
 
         for ss in sample_sets:
-           print ss
+            print ss
+            print "count: "
+            print plotter.get_event_count_for_sample_set(ss)
 
         outdirpath = frac_plot_file_manager.get_dir_path("fracplot_output_dir")
 
 
-    #tn = {0:"tt", 1:"w", 2:"qcd"}
 
-        #plot_creator.set_target_names(tn)
+
+        # tn = {0:"tt", 1:"w", 2:"qcd"}
+
+        # plotter.set_target_names(tn)
 
         plotter.make_fraction_plots(sample_sets, bin_var, "AR", outdirpath)
-        # plot_creator.make_val_plots(sample_sets, bin_var, "AR", outdirpath)
 
-        # bin_var = "m_vis"
-        #
-        # parser = ConfigParser(channel, era, config)
-        # plot_creator = PlotCreator(settings, file_manager, parser)
-
-        # sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
-        #
-        # print "Filtered sample sets for training frac plots: \n"
-        #
-        # for ss in sample_sets:
-        #    print ss
-        #
-        # outdirpath = file_manager.get_plot_dirpath()
-        # plot_creator.make_fraction_plots(sample_sets, bin_var, "training", outdirpath)
-        #
-
-
+        # TODO: make training frac plots
 
     if datacard and "hephy.at" in os.environ["HOME"]:
         from Tools.Datacard.produce import Datacard, makePlot
