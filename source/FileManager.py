@@ -10,6 +10,7 @@ class FileManager():
         self.paths = {}
         self.config = {}
 
+        self.path_config_path = path_config_path
         self.outputpath = ""
         self.sample_config_path = ""
 
@@ -31,6 +32,9 @@ class FileManager():
 
     def get_sample_config_path(self):
         return self.sample_config_path
+
+    def get_path_config_path(self):
+        return self.path_config_path
 
     def get_dir_path(self, type):
         if type in self.paths:

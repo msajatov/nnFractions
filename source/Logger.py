@@ -1,5 +1,6 @@
 import os
 import sys
+from shutil import copy
 
 
 class Logger:
@@ -33,9 +34,16 @@ class TrainingLogger(Logger):
 
                 for sset in self.sample_sets:
                     print >> f, sset
+            self.copy_configs(dirpath)
 
 
     def copy_configs(self, dir):
+        dest_dir = dir + "/conf_" + self.settings.channel
+        if not os.path.exists(dest_dir):
+            os.makedirs(dest_dir)
+        copy(self.file_manager.get_sample_config_path().format(self.settings.channel, self.settings.era), dest_dir)
+        copy(self.file_manager.get_path_config_path().format(self.settings.channel, self.settings.era), dest_dir)
+        copy("conf/parameters_keras.json", dest_dir)
         pass
 
     def write_to_file(self, file):
@@ -68,8 +76,15 @@ class PredictionLogger(Logger):
 
                 for sset in self.sample_sets:
                     print >> f, sset
+            self.copy_configs(dirpath)
 
     def copy_configs(self, dir):
+        dest_dir = dir + "/conf_" + self.settings.channel
+        if not os.path.exists(dest_dir):
+            os.makedirs(dest_dir)
+        copy(self.file_manager.get_sample_config_path().format(self.settings.channel, self.settings.era), dest_dir)
+        copy(self.file_manager.get_path_config_path().format(self.settings.channel, self.settings.era), dest_dir)
+        copy("conf/parameters_keras.json", dest_dir)
         pass
 
     def write_to_file(self, file):
@@ -102,8 +117,15 @@ class FractionPlotLogger(Logger):
 
                 for sset in self.sample_sets:
                     print >> f, sset
+            self.copy_configs(dirpath)
 
     def copy_configs(self, dir):
+        dest_dir = dir + "/conf_" + self.settings.channel
+        if not os.path.exists(dest_dir):
+            os.makedirs(dest_dir)
+        copy(self.file_manager.get_sample_config_path().format(self.settings.channel, self.settings.era), dest_dir)
+        copy(self.file_manager.get_path_config_path().format(self.settings.channel, self.settings.era), dest_dir)
+        copy("conf/parameters_keras.json", dest_dir)
         pass
 
     def write_to_file(self, file):
