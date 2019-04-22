@@ -2,6 +2,7 @@ import utils.Plotting as pl
 from utils.VarObject import Var
 import root_numpy as rn
 import ROOT as R
+from ROOT import TFile
 import root_pandas as rp
 from FileManager import FileManager
 from Settings import Settings
@@ -141,6 +142,17 @@ class FractionPlotter:
         events = rp.read_root(paths=sample_path, where=select,
                               columns=branches)
         return events
+
+    def get_event_count_for_sample_set(self, sample_set):
+        root_path = self.file_manager.get_dir_path("prediction_input_dir")
+        sample_path = "{0}/{1}".format(root_path, sample_set.source_file_name)
+        sample_path = sample_path.replace("WJets", "W")
+        select = sample_set.cut
+
+        file = TFile(sample_path)
+
+        numEntries = file.TauCheck.GetEntries(select)
+        return numEntries
 
     def create_plot(self, histograms, descriptions, outfile):
         sorted = self.sort_by_target_names(histograms)
