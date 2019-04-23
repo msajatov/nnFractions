@@ -11,6 +11,10 @@ class Logger:
         self.sample_sets = sample_sets
         self.parser = parser
 
+        self.target_names = {}
+        self.target_names["default"] = parser.get_target_name_list()
+        self.variables = parser.variable_names
+
 
 class TrainingLogger(Logger):
     def __init__(self, settings, file_manager, sample_sets, parser):
@@ -31,6 +35,20 @@ class TrainingLogger(Logger):
                 print >> f, "Training for", self.settings.channel, self.settings.era, self.settings.ml_type
                 print >> f, "Config used is", self.file_manager.get_sample_config_path().format(self.settings.channel, self.settings.era)
                 print >> f, "Model output dir is", self.file_manager.get_dir_path("model_output_dir")
+
+                print >> f, "\n"
+
+                print >> f, "Input variable names for NN:"
+                for var in self.variables:
+                    print >> f, var
+
+                print >> f, "\n"
+
+                print >> f, "Target names used for training:"
+                print >> f, self.target_names
+
+                print >> f, "\n"
+
                 print >> f, "Samples: \n"
 
                 for sset in self.sample_sets:
@@ -73,6 +91,20 @@ class PredictionLogger(Logger):
                     self.settings.channel, self.settings.era)
                 print >> f, "Model input dir is", self.file_manager.get_dir_path("model_input_dir")
                 print >> f, "Prediction output dir is", self.file_manager.get_dir_path("prediction_output_dir")
+
+                print >> f, "\n"
+
+                print >> f, "Input variable names for NN:"
+                for var in self.variables:
+                    print >> f, var
+
+                print >> f, "\n"
+
+                print >> f, "Target names used for prediction:"
+                print >> f, self.target_names
+
+                print >> f, "\n"
+
                 print >> f, "Samples: \n"
 
                 for sset in self.sample_sets:
@@ -95,8 +127,6 @@ class PredictionLogger(Logger):
 class FractionPlotLogger(Logger):
     def __init__(self, settings, file_manager, sample_sets, parser):
         Logger.__init__(self, settings, file_manager, sample_sets, parser)
-        self.target_names = {}
-        self.target_names["default"] = parser.get_target_name_list()
         pass
 
     def log(self):
@@ -117,8 +147,18 @@ class FractionPlotLogger(Logger):
                 print >> f, "Prediction input dir is", self.file_manager.get_dir_path("prediction_input_dir")
                 print >> f, "Fraction plot output dir is", self.file_manager.get_dir_path("fracplot_output_dir")
 
+                print >> f, "\n"
+
+                print >> f, "Input variable names for NN:"
+                for var in self.variables:
+                    print >> f, var
+
+                print >> f, "\n"
+
                 print >> f, "Target names used for fraction plots:"
                 print >> f, self.target_names
+
+                print >> f, "\n"
 
                 print >> f, "Samples: \n"
 
