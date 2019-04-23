@@ -139,7 +139,7 @@
         },
         "QCD_estimate": {
             "target":{"et":"qcd"},
-            "select": "-SS- && -ISO- && -VETO- && -MT- && -TRIG-",
+            "select": "-SS- && -ANTIISO2- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_Data",
             "event_weight": 1.0
         },
