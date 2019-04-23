@@ -57,9 +57,9 @@
     },
     "lumi": 41.529,
       "class_weight":{
-          "tt":     {"et": 7.5  },
-        "w":     {"et": 1.4 },
-        "qcd":     {"et": 6.6   }
+          "tt":     {"et": 12.0 },
+        "w":     {"et": 2.2 },
+        "qcd":     {"et": 2.1   }
       },
 
     "target_values":{
