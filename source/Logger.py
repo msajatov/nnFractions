@@ -63,6 +63,8 @@ class TrainingLogger(Logger):
         copy(self.file_manager.get_sample_config_path().format(self.settings.channel, self.settings.era), dest_dir)
         copy(self.file_manager.get_path_config_path().format(self.settings.channel, self.settings.era), dest_dir)
         copy("conf/parameters_{0}.json".format(self.settings.ml_type), dest_dir)
+        if self.settings.ml_type == "keras":
+            copy("conf/keras_models.py", dest_dir)
         pass
 
     def write_to_file(self, file):
@@ -118,6 +120,8 @@ class PredictionLogger(Logger):
         copy(self.file_manager.get_sample_config_path().format(self.settings.channel, self.settings.era), dest_dir)
         copy(self.file_manager.get_path_config_path().format(self.settings.channel, self.settings.era), dest_dir)
         copy("conf/parameters_{0}.json".format(self.settings.ml_type), dest_dir)
+        if self.settings.ml_type == "keras":
+            copy("conf/keras_models.py", dest_dir)
         pass
 
     def write_to_file(self, file):
@@ -176,6 +180,8 @@ class FractionPlotLogger(Logger):
         copy(self.file_manager.get_sample_config_path().format(self.settings.channel, self.settings.era), dest_dir)
         copy(self.file_manager.get_path_config_path().format(self.settings.channel, self.settings.era), dest_dir)
         copy("conf/parameters_{0}.json".format(self.settings.ml_type), dest_dir)
+        if self.settings.ml_type == "keras":
+            copy("conf/keras_models.py", dest_dir)
         pass
 
     def write_to_file(self, file):
