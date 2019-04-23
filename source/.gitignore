@@ -122,3 +122,6 @@ run/
 
 # test folders
 debug/
+
+# path config
+conf/path_config.json
