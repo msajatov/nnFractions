@@ -151,6 +151,27 @@ class Reader():
 
         return self
 
+    def setTrainingSamples(self):
+        print "in setTrainingSamples"
+        self.addvar = []
+        self.itersamples = []
+        self.idx = 0
+        samples = self.config["samples"].keys()
+        samples.sort()
+        for sample in samples:
+            if "AR" in sample or "_full" in sample: continue
+            print sample
+
+            tmp = self._getCommonSettings(sample)
+
+            tmp["path"] = self.config["samples"][sample]["name"]
+            tmp["histname"   ] = sample
+            tmp["rename"      ] = {}
+
+            self.itersamples.append( tmp )
+
+        return self
+
     def setARSamples(self):
         self.addvar = []
         self.itersamples = []
@@ -310,6 +331,7 @@ class Reader():
         if what == "full"     : return self.setFullSamples(add_jec)
         if what == "tes"      : return self.setTESSamples()
         if what == "anti": return self.setARSamples()
+        if what == "train": return self.setTrainingSamples()
 
     def _parseCut(self, cutstring):
         cutstring = self._assertChannel( cutstring )

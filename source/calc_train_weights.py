@@ -13,7 +13,7 @@ def main():
 
         train_weights = {}
         for channel in ["mt", "et", "tt"]:
-            train_weights[channel] = getWeights(samples.format(channel, era), channel)
+            train_weights[channel] = getWeights(samples.format(channel, era), channel, era)
 
         class_weights = {}
         for cl in ["ztt", "zll", "misc", "tt", "w", "ss", "noniso", "ggh", "qqh"]:
@@ -23,16 +23,16 @@ def main():
                 class_weights[cl][ch] = tmp.get(cl,0)
 
         for cl in class_weights:
-            print '"{0}":'.format(cl) + " "*(7-len(cl)),'{'+'"mt":{mt}, "et":{et}, "tt":{tt} '.format(**class_weights[cl])+'},'
+            print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"mt":{0}'.format(
+                class_weights[cl]["mt"]) + '},'
 
-            # for s in config["samples"]:
-                # if config["samples"][s]["target"] == "none": continue
+        for cl in class_weights:
+            print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"et":{0}'.format(
+                class_weights[cl]["et"]) + '},'
 
-
-                # config["samples"][s]["train_weight_scale"][channel] = train_weights[channel][config["samples"][s]["target"][channel]]
-
-        # with open(samples,"w") as FSO:
-        #     json.dump(config, FSO, indent=2)
+        for cl in class_weights:
+            print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"tt":{0} '.format(
+                class_weights[cl]["tt"]) + '},'
     else:
 
         if simple:
@@ -40,7 +40,7 @@ def main():
 
             train_weights = {}
             for channel in ["mt", "et", "tt"]:
-                train_weights[channel] = getWeights(samples.format(channel, era), channel)
+                train_weights[channel] = getWeights(samples.format(channel, era), channel, era)
 
             class_weights = {}
             for cl in ["tt", "w", "qcd"]:
@@ -50,15 +50,23 @@ def main():
                     class_weights[cl][ch] = tmp.get(cl, 0)
 
             for cl in class_weights:
-                print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"mt":{mt}, "et":{et}, "tt":{tt} '.format(
-                    **class_weights[cl]) + '},'
+                print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"mt":{0}'.format(
+                    class_weights[cl]["mt"]) + '},'
+
+            for cl in class_weights:
+                print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"et":{0}'.format(
+                    class_weights[cl]["et"]) + '},'
+
+            for cl in class_weights:
+                print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"tt":{0} '.format(
+                    class_weights[cl]["tt"]) + '},'
         else:
             if emb:
                 samples = "conf/emb_frac_config_{0}_{1}.json"
 
                 train_weights = {}
                 for channel in ["mt", "et", "tt"]:
-                    train_weights[channel] = getWeights(samples.format(channel, era), channel)
+                    train_weights[channel] = getWeights(samples.format(channel, era), channel, era)
 
                 class_weights = {}
                 for cl in ["tt", "w", "qcd", "real"]:
@@ -68,41 +76,58 @@ def main():
                         class_weights[cl][ch] = tmp.get(cl, 0)
 
                 for cl in class_weights:
-                    print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"mt":{mt}, "et":{et}, "tt":{tt} '.format(
-                        **class_weights[cl]) + '},'
+                    print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"mt":{0}'.format(
+                        class_weights[cl]["mt"]) + '},'
+
+                for cl in class_weights:
+                    print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"et":{0}'.format(
+                        class_weights[cl]["et"]) + '},'
+
+                for cl in class_weights:
+                    print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"tt":{0} '.format(
+                        class_weights[cl]["tt"]) + '},'
 
             else:
                 samples = "conf/frac_config_{0}_{1}.json"
 
                 train_weights = {}
                 for channel in ["mt", "et", "tt"]:
-                    train_weights[channel] = getWeights(samples.format(channel, era), channel)
+                    train_weights[channel] = getWeights(samples.format(channel, era), channel, era)
 
                 class_weights = {}
-                for cl in ["tt_jet", "w_jet", "qcd_jet", "other"]:
+                for cl in ["tt", "w", "qcd", "real"]:
                     class_weights[cl] = {}
                     for ch in ["mt", "et", "tt"]:
                         tmp = train_weights.get(ch, {})
                         class_weights[cl][ch] = tmp.get(cl, 0)
 
                 for cl in class_weights:
-                    print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"mt":{mt}, "et":{et}, "tt":{tt} '.format(
-                        **class_weights[cl]) + '},'
+                    print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"mt":{0}'.format(
+                        class_weights[cl]["mt"]) + '},'
+
+                for cl in class_weights:
+                    print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"et":{0}'.format(
+                        class_weights[cl]["et"]) + '},'
+
+                for cl in class_weights:
+                    print '"{0}":'.format(cl) + " " * (7 - len(cl)), '{' + '"tt":{0} '.format(
+                        class_weights[cl]["tt"]) + '},'
 
 
-def getWeights(samples, channel):
+def getWeights(samples, channel, era):
 
+    print "in getWeights"
     train_weights = {}
     read = Reader(channel = channel,
                   config_file = samples,
                   folds=2,
-                  era="2017")
+                  era=era)
 
     numbers = {}
     targets = []
     
 
-    for sample, sampleName in read.get(what = "nominal"):
+    for sample, sampleName in read.get(what = "train"):
         target =  read.config["target_names"][ sample[0]["target"].iloc[0] ]
 
 

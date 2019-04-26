@@ -149,7 +149,10 @@ class ConfigParser:
         self.weights = config["weights"]
 
     def _parse_data_root_path(self, config):
-        self.data_root_path = config["path"]
+        path = config["path"]
+        if self.era == "2016":
+            path = path.format(self.channel)
+        self.data_root_path = path
 
     def _add_samples_to_categories(self):
         for cat in self.target_categories:
