@@ -158,31 +158,36 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
 
         # TODO: fix AR samples in config to avoid this if statement
 
-        sample_sets = [sset for sset in parser.sample_sets if "AR" in sset.name]
-        sample_sets = [sset for sset in sample_sets if not "EMB" in sset.name]
-        # sample_sets = [sset for sset in sample_sets if not "DY" in sset.name]
+        train_sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
+        train_sample_sets = [sset for sset in train_sample_sets if (not "AR" in sset.name)]
 
+        ar_sample_sets = [sset for sset in parser.sample_sets if "data_AR" in sset.name]
+
+        complete_sample_sets = []
+        complete_sample_sets += train_sample_sets
+        complete_sample_sets += ar_sample_sets
 
 
         print "Filtered sample sets for AR frac plots: \n"
 
-        for ss in sample_sets:
+        for ss in complete_sample_sets:
             print ss
             print "count: "
             print plotter.get_event_count_for_sample_set(ss)
 
         outdirpath = frac_plot_file_manager.get_dir_path("fracplot_output_dir")
 
-        logger = FractionPlotLogger(settings, frac_plot_file_manager, sample_sets, parser)
+        logger = FractionPlotLogger(settings, frac_plot_file_manager, complete_sample_sets, parser)
 
-        tn = {0:"tt", 1:"w", 2:"qcd"}
-        plotter.set_target_names(tn)
-        logger.set_target_names(tn)
+        # tn = {0:"tt", 1:"w", 2:"qcd"}
+        # plotter.set_target_names(tn)
+        # logger.set_target_names(tn)
 
         print "attempt logging"
         logger.log()
 
-        plotter.make_fraction_plots(sample_sets, bin_var, "AR", outdirpath)
+        plotter.make_fraction_plots(ar_sample_sets, bin_var, "AR", outdirpath)
+        plotter.make_fraction_plots(train_sample_sets, bin_var, "train", outdirpath)
 
         # TODO: make training frac plots
 

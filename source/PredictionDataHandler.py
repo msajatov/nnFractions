@@ -54,7 +54,6 @@ class PredictionDataHandler(DataHandler):
                 mode = "w"
             else:
                 mode = "a"
-            # df[i].to_root("{0}/{1}-{2}.root".format("predictions",channel, sample), key="TauCheck", mode = mode)
             df[i].to_root("{0}/{1}-{2}.root".format(outpath, channel, sample), key="TauCheck", mode=mode)
             prediction[i].drop(prediction[i].index, inplace=True)
 

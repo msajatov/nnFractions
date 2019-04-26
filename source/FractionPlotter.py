@@ -55,8 +55,8 @@ class FractionPlotter:
                         "lumi": "35.87", "title": "Fraction Validation"}
         outfileprefix = "{0}/{1}_{2}_val_{3}_{4}".format(outdirpath, self.settings.channel, prefix, "inclusive", bin_var)
 
-        inclusive_histos = self.get_inclusive(var, val_histo_summary)
-        self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
+        # inclusive_histos = self.get_inclusive(var, val_histo_summary)
+        # self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
 
     # for each sample individually (TTJ, VVT etc.) and inclusive (all together)
     # legend: fractions, (tt_jet, w_jet, qcd_jet, other) or (tt, w, qcd)
@@ -78,9 +78,9 @@ class FractionPlotter:
                         "lumi": "35.87", "title": "Fractions"}
         outfileprefix = "{0}/{1}_{2}_frac_{3}_{4}".format(outdirpath, self.settings.channel, prefix, "inclusive", bin_var)
 
-        inclusive_histos = self.get_inclusive(var, fraction_histo_summary)
-        self.create_normalized_plot(inclusive_histos, descriptions, "{0}_norm.png".format(outfileprefix))
-        self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
+        # inclusive_histos = self.get_inclusive(var, fraction_histo_summary)
+        # self.create_normalized_plot(inclusive_histos, descriptions, "{0}_norm.png".format(outfileprefix))
+        # self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
 
     def get_histos_for_fractions(self, sample_set, var):
         histograms = {}
