@@ -30,9 +30,12 @@ class TrainingDataHandler(DataHandler):
             parameters = "conf/parameters_xgb.json"
 
         if self.settings.ml_type == "keras":
-            print "Using keras..."
+            import keras
+            print "Using keras", keras.__version__
             from KerasModel import KerasObject as modelObject
             parameters = "conf/parameters_keras.json"
+
+
 
         print "Training new model"
         print "Loading Training set"

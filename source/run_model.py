@@ -1,22 +1,10 @@
-from Reader import Reader
-import copy
-import pandas
 import os
-from glob import glob
 import argparse
-import cPickle
-import keras
 from FileManager import FileManager, ModelFileManager, PredictionFileManager, FractionPlotFileManager
-from DataController import DataController
-from DataReader import DataReader
 from ConfigParser import ConfigParser
-from TrainingDataHandler import TrainingDataHandler
-from PredictionDataHandler import PredictionDataHandler
 from Settings import Settings
-from FractionPlotter import FractionPlotter
 from Logger import TrainingLogger, PredictionLogger, FractionPlotLogger
-from Prediction import Prediction
-from Training import Training
+
 
 def main():
 
@@ -29,17 +17,11 @@ def main():
     parser.add_argument('-f', dest='fractions', help='Plot Fractions', action='store_true')
     parser.add_argument('-d', dest='datacard', help='Datacard', action='store_true')
     parser.add_argument('-e', dest='era',  help='Era', choices=["2016", "2017"], required = True)
-    parser.add_argument('--add_nominal', dest='add_nom', help='Add nominal samples to prediction', action='store_true')
     args = parser.parse_args()
 
     print "---------------------------"
     print "Era: ", args.era
     print "Running over {0} samples".format(args.channel)
-    print "Using {0}".format(args.model), keras.__version__
-    if args.train:
-        print "Training new model"
-    if not args.shapes:
-        print "Not predicting shape templates."
     print "---------------------------"
 
     run(channel=args.channel,
@@ -49,12 +31,11 @@ def main():
         shapes=args.shapes,
         predict=args.predict,
         fractions=args.fractions,
-        datacard=args.datacard,
-        add_nominal=args.add_nom
+        datacard=args.datacard
         )
 
 
-def run(channel, era, use, train=False, shapes=False, predict=False, fractions=False, datacard=False, add_nominal=False):
+def run(channel, era, use, train=False, shapes=False, predict=False, fractions=False, datacard=False):
 
     file_manager = FileManager("conf/path_config.json")
 
@@ -62,6 +43,8 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
     settings = Settings(use, channel, era)
 
     if train:
+
+        from Training import Training
 
         model_file_manager = ModelFileManager("conf/path_config.json")
         set_up_model_file_manager(model_file_manager, settings)
@@ -82,6 +65,8 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
 
     if predict:
 
+        from Prediction import Prediction
+
         prediction_file_manager = PredictionFileManager("conf/path_config.json")
         set_up_prediction_file_manager(prediction_file_manager, settings)
 
@@ -99,6 +84,8 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         prediction.predict()
 
     if fractions:
+
+        from FractionPlotter import FractionPlotter
 
         frac_plot_file_manager = FractionPlotFileManager("conf/path_config.json")
         set_up_fraction_plot_file_manager(frac_plot_file_manager, settings)

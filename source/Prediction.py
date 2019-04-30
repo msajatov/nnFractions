@@ -30,7 +30,8 @@ class Prediction:
             from XGBModel import XGBObject as modelObject
 
         if self.settings.ml_type == "keras":
-            print "Using keras..."
+            import keras
+            print "Using keras", keras.__version__
             from KerasModel import KerasObject as modelObject
 
         self.model = modelObject(filename=self.file_manager.get_model_filepath())
