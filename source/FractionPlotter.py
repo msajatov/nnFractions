@@ -30,7 +30,7 @@ class FractionPlotter:
             print key
             if key != -1:
                 frac_name = self.target_names[key]
-                branch_name = "predicted_prob_{0}".format(key)
+                branch_name = "predicted_frac_prob_{0}".format(key)
                 branch_frac_dict[branch_name] = frac_name
         return branch_frac_dict
 
@@ -94,8 +94,8 @@ class FractionPlotter:
         for i in range(0, len(self.get_frac_branches())):
             print "index is:"
             print i
-            hist = self.fill_histo(events, "", "predicted_prob_{0}".format(i), var)
-            frac_name = dict["predicted_prob_{0}".format(i)]
+            hist = self.fill_histo(events, "", "predicted_frac_prob_{0}".format(i), var)
+            frac_name = dict["predicted_frac_prob_{0}".format(i)]
             histograms[frac_name] = hist
 
         # for i in xrange(len(self.get_frac_branches()) - 1, -1, -1):
