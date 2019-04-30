@@ -151,13 +151,13 @@ class KerasObject():
 
         # note: this uses idxmax (the column header of the max value) and tries to convert it to a float
         # therefore renaming of the header should be done AFTER extracting the predicted_class
-        df = DataFrame(dtype=float, data={"predicted_class": prediction.idxmax(axis=1).values,
-                                          "predicted_prob": prediction.max(axis=1).values})
+        df = DataFrame(dtype=float, data={"predicted_frac_class": prediction.idxmax(axis=1).values,
+                                          "predicted_frac_prob": prediction.max(axis=1).values})
 
         # header renaming
         headers = []
         for i in range(0, len(prediction.columns)):
-            headers.append("predicted_prob_" + str(i))
+            headers.append("predicted_frac_prob_" + str(i))
         prediction.columns = headers
 
         # horizontal concat (adding columns)
