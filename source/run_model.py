@@ -15,6 +15,8 @@ from PredictionDataHandler import PredictionDataHandler
 from Settings import Settings
 from FractionPlotter import FractionPlotter
 from Logger import TrainingLogger, PredictionLogger, FractionPlotLogger
+from Prediction import Prediction
+from Training import Training
 
 def main():
 
@@ -56,8 +58,7 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
 
     file_manager = FileManager("conf/path_config.json")
 
-    samples = file_manager.get_sample_config_path().format(channel, era)
-    config = samples
+    config = file_manager.get_sample_config_path().format(channel, era)
     settings = Settings(use, channel, era)
 
     if train:
@@ -66,85 +67,36 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         set_up_model_file_manager(model_file_manager, settings)
 
         parser = ConfigParser(channel, era, config)
-
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
         sample_sets = [sset for sset in sample_sets if (not "AR" in sset.name)]
-
         print "Filtered sample sets for training: \n"
-
         for ss in sample_sets:
             print ss
 
         logger = TrainingLogger(settings, model_file_manager, sample_sets, parser)
-
         print "attempt logging"
         logger.log()
 
-        training_handler = TrainingDataHandler(settings, model_file_manager, parser, 0, 0)
-        controller = DataController(parser.data_root_path, 2, parser, settings, sample_sets=[])
+        training = Training(settings, model_file_manager, parser, sample_sets)
+        training.train()
 
-        sample_info_dicts = controller.prepare(sample_sets)
-        training_folds = controller.read_for_training(sample_info_dicts)
-
-        training_handler.handle(training_folds)
-
-    #     TODO: save model to "model" and scaler to "scaler" variable
-
-    elif predict:
+    if predict:
 
         prediction_file_manager = PredictionFileManager("conf/path_config.json")
         set_up_prediction_file_manager(prediction_file_manager, settings)
 
-        if os.path.exists(prediction_file_manager.get_scaler_filepath()):
-            print "Loading Scaler"
-            with open(prediction_file_manager.get_scaler_filepath(), "rb") as FSO:
-                tmp = cPickle.load(FSO)
-                scaler = [tmp, tmp]
-        else:
-            print "Fatal: Scaler file not found at {0}. Train model using -t first.".format(prediction_file_manager.get_scaler_filepath())
-            return
-
-        print "Loading model and predicting."
-        if use == "xgb":
-            from XGBModel import XGBObject as modelObject
-
-        if use == "keras":
-            print "Using keras..."
-            from KerasModel import KerasObject as modelObject
-
-        model = modelObject(filename=prediction_file_manager.get_model_filepath())
-
-    if predict:
-
-        # TODO: set up prediction_file_manager in case a chain is used
-
         parser = ConfigParser(channel, era, config)
         sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
-
         print "Filtered sample sets for prediction: \n"
-
         for ss in sample_sets:
             print ss
 
         logger = PredictionLogger(settings, prediction_file_manager, sample_sets, parser)
-
         print "attempt logging"
         logger.log()
 
-        prediction_handler = PredictionDataHandler(settings, prediction_file_manager, parser, model, scaler)
-        controller = DataController(parser.data_root_path, 2, parser, settings, sample_sets=[])
-
-        sample_info_dicts = controller.prepare(sample_sets)
-
-        first = True
-        for sample_info in sample_info_dicts:
-            print "predicting for " + sample_info["histname"]
-            # this may be one fold or two folds -> use parameter properly
-            iter = controller.read_for_prediction(sample_info)
-            for df in iter:
-                controller.modifyDF(df, sample_info)
-                prediction_handler.handle(df, sample_info, first)
-                first = False
+        prediction = Prediction(settings, prediction_file_manager, parser, sample_sets)
+        prediction.predict()
 
     if fractions:
 
@@ -156,8 +108,6 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         parser = ConfigParser(channel, era, config)
         plotter = FractionPlotter(settings, frac_plot_file_manager, parser)
 
-        # TODO: fix AR samples in config to avoid this if statement
-
         train_sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
         train_sample_sets = [sset for sset in train_sample_sets if (not "AR" in sset.name)]
 
@@ -167,9 +117,7 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
         complete_sample_sets += train_sample_sets
         complete_sample_sets += ar_sample_sets
 
-
         print "Filtered sample sets for AR frac plots: \n"
-
         for ss in complete_sample_sets:
             print ss
             print "count: "
@@ -188,8 +136,6 @@ def run(channel, era, use, train=False, shapes=False, predict=False, fractions=F
 
         plotter.make_fraction_plots(ar_sample_sets, bin_var, "AR", outdirpath)
         plotter.make_fraction_plots(train_sample_sets, bin_var, "train", outdirpath)
-
-        # TODO: make training frac plots
 
     if datacard and "hephy.at" in os.environ["HOME"]:
         from Tools.Datacard.produce import Datacard, makePlot
