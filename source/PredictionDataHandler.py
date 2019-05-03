@@ -34,7 +34,8 @@ class PredictionDataHandler(DataHandler):
             # Carefull!! Check if splitting is done the same for training. This is the KIT splitting
             folds = [data_frame.query("abs(evt % 2) != 0 ").reset_index(drop=True),
                      data_frame.query("abs(evt % 2) == 0 ").reset_index(drop=True)]
-            self.addPrediction(channel, model.predict(self.applyScaler(scaler, folds, variables)), folds, outname, outpath,
+            unscaled = folds;
+            self.addPrediction(channel, model.predict(unscaled), folds, outname, outpath,
                           new=first)
 
             folds[0].drop(folds[0].index, inplace=True)
