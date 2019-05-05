@@ -474,17 +474,17 @@ def getFancyName(name):
 def getColor(name):
     # print "Name in getColor is:"
     # print name
-    if name in ["TT","TTT","TTJ","jetFakes_TT", "tt"]:    return R.TColor.GetColor(155,152,204)
+    if name in ["TT","TTT","TTJ","jetFakes_TT", "tt", "TTT_anti", "TTJ_anti", "TTL_anti"]:    return R.TColor.GetColor(155,152,204)
     if name in ["sig"]:                             return R.kRed
     if name in ["bkg"]:                             return R.kBlue
     if name in ["qqH","qqH125"]:                    return R.TColor.GetColor(0,100,0)
     if name in ["ggH","ggH125"]:                    return R.TColor.GetColor(0,0,100)
-    if name in ["W","jetFakes_W", "w"]:                  return R.TColor.GetColor(222,90,106)
-    if name in ["VV","VVJ","VVT"]:                  return R.TColor.GetColor(175,35,80)
-    if name in ["ZL","ZJ","ZLJ"]:                   return R.TColor.GetColor(100,192,232)
+    if name in ["W","jetFakes_W", "w", "W_anti"]:                  return R.TColor.GetColor(222,90,106)
+    if name in ["VV","VVJ","VVT", "VVJ_anti", "VVT_anti", "VVL_anti"]:                  return R.TColor.GetColor(175,35,80)
+    if name in ["ZL","ZJ","ZLJ", "ZL_anti", "ZJ_anti"]:                   return R.TColor.GetColor(100,192,232)
     if name in ["EWKZ"]:                            return R.TColor.GetColor(8,247,183)
-    if name in ["QCD","WSS","jetFakes_QCD", "qcd"]:        return R.TColor.GetColor(250,202,255)
-    if name in ["ZTT","DY","real"]:                 return R.TColor.GetColor(248,206,104)
+    if name in ["QCD","WSS","jetFakes_QCD", "qcd", "QCD_estimate"]:        return R.TColor.GetColor(250,202,255)
+    if name in ["ZTT","DY","real", "ZTT_anti", "EMB_anti"]:                 return R.TColor.GetColor(248,206,104)
     if name in ["jetFakes"]:                        return R.TColor.GetColor(192,232,100)
     if name in ["data"]:                            return R.TColor.GetColor(0,0,0)
     else: return R.kYellow
