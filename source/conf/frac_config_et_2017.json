@@ -141,7 +141,7 @@
             "target":{"et":"qcd"},
             "select": "-SS- && -ANTIISO2- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_Data",
-            "event_weight": 1.0
+            "event_weight": 0.587015565763
         },
         "VV_full": {
             "target":"none",
