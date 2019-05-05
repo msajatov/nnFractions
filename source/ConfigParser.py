@@ -114,6 +114,7 @@ class ConfigParser:
             # make this return a list of Cut instances? Only if Cut class can be implemented properly
             cuts = self._parse_cut(val["select"])
             event_weight = self._assert_channel(val["event_weight"])
+            weight = self._getEventWeight(event_weight)
 
             categories = [c for c in self.target_categories if c.name == target_name]
 
@@ -122,7 +123,9 @@ class ConfigParser:
 
             category = categories[0]
 
-            sample_set = SampleSet(key, source_name, cuts, category, event_weight)
+            sample_set = SampleSet(key, source_name, cuts, category, event_weight, weight)
+
+
             self.sample_sets.append(sample_set)
 
             #print sample_set
@@ -147,6 +150,19 @@ class ConfigParser:
 
     def _parse_weights(self, config):
         self.weights = config["weights"]
+
+    def _getEventWeight(self, event_weight):
+        if type(event_weight) is list:
+            return "*".join(event_weight + [str(self.lumi)])
+
+        if type(event_weight) is float:
+            return str(event_weight)
+
+        if type(event_weight) is unicode:
+            return "*".join([event_weight, str(self.lumi)])
+
+        else:
+            return 1.0
 
     def _parse_data_root_path(self, config):
         path = config["path"]

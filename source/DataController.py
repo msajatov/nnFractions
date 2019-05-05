@@ -168,7 +168,8 @@ class DataController:
 
         class_weight = sample_info["class_weight"]
 
-        DF["train_weight"] = DF["event_weight"].abs() * class_weight
+        #DF["train_weight"] = DF["event_weight"].abs() * class_weight
+        DF["train_weight"] = DF["event_weight"].abs()
         DF.replace(-999.,-10, inplace = True)
 
         for new, old in sample_info["rename"]:
