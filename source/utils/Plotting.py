@@ -120,10 +120,12 @@ def simple_plot(histos, signal=[], canvas="semi", outfile="", descriptions={}):
     cv.cd(1)
     channel.Draw()
 
-    cv.SetName(outfile)
+    cvname = os.path.basename(outfile)
+    cvname = cvname.replace(".png", "")
+
+    cv.SetName(cvname)
     cv.SaveAs(outfile)
 
-    cv.SetName(outfile.replace(".png", ".root"))
     cv.SaveAs(outfile.replace(".png", ".root"))
 
 def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
