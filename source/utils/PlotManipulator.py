@@ -19,41 +19,33 @@ def main():
     controlRootPath = "/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/HephyHiggs/Tools/FakeFactor/plots_mvis_v8/2017"
     fracRootPath = "/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output/fracplots/4cat_bias/real/2017"
 
-    channels = ("et", "mt", "tt")
+    channels = ["et", "mt", "tt"]
 
-    #for channel in channels:
-    channel = "tt"
-    controlPath = "{0}/1__{1}_fractions.root".format(controlRootPath, channel)
-    fracPath = "{0}/{1}_AR_frac_data_AR_m_vis_norm.root".format(fracRootPath, channel)
-    if norm:
-        pm = PlotManipulator(channel)
-        controlPlot = loadControlPlotCanvas(controlPath)
-        normalized = pm.normalize(controlPlot)
-        # save
-
-    if overlay:
-        pm = PlotManipulator(channel)
+    for channel in channels:
+        print channel
+        controlPath = "{0}/1__{1}_fractions.root".format(controlRootPath, channel)
+        fracPath = "{0}/{1}_AR_frac_data_AR_m_vis_norm.root".format(fracRootPath, channel)
         if norm:
+            pm = PlotManipulator(channel)
             controlPlot = loadControlPlotCanvas(controlPath)
-            controlPlot = pm.normalize(controlPlot)
-        else:
-            controlPlot = loadControlPlotCanvas(controlPath)
+            normalized = pm.normalize(controlPlot)
+            # save
 
-        controlPlotHists = getControlPlotHists(controlPlot)
-        transparentControlPlotHists = pm.makeTransparent(controlPlotHists)
+        if overlay:
+            pm = PlotManipulator(channel)
+            if norm:
+                controlPlot = loadControlPlotCanvas(controlPath)
+                controlPlot = pm.normalize(controlPlot)
+            else:
+                controlPlot = loadControlPlotCanvas(controlPath)
 
-        #controlPlot.Draw()
-
-
-        fracPlot = loadFracPlotCanvas(fracPath)
-        fracPlotHists = getFracPlotHists(fracPlot)
-        overlay = pm.createOverlay(fracPlotHists, transparentControlPlotHists, fracPlot, controlPlot)
-
-        # save
+            controlPlotHists = getControlPlotHists(controlPlot)
+            transparentControlPlotHists = pm.makeTransparent(controlPlotHists)
 
 
-
-        print "exiting..."
+            fracPlot = loadFracPlotCanvas(fracPath)
+            fracPlotHists = getFracPlotHists(fracPlot)
+            pm.createOverlay(fracPlotHists, transparentControlPlotHists, fracPlot, controlPlot)
 
 
 def loadControlPlotCanvas(path):
@@ -217,7 +209,7 @@ class PlotManipulator:
         #
 
         raw_input("Press Enter to continue...")
-
+        cv.SaveAs("{0}-fractions_test.ps".format(self.channel))
         cv.SaveAs("{0}-fractions_test.png".format(self.channel))
 
     def createSimpleCanvas(self, name):
