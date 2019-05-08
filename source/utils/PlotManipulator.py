@@ -22,17 +22,17 @@ def main():
     channels = ("et", "mt", "tt")
 
     #for channel in channels:
-    channel = "et"
+    channel = "tt"
     controlPath = "{0}/1__{1}_fractions.root".format(controlRootPath, channel)
     fracPath = "{0}/{1}_AR_frac_data_AR_m_vis_norm.root".format(fracRootPath, channel)
     if norm:
-        pm = PlotManipulator()
+        pm = PlotManipulator(channel)
         controlPlot = loadControlPlotCanvas(controlPath)
         normalized = pm.normalize(controlPlot)
         # save
 
     if overlay:
-        pm = PlotManipulator()
+        pm = PlotManipulator(channel)
         if norm:
             controlPlot = loadControlPlotCanvas(controlPath)
             controlPlot = pm.normalize(controlPlot)
@@ -117,7 +117,8 @@ def loadPlot(path):
 
 class PlotManipulator:
 
-    def __init__(self):
+    def __init__(self, channel):
+        self.channel = channel
         pass
 
     def cpHist(self, h, name,title="", reset = True):
@@ -215,74 +216,9 @@ class PlotManipulator:
         # #controlstack.Draw("SAME")
         #
 
-
-#         cumul = copy.deepcopy(histos[0][1])
-#         cumul.SetFillColorAlpha(33, 0.6)
-#         applyHistStyle(histos[0][1], histos[0][0])
-#
-# # apply hist style
-#
-#         leg = R.TLegend(0.82, 0.29, 0.98, 0.92)
-#         leg.SetTextSize(0.04)
-#
-#         for h in reversed(histos1):
-#             leg.AddEntry(h, "name")
-#
-#         maxVal = fracstack.GetMaximum()
-#         dummy_up = copy.deepcopy(histos1[0])
-#         dummy_up.Reset()
-#         dummy_up.SetTitle("title")
-#         dummy_up.GetYaxis().SetRangeUser(0.5, 1.5)
-#         dummy_up.GetYaxis().SetNdivisions(6)
-#         dummy_up.GetYaxis().SetLabelSize(0.04)
-#         dummy_up.GetXaxis().SetTitleSize(0.03)
-#         dummy_up.GetXaxis().SetTitle(descriptions.get("xaxis", "some quantity"))
-#         dummy_up.GetXaxis().SetTitleOffset(1)
-#         dummy_up.GetXaxis().SetTitleSize(0.04)
-#         dummy_up.GetXaxis().SetLabelSize(0.04)
-#
-#         dummy_down = copy.deepcopy(cumul)
-#         dummy_down.Reset()
-#         dummy_down.SetTitle("")
-#         dummy_down.GetYaxis().SetRangeUser(0.1, maxVal / 40)
-#         dummy_down.GetXaxis().SetLabelSize(0)
-#         dummy_down.GetXaxis().SetTitle("")
-#
-#         cms1 = R.TLatex(0.08, 0.93, "CMS")
-#         cms2 = R.TLatex(0.16, 0.93, descriptions.get("plottype", "ProjectWork"))
-#
-#         chtex = {"et": r"e#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
-#         ch = descriptions.get("channel", "  ")
-#         ch = chtex.get(ch, ch)
-#         channel = R.TLatex(0.75, 0.932, ch)
-#
-#         lumi = descriptions.get("lumi", "xx.y")
-#         som = descriptions.get("CoM", "13")
-#         l = lumi + r" fb^{-1}"
-#         r = " ({0} TeV)".format(som)
-#         righttop = R.TLatex(0.655, 0.932, l + r)
-#
-#         cms1.SetNDC()
-#         cms2.SetNDC()
-#         righttop.SetNDC()
-#         channel.SetNDC()
-#
-#         if canvas == "linear": dummy_up.GetYaxis().SetRangeUser(0, maxVal)
-#         if canvas == "log": dummy_up.GetYaxis().SetRangeUser(0.1, maxVal)
-#
-#         # cv = createRatioCanvas("cv")
-#         cv = createSimpleCanvas("cv")
-#
-#         cv.cd(1)
-#         if canvas == "log": R.gPad.SetLogy()
-#
-#         dummy_up.Draw()
-#         stack.Draw("same hist ")
-#         leg.Draw()
-#         R.gPad.RedrawAxis()
-
-
         raw_input("Press Enter to continue...")
+
+        cv.SaveAs("{0}-fractions_test.png".format(self.channel))
 
     def createSimpleCanvas(self, name):
 
@@ -360,17 +296,17 @@ def getFancyName(name):
 def getColor(name):
     print "Name in getColor is:"
     print name
-    if name in ["TT","TTT","TTJ","jetFakes_TT", "tt", "TTT_anti", "TTJ_anti", "TTL_anti"]:    return R.TColor.GetColor(155,152,204)
+    if name in ["TT","TTT","TTJ","jetFakes_TT", "tt", "TTT_anti", "TTJ_anti", "TTL_anti", "ttx"]:    return R.TColor.GetColor(155,152,204)
     if name in ["sig"]:                             return R.kRed
     if name in ["bkg"]:                             return R.kBlue
     if name in ["qqH","qqH125"]:                    return R.TColor.GetColor(0,100,0)
     if name in ["ggH","ggH125"]:                    return R.TColor.GetColor(0,0,100)
-    if name in ["W","jetFakes_W", "w", "W_anti"]:                  return R.TColor.GetColor(222,90,106)
+    if name in ["W","jetFakes_W", "w", "W_anti", "wx"]:                  return R.TColor.GetColor(222,90,106)
     if name in ["VV","VVJ","VVT", "VVJ_anti", "VVT_anti", "VVL_anti"]:                  return R.TColor.GetColor(175,35,80)
     if name in ["ZL","ZJ","ZLJ", "ZL_anti", "ZJ_anti"]:                   return R.TColor.GetColor(100,192,232)
     if name in ["EWKZ"]:                            return R.TColor.GetColor(8,247,183)
-    if name in ["QCD","WSS","jetFakes_QCD", "qcd", "QCD_estimate"]:        return R.TColor.GetColor(250,202,255)
-    if name in ["ZTT","DY","real", "ZTT_anti", "EMB_anti"]:                 return R.TColor.GetColor(248,206,104)
+    if name in ["QCD","WSS","jetFakes_QCD", "qcd", "QCD_estimate", "qcdx"]:        return R.TColor.GetColor(250,202,255)
+    if name in ["ZTT","DY","real", "ZTT_anti", "EMB_anti", "realx"]:                 return R.TColor.GetColor(248,206,104)
     if name in ["jetFakes"]:                        return R.TColor.GetColor(192,232,100)
     if name in ["data"]:                            return R.TColor.GetColor(0,0,0)
     else: return R.kYellow
