@@ -204,7 +204,7 @@ class DataController:
     def _getCommonSettings(self, sample_set):
         # using SampleSet and TargetCategory
         settings = {}
-        settings["event_weight"] = self._getEventWeight(sample_set)
+        settings["event_weight"] = sample_set.weight
         settings["target"] = sample_set.target.index
         settings["target_name"] = sample_set.target.name
         settings["select"] = sample_set.cut
@@ -214,19 +214,6 @@ class DataController:
         settings["rename"] = {}
 
         return settings
-
-    def _getEventWeight(self, sample_set):
-        if type(sample_set.event_weight) is list:
-            return "*".join(sample_set.event_weight + [str(self.config_parser.lumi)])
-
-        if type(sample_set.event_weight) is float:
-            return str(sample_set.event_weight)
-
-        if type(sample_set.event_weight) is unicode:
-            return "*".join([sample_set.event_weight, str(self.config_parser.lumi)])
-
-        else:
-            return 1.0
 
     def loadForMe(self, sample_info, for_prediction):
         if not os.path.exists(sample_info["path"]):
