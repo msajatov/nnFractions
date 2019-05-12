@@ -40,7 +40,9 @@ def main():
 
 
 
-def simple_plot(histos, signal=[], canvas="semi", outfile="", descriptions={}):
+def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={}):
+
+    histos = copy.deepcopy(histograms)
 
     cumul = copy.deepcopy(histos[0][1])
     cumul.SetFillColorAlpha(33, 0.6)
@@ -124,13 +126,16 @@ def simple_plot(histos, signal=[], canvas="semi", outfile="", descriptions={}):
 
     cvname = os.path.basename(outfile)
     cvname = cvname.replace(".png", "")
+    cvname = cvname.replace(".root", "")
 
     cv.SetName(cvname)
-    cv.SaveAs(outfile)
 
+    cv.SaveAs(outfile.replace(".root", ".png"))
     cv.SaveAs(outfile.replace(".png", ".root"))
 
-def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
+def plot( histograms, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
+
+    histos = copy.deepcopy(histograms)
 
     print "Entering plot..."
 
@@ -332,12 +337,15 @@ def plot( histos, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
     cms2.Draw()
     channel.Draw()
     righttop.Draw()
-    cv.SetName(outfile.replace(".root",""))
-    #cv.SaveAs( "/".join([os.getcwd(),outfile]) )
 
+    cvname = os.path.basename(outfile)
+    cvname = cvname.replace(".png", "")
+    cvname = cvname.replace(".root", "")
 
-    print "Attempting to save to: " + outfile
-    cv.SaveAs(outfile)
+    cv.SetName(cvname)
+
+    cv.SaveAs(outfile.replace(".root", ".png"))
+    cv.SaveAs(outfile.replace(".png", ".root"))
 
 
 def createSimpleCanvas(name):
