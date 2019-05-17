@@ -32,7 +32,7 @@ class TrainingLogger(Logger):
             sys.exit(-5)
         else:
             with open(filepath, 'w') as f:
-                print >> f, "Training for", self.settings.channel, self.settings.era, self.settings.ml_type
+                print >> f, "Training for", self.settings
                 print >> f, "Config used is", self.file_manager.get_sample_config_path().format(self.settings.channel, self.settings.era)
                 print >> f, "Model output dir is", self.file_manager.get_dir_path("model_output_dir")
 
@@ -88,7 +88,7 @@ class PredictionLogger(Logger):
             sys.exit(-5)
         else:
             with open(filepath, 'w') as f:
-                print >> f, "Predicting for", self.settings.channel, self.settings.era, self.settings.ml_type
+                print >> f, "Predicting for", self.settings
                 print >> f, "Config used is", self.file_manager.get_sample_config_path().format(
                     self.settings.channel, self.settings.era)
                 print >> f, "Model input dir is", self.file_manager.get_dir_path("model_input_dir")
@@ -145,7 +145,7 @@ class FractionPlotLogger(Logger):
             sys.exit(-5)
         else:
             with open(filepath, 'w') as f:
-                print >> f, "Plotting fractions for", self.settings.channel, self.settings.era, self.settings.ml_type
+                print >> f, "Plotting fractions for", self.settings
                 print >> f, "Config used is", self.file_manager.get_sample_config_path().format(
                     self.settings.channel, self.settings.era)
                 print >> f, "Prediction input dir is", self.file_manager.get_dir_path("prediction_input_dir")

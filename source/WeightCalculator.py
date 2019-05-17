@@ -13,14 +13,13 @@ import root_numpy as rn
 
 def main():
     era = 2016
-    use = "keras"
     channels = ["tt", "et", "mt"]
 
     bin_var = "pt_2"
 
     for channel in channels:
         config = "conf/frac_config_{0}_{1}.json".format(channel, era)
-        settings = Settings(use, channel, era)
+        settings = Settings(channel, era)
         parser = ConfigParser(channel, era, config)
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
 
