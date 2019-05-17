@@ -47,6 +47,7 @@ def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={
     cumul = copy.deepcopy(histos[0][1])
     cumul.SetFillColorAlpha(33, 0.6)
     applyHistStyle(histos[0][1], histos[0][0])
+    histos[0][1].SetName(histos[0][0])
 
     stack = R.THStack("stack", "")
     stack.Add(copy.deepcopy(histos[0][1]))
@@ -54,6 +55,7 @@ def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={
     for h in histos[1:]:
         "Calling applyHistStyle:"
         applyHistStyle(h[1], h[0])
+        h[1].SetName(h[0])
         stack.Add(copy.deepcopy(h[1]))
         cumul.Add(h[1])
 
