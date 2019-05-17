@@ -12,38 +12,42 @@ import root_numpy as rn
 
 
 def main():
-
-    channel = "et"
-    era = 2017
+    era = 2016
     use = "keras"
-    config = "conf/frac_config_{0}_{1}.json".format(channel, era)
-    settings = Settings(use, channel, era)
-    parser = ConfigParser(channel, era, config)
-    sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
+    channels = ["tt", "et", "mt"]
 
-    sample_root_path = "/afs/hephy.at/data/higgs01/v10/"
+    bin_var = "pt_2"
 
-    calculator = WeightCalculator(settings, parser, sample_root_path, sample_sets)
-    #calculator.generate_control_plot(sample_sets, "m_vis", "", "debug")
+    for channel in channels:
+        config = "conf/frac_config_{0}_{1}.json".format(channel, era)
+        settings = Settings(use, channel, era)
+        parser = ConfigParser(channel, era, config)
+        sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
 
-    incl = calculator.generate_histos(sample_sets, "m_vis", "", "debug")
-    w = calculator.calc_qcd_weight(incl)
+        # sample_root_path = "/afs/hephy.at/data/higgs01/v10/"
+        sample_root_path = "/afs/hephy.at/data/higgs01/data_2016/ntuples_v6/{0}/ntuples_SVFIT_merged/".format(channel)
 
-    print "avg_weight: " + str(w)
+        calculator = WeightCalculator(settings, parser, sample_root_path, sample_sets)
+        calculator.generate_control_plot(sample_sets, bin_var, "", "debug/qcd_reweighting_integral/4cat/{1}/{0}".format(era, bin_var))
 
-    reweighted = calculator.reweight_qcd(incl, w)
+        incl = calculator.generate_histos(sample_sets, bin_var, "", "debug")
+        w = calculator.calc_qcd_weight(incl)
+        int_w = calculator.calc_qcd_weight_with_integrals(incl)
 
-    outdirpath = "debug"
-    prefix = "reweighted_qcd"
+        print "avg_weight: " + str(w)
+        print "int weight: " + str(int_w)
 
-    var = Var("m_vis", channel)
-    descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": channel, "CoM": "13",
-                    "lumi": "35.87", "title": "Fractions"}
-    outfileprefix = "{0}/{1}_{2}_test_{3}_{4}".format(outdirpath, channel, prefix, "inclusive", "m_vis")
+        reweighted = calculator.reweight_qcd(incl, int_w)
 
-    calculator.create_plot(reweighted, descriptions, "{0}.png".format(outfileprefix))
+        outdirpath = "debug/qcd_reweighting_integral/4cat/{1}/{0}".format(era, bin_var)
+        prefix = "reweighted_qcd"
 
-    pass
+        var = Var(bin_var, channel)
+        descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": channel, "CoM": "13",
+                        "lumi": "35.87", "title": "Fractions"}
+        outfileprefix = "{0}/{1}_{2}_test_{3}_{4}".format(outdirpath, channel, prefix, "inclusive", bin_var)
+
+        calculator.create_plot(reweighted, descriptions, "{0}.png".format(outfileprefix))
 
 
 class WeightCalculator:
@@ -54,6 +58,32 @@ class WeightCalculator:
         self.sample_root_path = sample_root_path
         self.sample_sets = sample_sets
         pass
+
+    def calc_qcd_weight_with_integrals(self, histograms):
+        histos = copy.deepcopy(histograms)
+
+        weight = 0
+
+        mc_sum = 0
+        data = 0
+        qcd = 0
+
+        for key in histos:
+            # print key
+            histo = histos[key]
+            content = histo.Integral()
+            # print bin_content
+            if "data" in key:
+                data = content
+            elif "QCD" in key:
+                qcd = content
+            else:
+                mc_sum += content
+
+        diff = abs(data - mc_sum)
+        weight = diff / qcd
+
+        return weight
 
     def calc_qcd_weight(self, histos):
         bin_totals = []
@@ -181,7 +211,16 @@ class WeightCalculator:
     def get_histos(self, sample_set, var):
         histograms = {}
         bin_var = var.name
-        branches = [bin_var] + self.parser.weights
+
+        if "EMB" in sample_set.name:
+            branches = [bin_var] + ["*weight*"] + ["*gen_match*"]
+        else:
+            branches = [bin_var] + self.parser.weights
+
+        print "weights:"
+        print self.parser.weights
+
+        print "branch"
 
         events = self.get_events_for_sample_set(sample_set, branches)
 
@@ -196,8 +235,13 @@ class WeightCalculator:
     def fill_histo(self, events, template, sample_set, var):
         tmpHist = R.TH1F(template, template, *(var.bins("def")))
 
+        if "QCD" in sample_set.name:
+            weight = 1.0
+        else:
+            weight = sample_set.weight
+
         tmpHist.Sumw2(True)
-        events.eval("event_weight=" + sample_set.weight, inplace=True)
+        events.eval("event_weight=" + str(weight), inplace=True)
 
         fill_with = var.getBranches(jec_shift="")
         if not fill_with in events.columns.values.tolist():
@@ -213,6 +257,8 @@ class WeightCalculator:
         sample_path = "{0}/{1}".format(root_path, sample_set.source_file_name)
         #sample_path = sample_path.replace("WJets", "W")
         select = sample_set.cut
+
+        print "sample_path: " + sample_path
 
         events = rp.read_root(paths=sample_path, where=select,
                               columns=branches)
@@ -242,6 +288,10 @@ class WeightCalculator:
 
         pl.plot(histograms, canvas="linear", signal=[],
                        descriptions=descriptions, outfile=outfile)
+
+        outfile = outfile.replace(".png", ".root")
+        pl.plot(histograms, canvas="linear", signal=[],
+                descriptions=descriptions, outfile=outfile)
 
 
 if __name__ == '__main__':
