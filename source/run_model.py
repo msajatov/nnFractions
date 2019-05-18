@@ -12,7 +12,7 @@ def main():
     parser.add_argument('-c', dest='channel', help='Decay channel' ,choices = ['mt', 'et', 'tt', 'em'], default='mt')
     parser.add_argument('-m', dest='model',   help='ML model to use', choices=['keras', 'xgb'],  default='keras')
     parser.add_argument('-t', dest='train',   help='Train new model', action='store_true')
-    parser.add_argument('-s', dest='shapes',   help='Predict shapes', action='store_true')
+    parser.add_argument('-s', dest='scaler',   help='Global data scaler', choices=['none', 'standard'], default='none')
     parser.add_argument('-p', dest='predict', help='Make prediction', action='store_true')
     parser.add_argument('-f', dest='fractions', help='Plot Fractions', action='store_true')
     parser.add_argument('-d', dest='datacard', help='Datacard', action='store_true')
@@ -27,20 +27,20 @@ def main():
     run(channel=args.channel,
         era=args.era,
         use=args.model,
+        scaler=args.scaler,
         train=args.train,
-        shapes=args.shapes,
         predict=args.predict,
         fractions=args.fractions,
         datacard=args.datacard
         )
 
 
-def run(channel, era, use, train=False, shapes=False, predict=False, fractions=False, datacard=False):
+def run(channel, era, use, scaler, train=False, predict=False, fractions=False, datacard=False):
 
     file_manager = FileManager("conf/path_config.json")
 
     config = file_manager.get_sample_config_path().format(channel, era)
-    settings = Settings(use, channel, era)
+    settings = Settings(channel, era, use, scaler)
 
     if train:
 

@@ -34,8 +34,16 @@ class PredictionDataHandler(DataHandler):
             # Carefull!! Check if splitting is done the same for training. This is the KIT splitting
             folds = [data_frame.query("abs(evt % 2) != 0 ").reset_index(drop=True),
                      data_frame.query("abs(evt % 2) == 0 ").reset_index(drop=True)]
-            self.addPrediction(channel, model.predict(self.applyScaler(scaler, folds, variables)), folds, outname, outpath,
-                          new=first)
+
+            if self.scaler == 0:
+                print "Scaler is zero"
+                unscaled = copy.deepcopy(folds)
+                self.addPrediction(channel, model.predict(unscaled), folds, outname,
+                    outpath, new=first)
+            else:
+                print "Scaler is not zero"
+                self.addPrediction(channel, model.predict(self.applyScaler(scaler, folds, variables)), folds, outname,
+                    outpath, new=first)
 
             folds[0].drop(folds[0].index, inplace=True)
             folds[1].drop(folds[1].index, inplace=True)
@@ -58,7 +66,8 @@ class PredictionDataHandler(DataHandler):
             prediction[i].drop(prediction[i].index, inplace=True)
 
     def applyScaler(self, scaler, folds, variables):
-        if not scaler: return folds
+        if not scaler or scaler == 0:
+            return folds
         newFolds = copy.deepcopy(folds)
         for i, fold in enumerate(newFolds):
             fold[variables] = scaler[i].transform(fold[variables])

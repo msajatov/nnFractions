@@ -41,18 +41,19 @@ class TrainingDataHandler(DataHandler):
         print "Loading Training set"
         trainSet = data_frame
 
-        print "Fit Scaler to training set...",
-        scaler = self.trainScaler(trainSet, self.config_parser.variable_names)
+        if self.settings.scaler == "standard":
+            print "Fit Scaler to training set...",
+            scaler = self.trainScaler(trainSet, self.config_parser.variable_names)
 
-        print " done. Dumping for later."
+            print " done. Dumping for later."
 
-        with open(self.file_manager.get_scaler_filepath(), 'wb') as FSO:
-            cPickle.dump(scaler, FSO, 2)
-        scaler = [scaler, scaler]  # Hotfix since KIT uses 2 scalers
+            with open(self.file_manager.get_scaler_filepath(), 'wb') as FSO:
+                cPickle.dump(scaler, FSO, 2)
+            scaler = [scaler, scaler]  # Hotfix since KIT uses 2 scalers
 
-        trainSet = self.applyScaler(scaler, trainSet, self.config_parser.variable_names)
+            trainSet = self.applyScaler(scaler, trainSet, self.config_parser.variable_names)
 
-        target_names =self.config_parser.get_target_names()
+        target_names = self.config_parser.get_target_names()
 
         print "debug target_names"
         for key in target_names:
