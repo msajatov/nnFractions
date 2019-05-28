@@ -6,13 +6,14 @@ import cPickle
 
 class Prediction:
 
-    def __init__(self, settings, file_manager, parser, sample_sets):
+    def __init__(self, settings, file_manager, parser, sample_sets, ext_input):
         self.settings = settings
         self.file_manager = file_manager
         self.parser = parser
         self.sample_sets = sample_sets
         self.scaler = 0
         self.model = 0
+        self.ext_input = ext_input
         self.setup()
 
     def setup(self):
@@ -42,16 +43,19 @@ class Prediction:
     def predict(self):
         print "scaler: ", self.scaler
         prediction_handler = PredictionDataHandler(self.settings, self.file_manager, self.parser, self.model, self.scaler)
-        controller = DataController(self.parser.data_root_path, 2, self.parser, self.settings, sample_sets=[])
+        controller = DataController(self.parser.data_root_path, 2, self.parser, self.settings, self.ext_input, sample_sets=[])
 
         sample_info_dicts = controller.prepare(self.sample_sets)
 
         first = True
         for sample_info in sample_info_dicts:
             print "predicting for " + sample_info["histname"]
+            if self.ext_input:
+                sample_info["path"] = sample_info["path"].replace("WJets", "W")
             # this may be one fold or two folds -> use parameter properly
             iter = controller.read_for_prediction(sample_info)
             for df in iter:
-                controller.modifyDF(df, sample_info)
+                if not self.ext_input:
+                    controller.modifyDF(df, sample_info)
                 prediction_handler.handle(df, sample_info, first)
                 first = False

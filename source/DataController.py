@@ -17,12 +17,13 @@ def main():
 
 class DataController:
 
-    def __init__(self, root_path, folds, config_parser, settings, sample_sets):
+    def __init__(self, root_path, folds, config_parser, settings, ext_input, sample_sets):
         self.root_path = root_path
         self.folds = folds
         self.config_parser = config_parser
         self.settings = settings
         self.sample_sets = sample_sets
+        self.ext_input = ext_input
         self.sample_info_dicts = []
 
     def set_root_path(self, root_path):
@@ -69,6 +70,8 @@ class DataController:
         # check if chunking is needed / requested
 
         print "Entered read_for_prediction..."
+        print "Sample root path: "
+        print self.root_path
         for_prediction = True
         # this may be one fold or two folds -> use parameter properly
         data_frame_iterator = self.loadForMe(sample_info, for_prediction)
@@ -128,6 +131,9 @@ class DataController:
         #branches = list(set(self.config["variables"] + self.config["weights"] + snowflakes + self.addvar))
         if "EMB" in sample_path and "sf*" in branches:
             branches.remove("sf*")
+
+        if self.ext_input:
+            branches = branches + ["predicted_class", "predicted_prob"]
 
         # Return iterator when predicting samples
         chunksize = None
