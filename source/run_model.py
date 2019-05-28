@@ -17,6 +17,7 @@ def main():
     parser.add_argument('-f', dest='fractions', help='Plot Fractions', action='store_true')
     parser.add_argument('-d', dest='datacard', help='Datacard', action='store_true')
     parser.add_argument('-e', dest='era',  help='Era', choices=["2016", "2017"], required = True)
+    parser.add_argument('-ext', dest='ext_input', help='Use alternative sample input path for making predictions', action='store_true')
     args = parser.parse_args()
 
     print "---------------------------"
@@ -31,11 +32,12 @@ def main():
         train=args.train,
         predict=args.predict,
         fractions=args.fractions,
-        datacard=args.datacard
+        datacard=args.datacard,
+        ext_input=args.ext_input
         )
 
 
-def run(channel, era, use, scaler, train=False, predict=False, fractions=False, datacard=False):
+def run(channel, era, use, scaler, train=False, predict=False, fractions=False, datacard=False, ext_input=False):
 
     file_manager = FileManager("conf/path_config.json")
 
@@ -80,7 +82,12 @@ def run(channel, era, use, scaler, train=False, predict=False, fractions=False, 
         print "attempt logging"
         logger.log()
 
-        prediction = Prediction(settings, prediction_file_manager, parser, sample_sets)
+        # use external predictions (category NN output) as input for frac NN prediction
+        if ext_input:
+            ext_prediction_input_path = prediction_file_manager.get_dir_path("sample_input_dir")
+            parser.data_root_path = ext_prediction_input_path
+
+        prediction = Prediction(settings, prediction_file_manager, parser, sample_sets, ext_input)
         prediction.predict()
 
     if fractions:

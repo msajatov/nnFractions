@@ -136,6 +136,10 @@ class PredictionFileManager(FileManager):
         type = "scaler_input_dir"
         self.paths["scaler_input_dir"] = DirPathObject(type, self.outputpath, path)
 
+        path = conf["sample_input_dir"]
+        type = "sample_input_dir"
+        self.paths["sample_input_dir"] = DirPathObject(type, self.outputpath, path)
+
         path = conf["prediction_output_dir"]
         type = "prediction_output_dir"
         self.paths["prediction_output_dir"] = DirPathObject(type, self.outputpath, path)
