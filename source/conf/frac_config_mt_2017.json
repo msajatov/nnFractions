@@ -3,6 +3,7 @@
     "outpath": "/afs/hephy.at/work/m/msajatovic/data/mlFramework/",
     "variables":{
         "mt": [
+            "pt_1",
             "pt_2",
             "jpt_1",
             "jpt_2",
@@ -12,10 +13,14 @@
             "nbtag",
             "m_sv",
             "mt_1",
+            "mt_2",
+            "pt_vis",
             "pt_tt",
             "mjj",
             "jdeta",
-            "dijetpt"
+            "m_vis",
+            "dijetpt",
+            "met"
             ]
     },
     "shifted_variables": ["njets","jpt_1","jpt_2","jdeta","m_sv","bpt_1","bpt_2","nbtag","mt_1","pt_tt","mjj","htxs_reco_ggf","htxs_reco_vbf"],

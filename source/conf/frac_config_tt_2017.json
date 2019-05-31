@@ -4,6 +4,8 @@
     "variables":{
         "tt": [
             "pt_1",
+            "pt_2",
+            "jpt_1",
             "jpt_2",
             "bpt_1",
             "bpt_2",
@@ -12,11 +14,13 @@
             "m_sv",
             "mt_1",
             "mt_2",
+            "pt_vis",
             "pt_tt",
             "mjj",
             "jdeta",
             "m_vis",
-            "dijetpt"
+            "dijetpt",
+            "met"
             ]
     },
     "shifted_variables": ["njets","jpt_1","jpt_2","jdeta","m_sv","mt_1","mt_2","bpt_1","bpt_2","nbtag","pt_tt","dijetpt","mjj","dijetpt","htxs_reco_ggf","htxs_reco_vbf"],
