@@ -18,7 +18,7 @@ class Training:
 
     def train(self):
         training_handler = TrainingDataHandler(self.settings, self.file_manager, self.parser, 0, 0)
-        controller = DataController(self.parser.data_root_path, 2, self.parser, self.settings, sample_sets=[])
+        controller = DataController(self.parser.data_root_path, 2, self.parser, self.settings, False, sample_sets=[])
 
         sample_info_dicts = controller.prepare(self.sample_sets)
         training_folds = controller.read_for_training(sample_info_dicts)
