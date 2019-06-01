@@ -1,4 +1,4 @@
-import os
+import os, errno
 
 
 class PathObject:
@@ -18,8 +18,12 @@ class PathObject:
         if dir_name:
             self.name = dir_name
             self.path = "{0}/{1}".format(self.parent_dir_name, self.name)
-            if not os.path.exists(self.path):
-                os.makedirs(self.path)
+            try:
+                if not os.path.exists(self.path):
+                    os.makedirs(self.path)
+            except OSError as e:
+                if e.errno != errno.EEXIST:
+                    raise
 
     def get_name(self):
         return self.name
@@ -33,15 +37,23 @@ class DirPathObject(PathObject):
     def __init__(self, type, parent_dir_name, name=""):
         PathObject.__init__(self, type, parent_dir_name, name)
         if name:
-            if not os.path.exists(self.path):
-                os.makedirs(self.path)
+            try:
+                if not os.path.exists(self.path):
+                    os.makedirs(self.path)
+            except OSError as e:
+                if e.errno != errno.EEXIST:
+                    raise
 
     def set_name(self, dir_name):
         if dir_name:
             self.name = dir_name
             self.path = "{0}/{1}".format(self.parent_dir_name, self.name)
-            if not os.path.exists(self.path):
-                os.makedirs(self.path)
+            try:
+                if not os.path.exists(self.path):
+                    os.makedirs(self.path)
+            except OSError as e:
+                if e.errno != errno.EEXIST:
+                    raise
 
 
 class FilePathObject(PathObject):
@@ -53,3 +65,4 @@ class FilePathObject(PathObject):
         if dir_name:
             self.name = dir_name
             self.path = "{0}/{1}".format(self.parent_dir_name, self.name)
+
