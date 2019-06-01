@@ -45,63 +45,67 @@ def run(args):
     file_manager = FileManager("conf/path_config.json")
 
     config = file_manager.get_sample_config_path().format(channel, era)
+    parser = ConfigParser(channel, era, config)
     settings = Settings(channel, era, model, scaler)
+    settings.config_parser = parser
 
     if train:
 
         from Training import Training
 
-        model_file_manager = ModelFileManager("conf/path_config.json")
-        set_up_model_file_manager(model_file_manager, settings)
+        model_file_manager = ModelFileManager("conf/path_config.json", settings)
+        settings.model_file_manager = model_file_manager
 
-        parser = ConfigParser(channel, era, config)
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
         sample_sets = [sset for sset in sample_sets if (not "AR" in sset.name)]
         print "Filtered sample sets for training: \n"
         for ss in sample_sets:
             print ss
 
-        logger = TrainingLogger(settings, model_file_manager, sample_sets, parser)
+        settings.filtered_samples = sample_sets
+
+        logger = TrainingLogger(settings)
         print "attempt logging"
         logger.log()
 
-        training = Training(settings, model_file_manager, parser, sample_sets)
+        training = Training(settings)
         training.train()
 
     if predict:
 
         from Prediction import Prediction
 
-        prediction_file_manager = PredictionFileManager("conf/path_config.json")
-        set_up_prediction_file_manager(prediction_file_manager, settings)
+        prediction_file_manager = PredictionFileManager("conf/path_config.json", settings)
+        settings.prediction_file_manager = prediction_file_manager
 
-        parser = ConfigParser(channel, era, config)
         sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
         print "Filtered sample sets for prediction: \n"
         for ss in sample_sets:
             print ss
 
-        logger = PredictionLogger(settings, prediction_file_manager, sample_sets, parser)
-        print "attempt logging"
-        logger.log()
+        settings.filtered_samples = sample_sets
 
         # use external predictions (category NN output) as input for frac NN prediction
         if ext_input:
             ext_prediction_input_path = prediction_file_manager.get_dir_path("sample_input_dir")
             parser.data_root_path = ext_prediction_input_path
+            settings.ext_input = ext_input
 
-        prediction = Prediction(settings, prediction_file_manager, parser, sample_sets, ext_input)
+        logger = PredictionLogger(settings)
+        print "attempt logging"
+        logger.log()
+
+        prediction = Prediction(settings)
         prediction.predict()
 
     if fractions:
 
         from FractionPlotter import FractionPlotter
 
-        frac_plot_file_manager = FractionPlotFileManager("conf/path_config.json")
-        set_up_fraction_plot_file_manager(frac_plot_file_manager, settings)
+        frac_plot_file_manager = FractionPlotFileManager("conf/path_config.json", settings)
+        settings.fraction_plot_file_manager = frac_plot_file_manager
 
-        parser = ConfigParser(channel, era, config)
-        plotter = FractionPlotter(settings, frac_plot_file_manager, parser)
+        plotter = FractionPlotter(settings)
 
         train_sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
         train_sample_sets = [sset for sset in train_sample_sets if (not "AR" in sset.name)]
@@ -118,9 +122,11 @@ def run(args):
             print "count: "
             print plotter.get_event_count_for_sample_set(ss)
 
+        settings.filtered_samples = complete_sample_sets
+
         outdirpath = frac_plot_file_manager.get_dir_path("fracplot_output_dir")
 
-        logger = FractionPlotLogger(settings, frac_plot_file_manager, complete_sample_sets, parser)
+        logger = FractionPlotLogger(settings)
 
         # tn = {0:"tt", 1:"w", 2:"qcd"}
         # plotter.set_target_names(tn)
@@ -150,54 +156,6 @@ def run(args):
 
         D.create(era+"/"+model)
         makePlot(channel, "ML", era+"/"+model, era, era+"/plots")
-
-
-def set_up_model_file_manager(model_file_manager, settings):
-    era = settings.era
-    model = settings.ml_type
-    channel = settings.channel
-
-    model_dir = model_file_manager.get_dir_name("model_output_dir")
-    model_dir = model_dir + "/" + era
-    model_name = "{0}.{1}".format(channel, model)
-
-    model_file_manager.set_dir_name("model_output_dir", model_dir)
-    model_file_manager.set_dir_name("scaler_output_dir", model_dir)
-    model_file_manager.set_model_filename(model_name)
-
-    model_file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
-
-
-def set_up_prediction_file_manager(prediction_file_manager, settings):
-    era = settings.era
-    model = settings.ml_type
-    channel = settings.channel
-
-    model_dir = prediction_file_manager.get_dir_name("model_input_dir")
-    model_dir = model_dir + "/" + era
-    model_name = "{0}.{1}".format(channel, model)
-
-    prediction_file_manager.set_dir_name("model_input_dir", model_dir)
-    prediction_file_manager.set_dir_name("scaler_input_dir", model_dir)
-    prediction_file_manager.set_model_filename(model_name)
-
-    prediction_dir = prediction_file_manager.get_dir_name("prediction_output_dir")
-    prediction_dir = prediction_dir + "/" + era
-    prediction_file_manager.set_dir_name("prediction_output_dir", prediction_dir)
-
-    prediction_file_manager.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
-
-
-def set_up_fraction_plot_file_manager(frac_plot_file_manager, settings):
-    era = settings.era
-
-    prediction_dir = frac_plot_file_manager.get_dir_name("prediction_input_dir")
-    prediction_dir = prediction_dir + "/" + era
-    frac_plot_file_manager.set_dir_name("prediction_input_dir", prediction_dir)
-
-    plot_dir = frac_plot_file_manager.get_dir_name("fracplot_output_dir")
-    plot_dir = "{0}/{1}".format(plot_dir, era)
-    frac_plot_file_manager.set_dir_name("fracplot_output_dir", plot_dir)
 
 
 if __name__ == '__main__':

@@ -6,14 +6,14 @@ import cPickle
 
 class Prediction:
 
-    def __init__(self, settings, file_manager, parser, sample_sets, ext_input):
+    def __init__(self, settings):
         self.settings = settings
-        self.file_manager = file_manager
-        self.parser = parser
-        self.sample_sets = sample_sets
+        self.file_manager = settings.prediction_file_manager
+        self.parser = settings.config_parser
+        self.sample_sets = settings.filtered_samples
         self.scaler = 0
         self.model = 0
-        self.ext_input = ext_input
+        self.ext_input = settings.ext_input
         self.setup()
 
     def setup(self):

@@ -57,12 +57,13 @@ class FileManager():
 
 class ModelFileManager(FileManager):
 
-    def __init__(self, path_config_path):
+    def __init__(self, path_config_path, settings):
         FileManager.__init__(self, path_config_path)
         self.filepaths = {}
         if path_config_path:
             print "parsing path config..."
             self.parse_path_config(path_config_path)
+        self.incorporate_era(settings)
 
     def parse_path_config(self, path):
 
@@ -76,6 +77,21 @@ class ModelFileManager(FileManager):
         path = conf["model_output_dir"]
         type = "scaler_output_dir"
         self.paths["scaler_output_dir"] = DirPathObject(type, self.outputpath, path)
+
+    def incorporate_era(self, settings):
+        era = settings.era
+        model = settings.ml_type
+        channel = settings.channel
+
+        model_dir = self.get_dir_name("model_output_dir")
+        model_dir = model_dir + "/" + era
+        model_name = "{0}.{1}".format(channel, model)
+
+        self.set_dir_name("model_output_dir", model_dir)
+        self.set_dir_name("scaler_output_dir", model_dir)
+        self.set_model_filename(model_name)
+
+        self.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
 
     def set_model_filename(self, name):
         model_dir_path = self.paths["model_output_dir"].get_path()
@@ -116,12 +132,13 @@ class ModelFileManager(FileManager):
 
 class PredictionFileManager(FileManager):
 
-    def __init__(self, path_config_path):
+    def __init__(self, path_config_path, settings):
         FileManager.__init__(self, path_config_path)
         self.filepaths = {}
         if path_config_path:
             print "parsing path config..."
             self.parse_path_config(path_config_path)
+        self.incorporate_era(settings)
 
     def parse_path_config(self, path):
 
@@ -143,6 +160,25 @@ class PredictionFileManager(FileManager):
         path = conf["prediction_output_dir"]
         type = "prediction_output_dir"
         self.paths["prediction_output_dir"] = DirPathObject(type, self.outputpath, path)
+
+    def incorporate_era(self, settings):
+        era = settings.era
+        model = settings.ml_type
+        channel = settings.channel
+
+        model_dir = self.get_dir_name("model_input_dir")
+        model_dir = model_dir + "/" + era
+        model_name = "{0}.{1}".format(channel, model)
+
+        self.set_dir_name("model_input_dir", model_dir)
+        self.set_dir_name("scaler_input_dir", model_dir)
+        self.set_model_filename(model_name)
+
+        prediction_dir = self.get_dir_name("prediction_output_dir")
+        prediction_dir = prediction_dir + "/" + era
+        self.set_dir_name("prediction_output_dir", prediction_dir)
+
+        self.set_scaler_filename("StandardScaler.{0}.pkl".format(channel))
 
 
     def set_model_filename(self, name):
@@ -184,11 +220,12 @@ class PredictionFileManager(FileManager):
 
 class FractionPlotFileManager(FileManager):
 
-    def __init__(self, path_config_path):
+    def __init__(self, path_config_path, settings):
         FileManager.__init__(self, path_config_path)
         if path_config_path:
             print "parsing path config..."
             self.parse_path_config(path_config_path)
+        self.incorporate_era(settings)
 
     def parse_path_config(self, path):
 
@@ -202,15 +239,27 @@ class FractionPlotFileManager(FileManager):
         type = "fracplot_output_dir"
         self.paths["fracplot_output_dir"] = DirPathObject(type, self.outputpath, path)
 
+    def incorporate_era(self, settings):
+        era = settings.era
+
+        prediction_dir = self.get_dir_name("prediction_input_dir")
+        prediction_dir = prediction_dir + "/" + era
+        self.set_dir_name("prediction_input_dir", prediction_dir)
+
+        plot_dir = self.get_dir_name("fracplot_output_dir")
+        plot_dir = "{0}/{1}".format(plot_dir, era)
+        self.set_dir_name("fracplot_output_dir", plot_dir)
+
 
 class DatacardFileManager(FileManager):
 
-    def __init__(self, path_config_path):
+    def __init__(self, path_config_path, settings):
         FileManager.__init__(self, path_config_path)
         self.fractions_filepath = ""
         if path_config_path:
             print "parsing path config..."
             self.parse_path_config(path_config_path)
+        self.incorporate_era(settings)
 
     def parse_path_config(self, path):
 
@@ -228,4 +277,5 @@ class DatacardFileManager(FileManager):
         type = "datacard_plot_dir"
         self.paths["datacard_plot_dir"] = DirPathObject(type, self.outputpath, path)
 
-
+    def incorporate_era(self, settings):
+        pass

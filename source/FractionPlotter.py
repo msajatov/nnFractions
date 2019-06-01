@@ -15,10 +15,10 @@ import copy
 
 class FractionPlotter:
 
-    def __init__(self, settings, file_manager, config_parser):
+    def __init__(self, settings):
         self.settings = settings
-        self.file_manager = file_manager
-        self.config_parser = config_parser
+        self.file_manager = settings.fraction_plot_file_manager
+        self.config_parser = settings.config_parser
         self.target_names = self.config_parser.get_target_names()
 
     def set_target_names(self, target_names):
