@@ -27,7 +27,7 @@ def main():
 
     run(channel=args.channel,
         era=args.era,
-        use=args.model,
+        model=args.model,
         scaler=args.scaler,
         train=args.train,
         predict=args.predict,
@@ -37,12 +37,12 @@ def main():
         )
 
 
-def run(channel, era, use, scaler, train=False, predict=False, fractions=False, datacard=False, ext_input=False):
+def run(channel, era, model, scaler, train=False, predict=False, fractions=False, datacard=False, ext_input=False):
 
     file_manager = FileManager("conf/path_config.json")
 
     config = file_manager.get_sample_config_path().format(channel, era)
-    settings = Settings(channel, era, use, scaler)
+    settings = Settings(channel, era, model, scaler)
 
     if train:
 
@@ -147,18 +147,18 @@ def run(channel, era, use, scaler, train=False, predict=False, fractions=False, 
 
         FakeFactor.fractions = "{0}/datacard_conf/fractions/htt_ff_fractions_{0}.root".format(era)
 
-        D.create(era+"/"+use)
-        makePlot(channel, "ML", era+"/"+use, era, era+"/plots")
+        D.create(era+"/"+model)
+        makePlot(channel, "ML", era+"/"+model, era, era+"/plots")
 
 
 def set_up_model_file_manager(model_file_manager, settings):
     era = settings.era
-    use = settings.ml_type
+    model = settings.ml_type
     channel = settings.channel
 
     model_dir = model_file_manager.get_dir_name("model_output_dir")
     model_dir = model_dir + "/" + era
-    model_name = "{0}.{1}".format(channel, use)
+    model_name = "{0}.{1}".format(channel, model)
 
     model_file_manager.set_dir_name("model_output_dir", model_dir)
     model_file_manager.set_dir_name("scaler_output_dir", model_dir)
@@ -169,12 +169,12 @@ def set_up_model_file_manager(model_file_manager, settings):
 
 def set_up_prediction_file_manager(prediction_file_manager, settings):
     era = settings.era
-    use = settings.ml_type
+    model = settings.ml_type
     channel = settings.channel
 
     model_dir = prediction_file_manager.get_dir_name("model_input_dir")
     model_dir = model_dir + "/" + era
-    model_name = "{0}.{1}".format(channel, use)
+    model_name = "{0}.{1}".format(channel, model)
 
     prediction_file_manager.set_dir_name("model_input_dir", model_dir)
     prediction_file_manager.set_dir_name("scaler_input_dir", model_dir)
@@ -189,8 +189,6 @@ def set_up_prediction_file_manager(prediction_file_manager, settings):
 
 def set_up_fraction_plot_file_manager(frac_plot_file_manager, settings):
     era = settings.era
-    use = settings.ml_type
-    channel = settings.channel
 
     prediction_dir = frac_plot_file_manager.get_dir_name("prediction_input_dir")
     prediction_dir = prediction_dir + "/" + era
