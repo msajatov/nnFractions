@@ -9,13 +9,16 @@ import copy
 import ROOT as R
 from ROOT import TFile
 import root_numpy as rn
+import os, errno
 
 
 def main():
-    era = 2016
+    era = 2017
     channels = ["tt", "et", "mt"]
 
     bin_var = "pt_2"
+
+    new_file = True
 
     for channel in channels:
         config = "conf/frac_config_{0}_{1}.json".format(channel, era)
@@ -23,11 +26,22 @@ def main():
         parser = ConfigParser(channel, era, config)
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
 
-        # sample_root_path = "/afs/hephy.at/data/higgs01/v10/"
-        sample_root_path = "/afs/hephy.at/data/higgs01/data_2016/ntuples_v6/{0}/ntuples_SVFIT_merged/".format(channel)
+        if era == 2017:
+            sample_root_path = "/afs/hephy.at/data/higgs01/v10/"
+        elif era == 2016:
+            sample_root_path = "/afs/hephy.at/data/higgs01/data_2016/ntuples_v6/{0}/ntuples_SVFIT_merged/".format(channel)
 
         calculator = WeightCalculator(settings, parser, sample_root_path, sample_sets)
-        calculator.generate_control_plot(sample_sets, bin_var, "", "debug/qcd_reweighting_integral/4cat/{1}/{0}".format(era, bin_var))
+
+        outdirpath = "debug/qcd_rw/4cat/{1}/{0}".format(era, bin_var)
+        try:
+            if not os.path.exists(outdirpath):
+                os.makedirs(outdirpath)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+
+        calculator.generate_control_plot(sample_sets, bin_var, "", outdirpath)
 
         incl = calculator.generate_histos(sample_sets, bin_var, "", "debug")
         w = calculator.calc_qcd_weight(incl)
@@ -38,7 +52,6 @@ def main():
 
         reweighted = calculator.reweight_qcd(incl, int_w)
 
-        outdirpath = "debug/qcd_reweighting_integral/4cat/{1}/{0}".format(era, bin_var)
         prefix = "reweighted_qcd"
 
         var = Var(bin_var, channel)
@@ -47,6 +60,16 @@ def main():
         outfileprefix = "{0}/{1}_{2}_test_{3}_{4}".format(outdirpath, channel, prefix, "inclusive", bin_var)
 
         calculator.create_plot(reweighted, descriptions, "{0}.png".format(outfileprefix))
+
+        outfilepath = os.path.join(outdirpath, "qcd_weight_log_{0}.txt".format(bin_var))
+        if new_file:
+            mode = "w"
+        else:
+            mode = "a"
+        f = open(outfilepath, mode)
+        f.write("Channel: {0}\nBin_var: {1}\nQCD weight = ".format(channel, bin_var) + str(int_w) + "\n")
+        f.close()
+        new_file = False
 
 
 class WeightCalculator:
@@ -174,6 +197,7 @@ class WeightCalculator:
         return frac_histos
 
     def generate_histos(self, sample_sets, bin_var, prefix, outdirpath):
+        print "Generating histos..."
         fraction_histo_summary = []
 
         var = Var(bin_var, self.settings.channel)
@@ -186,6 +210,7 @@ class WeightCalculator:
         return inclusive_histos
 
     def generate_control_plot(self, sample_sets, bin_var, prefix, outdirpath):
+        print "Generating inclusive control plot..."
         fraction_histo_summary = []
 
         var = Var(bin_var, self.settings.channel)
@@ -197,8 +222,8 @@ class WeightCalculator:
                             "lumi": "35.87", "title": "Fractions"}
             outfile = "{0}/{1}_{2}_test_{3}_{4}".format(outdirpath, self.settings.channel, prefix, sample_set.name, bin_var)
 
-            if "data" not in sample_set.name:
-                self.create_plot(frac_histos, descriptions, "{0}.png".format(outfile))
+            # if "data" not in sample_set.name:
+                # self.create_plot(frac_histos, descriptions, "{0}.png".format(outfile))
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
                         "lumi": "35.87", "title": "Fractions"}
@@ -287,10 +312,6 @@ class WeightCalculator:
 
         pl.plot(histograms, canvas="linear", signal=[],
                        descriptions=descriptions, outfile=outfile)
-
-        outfile = outfile.replace(".png", ".root")
-        pl.plot(histograms, canvas="linear", signal=[],
-                descriptions=descriptions, outfile=outfile)
 
 
 if __name__ == '__main__':
