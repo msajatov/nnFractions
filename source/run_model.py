@@ -18,6 +18,7 @@ def main():
     parser.add_argument('-d', dest='datacard', help='Datacard', action='store_true')
     parser.add_argument('-e', dest='era',  help='Era', choices=["2016", "2017"], required = True)
     parser.add_argument('-ext', dest='ext_input', help='Use alternative sample input path for making predictions', action='store_true')
+    parser.add_argument('-var', dest='bin_var', help='Bin variable for fraction plots or datacard', default='m_vis')
     args = parser.parse_args()
 
     print "---------------------------"
@@ -25,19 +26,21 @@ def main():
     print "Running over {0} samples".format(args.channel)
     print "---------------------------"
 
-    run(channel=args.channel,
-        era=args.era,
-        model=args.model,
-        scaler=args.scaler,
-        train=args.train,
-        predict=args.predict,
-        fractions=args.fractions,
-        datacard=args.datacard,
-        ext_input=args.ext_input
-        )
+    run(args)
 
 
-def run(channel, era, model, scaler, train=False, predict=False, fractions=False, datacard=False, ext_input=False):
+def run(args):
+
+    channel = args.channel
+    era = args.era
+    model = args.model
+    scaler = args.scaler
+    train = args.train
+    predict = args.predict
+    fractions = args.fractions
+    datacard = args.datacard
+    ext_input = args.ext_input
+    bin_var = args.bin_var
 
     file_manager = FileManager("conf/path_config.json")
 
@@ -96,8 +99,6 @@ def run(channel, era, model, scaler, train=False, predict=False, fractions=False
 
         frac_plot_file_manager = FractionPlotFileManager("conf/path_config.json")
         set_up_fraction_plot_file_manager(frac_plot_file_manager, settings)
-
-        bin_var = "m_vis"
 
         parser = ConfigParser(channel, era, config)
         plotter = FractionPlotter(settings, frac_plot_file_manager, parser)
