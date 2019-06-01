@@ -136,7 +136,7 @@ def run(args):
         logger.log()
 
         plotter.make_fraction_plots(ar_sample_sets, bin_var, "AR", outdirpath)
-        plotter.make_fraction_plots(train_sample_sets, bin_var, "train", outdirpath)
+        # plotter.make_fraction_plots(train_sample_sets, bin_var, "train", outdirpath)
 
     if datacard and "hephy.at" in os.environ["HOME"]:
         from Tools.Datacard.produce import Datacard, makePlot
