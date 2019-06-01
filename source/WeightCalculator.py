@@ -10,9 +10,12 @@ import ROOT as R
 from ROOT import TFile
 import root_numpy as rn
 import os, errno
+import logging
 
 
 def main():
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+
     era = 2017
     channels = ["tt", "et", "mt"]
 
@@ -41,14 +44,13 @@ def main():
             if e.errno != errno.EEXIST:
                 raise
 
+        calculator.generate_histos(sample_sets, bin_var)
         calculator.generate_control_plot(sample_sets, bin_var, "", outdirpath)
 
-        incl = calculator.generate_histos(sample_sets, bin_var, "", "debug")
-        w = calculator.calc_qcd_weight(incl)
+        incl = calculator.get_copied_histos()
         int_w = calculator.calc_qcd_weight_with_integrals(incl)
 
-        print "avg_weight: " + str(w)
-        print "int weight: " + str(int_w)
+        logging.info("int weight: " + str(int_w))
 
         reweighted = calculator.reweight_qcd(incl, int_w)
 
@@ -79,12 +81,11 @@ class WeightCalculator:
         self.parser = parser
         self.sample_root_path = sample_root_path
         self.sample_sets = sample_sets
+        self.histos = None
         pass
 
     def calc_qcd_weight_with_integrals(self, histograms):
         histos = copy.deepcopy(histograms)
-
-        weight = 0
 
         mc_sum = 0
         data = 0
@@ -107,55 +108,6 @@ class WeightCalculator:
 
         return weight
 
-    def calc_qcd_weight(self, histos):
-        bin_totals = []
-        frac_histos = copy.deepcopy(histos)
-
-        # get arbitrary entry from dict (number of bins must be the same for all histos)
-        dummy_histo = frac_histos.itervalues().next()
-        nbinsx = dummy_histo.GetXaxis().GetNbins()
-
-        weight_sum = 0
-        avg_weight = 0
-
-        print "nbinsx: " + str(nbinsx)
-
-        n_weights = 0
-
-        # iterate over bins
-        for i in range(0, nbinsx + 1):
-            print "i: " + str(i)
-            bin_totals.append(0)
-
-            mc_sum = 0
-            data = 0
-            qcd = 0
-            # iterate over fractions to sum up all contributions
-            for key in frac_histos:
-                #print key
-                frac_histo = frac_histos[key]
-                bin_content = frac_histo.GetBinContent(i)
-                #print bin_content
-                if "data" in key:
-                    data = bin_content
-                elif "QCD" in key:
-                    qcd = bin_content
-                else:
-                    mc_sum += bin_content
-
-            if qcd == 0:
-                continue
-
-            n_weights += 1
-            diff = abs(data - mc_sum)
-            weight = diff / qcd
-            print "weight: " + str(weight)
-            weight_sum += weight
-
-        print "n_weights:" + str(n_weights)
-        avg_weight = weight_sum / n_weights
-        return avg_weight
-
 
     def reweight_qcd(self, histos, weight):
         histos = copy.deepcopy(histos)
@@ -167,60 +119,25 @@ class WeightCalculator:
 
         return histos
 
-    def calc_qcd_weight_for_single_bin(self):
-        pass
-
-    def normalize(self, histos):
-        bin_totals = []
-        frac_histos = copy.deepcopy(histos)
-
-        # get arbitrary entry from dict (number of bins must be the same for all histos)
-        dummy_histo = frac_histos.itervalues().next()
-        nbinsx = dummy_histo.GetXaxis().GetNbins()
-
-        # iterate over bins
-        for i in range(0, nbinsx + 1):
-            bin_totals.append(0)
-            # iterate over fractions to sum up all contributions
-            for key in frac_histos:
-                frac_histo = frac_histos[key]
-                bin_content = frac_histo.GetBinContent(i)
-                bin_totals[i] += bin_content
-            # iterate over fractions again and normalize
-            for key in frac_histos:
-                frac_histo = frac_histos[key]
-                bin_content = frac_histo.GetBinContent(i)
-                if bin_totals[i] != 0 and bin_content != 0:
-                    normalized_content = bin_content / bin_totals[i]
-                    frac_histo.SetBinContent(i, normalized_content)
-
-        return frac_histos
-
-    def generate_histos(self, sample_sets, bin_var, prefix, outdirpath):
-        print "Generating histos..."
-        fraction_histo_summary = []
-
+    def generate_histos(self, sample_sets, bin_var):
+        logging.debug("Generating histos...")
         var = Var(bin_var, self.settings.channel)
+        self.histos = self.read_histo_dict(sample_sets, var)
 
-        for sample_set in sample_sets:
-            frac_histos = self.get_histos(sample_set, var)
-            fraction_histo_summary.append(frac_histos)
-
-        inclusive_histos = self.get_inclusive(var, fraction_histo_summary)
-        return inclusive_histos
+    def get_copied_histos(self):
+        return copy.deepcopy(self.histos)
 
     def generate_control_plot(self, sample_sets, bin_var, prefix, outdirpath):
-        print "Generating inclusive control plot..."
-        fraction_histo_summary = []
+        logging.debug("Generating inclusive control plot...")
 
         var = Var(bin_var, self.settings.channel)
 
-        for sample_set in sample_sets:
-            frac_histos = self.get_histos(sample_set, var)
-            fraction_histo_summary.append(frac_histos)
+        histo_dict = self.get_copied_histos()
+
+        for key in histo_dict:
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
                             "lumi": "35.87", "title": "Fractions"}
-            outfile = "{0}/{1}_{2}_test_{3}_{4}".format(outdirpath, self.settings.channel, prefix, sample_set.name, bin_var)
+            outfile = "{0}/{1}_{2}_test_{3}_{4}".format(outdirpath, self.settings.channel, prefix, key, bin_var)
 
             # if "data" not in sample_set.name:
                 # self.create_plot(frac_histos, descriptions, "{0}.png".format(outfile))
@@ -229,30 +146,31 @@ class WeightCalculator:
                         "lumi": "35.87", "title": "Fractions"}
         outfileprefix = "{0}/{1}_{2}_test_{3}_{4}".format(outdirpath, self.settings.channel, prefix, "inclusive", bin_var)
 
-        inclusive_histos = self.get_inclusive(var, fraction_histo_summary)
+        inclusive_histos = self.get_copied_histos()
         self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
 
-    def get_histos(self, sample_set, var):
+    def read_histo_dict(self, sample_sets, var):
         histograms = {}
         bin_var = var.name
+        for sample_set in sample_sets:
 
-        if "EMB" in sample_set.name:
-            branches = [bin_var] + ["*weight*"] + ["*gen_match*"]
-        else:
-            branches = [bin_var] + self.parser.weights
+            if "EMB" in sample_set.name:
+                branches = [bin_var] + ["*weight*"] + ["*gen_match*"]
+            else:
+                branches = [bin_var] + self.parser.weights
 
-        print "weights:"
-        print self.parser.weights
+            logging.debug("weights:")
+            logging.debug(self.parser.weights)
 
-        print "branch"
+            logging.debug("branch")
 
-        events = self.get_events_for_sample_set(sample_set, branches)
+            events = self.get_events_for_sample_set(sample_set, branches)
 
-        hist = self.fill_histo(events, "", sample_set, var)
-        name = sample_set.name
-        if name == "data_AR":
-            name = "data"
-        histograms[name] = hist
+            hist = self.fill_histo(events, "", sample_set, var)
+            name = sample_set.name
+            if name == "data_AR":
+                name = "data"
+            histograms[name] = hist
 
         return histograms
 
@@ -282,34 +200,13 @@ class WeightCalculator:
         #sample_path = sample_path.replace("WJets", "W")
         select = sample_set.cut
 
-        print "sample_path: " + sample_path
+        logging.debug("sample_path: " + sample_path)
 
         events = rp.read_root(paths=sample_path, where=select,
                               columns=branches)
         return events
 
-    def get_inclusive(self, var, input_histos):
-        if not input_histos:
-            print "Cannot create inclusive histograms: List of histograms is empty!"
-            return
-
-        histograms = copy.deepcopy(input_histos)
-
-        print "in get_inclusive"
-
-        fraction_histo_dict = {}
-
-        # iterate over source files
-        for histos in histograms:
-            # iterate over fractions
-            for key in histos:
-                frac_histo = histos[key]
-                fraction_histo_dict[key] = frac_histo
-
-        return fraction_histo_dict
-
     def create_plot(self, histograms, descriptions, outfile):
-
         pl.plot(histograms, canvas="linear", signal=[],
                        descriptions=descriptions, outfile=outfile)
 
