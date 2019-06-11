@@ -74,6 +74,7 @@ def run(args):
     if predict:
 
         from Prediction import Prediction
+        from PredictionHelper import PredictionHelper
 
         prediction_file_manager = PredictionFileManager("conf/path_config.json", settings)
         settings.prediction_file_manager = prediction_file_manager
@@ -95,8 +96,11 @@ def run(args):
         print "attempt logging"
         logger.log()
 
-        prediction = Prediction(settings)
-        prediction.predict()
+        # prediction = Prediction(settings)
+        # prediction.predict()
+
+        prediction_helper = PredictionHelper(settings)
+        prediction_helper.predict()
 
     if fractions:
 
