@@ -4,11 +4,11 @@ from DataController import DataController
 
 class Training:
 
-    def __init__(self, settings, file_manager, parser, sample_sets):
+    def __init__(self, settings):
         self.settings = settings
-        self.file_manager = file_manager
-        self.parser = parser
-        self.sample_sets = sample_sets
+        self.file_manager = settings.model_file_manager
+        self.parser = settings.config_parser
+        self.sample_sets = settings.filtered_samples
         self.model = 0
         self.scaler = 0
         self.setup()

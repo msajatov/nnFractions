@@ -5,20 +5,21 @@ from shutil import copy
 
 class Logger:
 
-    def __init__(self, settings, file_manager, sample_sets, parser):
+    def __init__(self, settings):
         self.settings = settings
-        self.file_manager = file_manager
-        self.sample_sets = sample_sets
-        self.parser = parser
+        self.file_manager = None
+        self.sample_sets = settings.filtered_samples
+        self.parser = settings.config_parser
 
         self.target_names = {}
-        self.target_names["default"] = parser.get_target_name_list()
-        self.variables = parser.variable_names
+        self.target_names["default"] = self.parser.get_target_name_list()
+        self.variables = self.parser.variable_names
 
 
 class TrainingLogger(Logger):
-    def __init__(self, settings, file_manager, sample_sets, parser):
-        Logger.__init__(self, settings, file_manager, sample_sets, parser)
+    def __init__(self, settings):
+        Logger.__init__(self, settings)
+        self.file_manager = settings.model_file_manager
         pass
 
     def log(self):
@@ -72,8 +73,9 @@ class TrainingLogger(Logger):
 
 
 class PredictionLogger(Logger):
-    def __init__(self, settings, file_manager, sample_sets, parser):
-        Logger.__init__(self, settings, file_manager, sample_sets, parser)
+    def __init__(self, settings):
+        Logger.__init__(self, settings)
+        self.file_manager = settings.prediction_file_manager
         pass
 
     def log(self):
@@ -129,8 +131,9 @@ class PredictionLogger(Logger):
 
 
 class FractionPlotLogger(Logger):
-    def __init__(self, settings, file_manager, sample_sets, parser):
-        Logger.__init__(self, settings, file_manager, sample_sets, parser)
+    def __init__(self, settings):
+        Logger.__init__(self, settings)
+        self.file_manager = settings.fraction_plot_file_manager
         pass
 
     def log(self):
