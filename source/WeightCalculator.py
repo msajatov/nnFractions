@@ -16,15 +16,21 @@ import logging
 def main():
     logging.basicConfig(level=logging.INFO, format="%(message)s")
 
-    era = 2017
+    era = 2016
+    embedding = True
     channels = ["tt", "et", "mt"]
 
-    bin_var = "pt_2"
+    bin_var = "m_vis"
 
     new_file = True
 
     for channel in channels:
-        config = "conf/frac_config_{0}_{1}.json".format(channel, era)
+        if embedding:
+            emb_suffix = "_emb"
+            config = "conf/emb_frac_config_{0}_{1}.json".format(channel, era)
+        else:
+            emb_suffix = ""
+            config = "conf/frac_config_{0}_{1}.json".format(channel, era)
         settings = Settings(channel, era)
         parser = ConfigParser(channel, era, config)
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
@@ -36,7 +42,7 @@ def main():
 
         calculator = WeightCalculator(settings, parser, sample_root_path, sample_sets)
 
-        outdirpath = "debug/qcd_rw/4cat/{1}/{0}".format(era, bin_var)
+        outdirpath = "debug/qcd_rw/4cat{2}/{1}/{0}".format(era, bin_var, emb_suffix)
         try:
             if not os.path.exists(outdirpath):
                 os.makedirs(outdirpath)
