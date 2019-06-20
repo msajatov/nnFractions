@@ -3,19 +3,26 @@
     "outpath": "/afs/hephy.at/work/m/msajatovic/data/mlFramework/",
     "variables":{
         "mt": [
-            "pt_2",
-            "jpt_1",
-            "jpt_2",
-            "bpt_1",
-            "bpt_2",
-            "njets",
-            "nbtag",
-            "m_sv",
-            "mt_1",
-            "pt_tt",
-            "mjj",
-            "jdeta",
-            "dijetpt"
+          "pt_1",
+          "pt_2",
+          "jpt_1",
+          "jpt_2",
+          "bpt_1",
+          "bpt_2",
+          "njets",
+          "nbtag",
+          "m_sv",
+          "mt_1",
+          "mt_2",
+          "pt_vis",
+          "pt_tt",
+          "mjj",
+          "jdeta",
+          "m_vis",
+          "dijetpt",
+          "met",
+          "eta_1",
+          "eta_2"
             ]
     },
     "shifted_variables": ["njets","jpt_1","jpt_2","jdeta","m_sv","bpt_1","bpt_2","nbtag","mt_1","pt_tt","mjj","htxs_reco_ggf","htxs_reco_vbf"],
@@ -120,7 +127,7 @@
             "target":{"mt":"qcd" },
             "select": "-SS- && -ANTIISO2- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_Data",
-            "event_weight": 0.737979086647
+            "event_weight": 0.719593819421
         },
         "EMB_anti": {
             "target":{"mt":"real"},
