@@ -132,7 +132,7 @@
             "target":{"tt":"real"},
             "select": "-OS- && -ANTIISO- && -VETO- && -MT- && -TRIG- && -GENTAU- ",
             "name": "NOMINAL_ntuple_EMB",
-            "event_weight": "weight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )"
+            "event_weight": "weight"
         },
         "VV_full": {
             "target":"none",
