@@ -18,13 +18,22 @@ def main():
     parser.add_argument('-d', dest='datacard', help='Datacard', action='store_true')
     parser.add_argument('-e', dest='era',  help='Era', choices=["2016", "2017"], required = True)
     parser.add_argument('-ext', dest='ext_input', help='Use alternative sample input path for making predictions', action='store_true')
-    parser.add_argument('-var', dest='bin_var', help='Bin variable for fraction plots or datacard', default='m_vis')
+    parser.add_argument('bin_vars', nargs="*", help='Bin variable for fraction plots or datacard', default=[])
     args = parser.parse_args()
+    
+    # parser.add_argument('var', nargs="+", help='Variable')
 
     print "---------------------------"
     print "Era: ", args.era
     print "Running over {0} samples".format(args.channel)
     print "---------------------------"
+    
+    print args.bin_vars
+    
+    if not args.bin_vars:
+        args.bin_vars = ["m_vis"]
+        
+    print args.bin_vars
 
     run(args)
 
@@ -40,7 +49,7 @@ def run(args):
     fractions = args.fractions
     datacard = args.datacard
     ext_input = args.ext_input
-    bin_var = args.bin_var
+    bin_vars = args.bin_vars
 
     file_manager = FileManager("conf/path_config.json")
 
@@ -139,8 +148,8 @@ def run(args):
         print "attempt logging"
         logger.log()
 
-        plotter.make_fraction_plots(ar_sample_sets, bin_var, "AR", outdirpath)
-        # plotter.make_fraction_plots(train_sample_sets, bin_var, "train", outdirpath)
+        for variable in bin_vars:
+            plotter.make_fraction_plots(ar_sample_sets, variable, "AR", outdirpath)
 
     if datacard and "hephy.at" in os.environ["HOME"]:
         from Tools.Datacard.produce import Datacard, makePlot
