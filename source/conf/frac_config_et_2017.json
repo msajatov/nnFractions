@@ -7,23 +7,17 @@
             "pt_2",
             "jpt_1",
             "jpt_2",
-            "bpt_1",
-            "bpt_2",
             "njets",
             "nbtag",
-            "m_sv",
             "mt_1",
-            "mt_2",
             "pt_vis",
-            "pt_tt",
             "mjj",
             "jdeta",
             "m_vis",
-            "dijetpt",
             "met",
             "eta_1",
             "eta_2"
-        ]
+        	]
     },
     "shifted_variables": ["njets","jpt_1","jpt_2","m_sv","mt_1","mt_2","bpt_1","bpt_2","nbtag","pt_tt","met","jdeta","mjj","dijetpt","htxs_reco_ggf","htxs_reco_vbf"],
     "addvar": [
