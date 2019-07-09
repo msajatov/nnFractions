@@ -123,7 +123,7 @@
             "target":{ "tt":"qcd" },
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_Data",
-            "event_weight": 1.74231385079
+            "event_weight": 1.72485255242
         },
         "EMB_anti": {
             "target":{ "tt":"real" },
