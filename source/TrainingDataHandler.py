@@ -63,7 +63,8 @@ class TrainingDataHandler(DataHandler):
         model = modelObject(parameter_file=parameters,
                             variables=self.config_parser.variable_names,
                             target_names=self.config_parser.get_target_names())
-        model.train(trainSet)
+        model.channel = self.settings.channel
+        model.train(trainSet, self.file_manager.get_dir_path("model_output_dir"))
 
         print "attempting to save model to " + self.file_manager.get_model_filepath()
         model.save(self.file_manager.get_model_filepath())

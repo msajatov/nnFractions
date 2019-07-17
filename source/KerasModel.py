@@ -11,8 +11,11 @@ from keras.utils.np_utils import to_categorical
 from collections import deque
 import time
 import os
+import pickle
 
 class KerasObject():
+    
+    channel = ""
 
     def __init__(self, parameter_file = "", variables=[], target_names = {}, filename = "" ):
 
@@ -63,7 +66,7 @@ class KerasObject():
         self.models = tmp_models
 
 
-    def train(self, samples):
+    def train(self, samples, outpath=""):
 
         if type(samples) is list:
             samples = deque(samples)
@@ -77,13 +80,13 @@ class KerasObject():
             
             train = concat(train , ignore_index=True).reset_index(drop=True)
 
-            self.models.append( self.trainSingle( train, test ) )
+            self.models.append( self.trainSingle( train, test, outpath ) )
             samples.rotate(-1)
 
         print "Finished training!"
 
 
-    def trainSingle(self, train, test):
+    def trainSingle(self, train, test, outpath=""):
 
 
         # writing targets in keras readable shape
@@ -118,14 +121,20 @@ class KerasObject():
         plt.xlabel("Epoch")
         plt.ylabel("Loss")
         plt.legend()
-        if not os.path.exists("plots"):
-            os.mkdir("plots")
-        plt.savefig("plots/fold_{0}_loss.png".format(best), bbox_inches="tight")
+        
+        plotpath = os.path.join(outpath, "plots")
+        if not os.path.exists(plotpath):
+            os.mkdir(plotpath)
+        plt.savefig(os.path.join(plotpath, "{0}_fold_{1}_loss.png".format(self.channel, best)), bbox_inches="tight")
 
 
         print "Reloading best model"
         model = lm(best + ".model")
         os.remove( best + ".model" )
+        
+        print "Saving history"
+        with open(os.path.join(outpath, '{0}_trainHistoryDict_fold_{1}'.format(self.channel, best)), 'wb') as file_pi:
+            pickle.dump(history.history, file_pi)
 
         return model
 
