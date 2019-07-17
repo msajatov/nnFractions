@@ -21,6 +21,12 @@
     },
     "shifted_variables": ["njets","jpt_1","jpt_2","jdeta","m_sv","bpt_1","bpt_2","nbtag","mt_1","pt_tt","mjj","htxs_reco_ggf","htxs_reco_vbf"],
     "addvar": [
+    	"bpt_1",
+    	"bpt_2",
+    	"m_sv",
+    	"mt_2",
+    	"pt_tt",
+    	"dijetpt",
         "evt",
         "by*IsolationMVArun2017v2DBoldDMwLT2017*",
         "pt_1",
