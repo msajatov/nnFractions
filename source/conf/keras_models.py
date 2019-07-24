@@ -202,7 +202,7 @@ def smhtt_alpha_dropout_selu_lecun(num_inputs, num_outputs):
         else:
             model.add(Dense(nodes, kernel_initializer="lecun_normal", kernel_regularizer=l2(1e-5)))
         model.add(Activation("selu"))
-        model.add(AlphaDropout(0.1))
+        model.add(AlphaDropout(0.05))
 
     model.add(Dense(num_outputs, kernel_initializer="lecun_normal", kernel_regularizer=l2(1e-5)))
     model.add(Activation("softmax"))
