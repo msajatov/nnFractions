@@ -31,7 +31,28 @@ def main():
     print args.bin_vars
     
     if not args.bin_vars:
-        args.bin_vars = ["m_vis"]
+        args.bin_vars = [
+                        "pt_1",
+                        "pt_2",
+                        "jpt_1",
+                        "jpt_2",
+                        "bpt_1",
+                        "bpt_2",
+                        "njets",
+                        "nbtag",
+                        "m_sv",
+                        "mt_1",
+                        "mt_2",
+                        "pt_vis",
+                        "pt_tt",
+                        "mjj",
+                        "jdeta",
+                        "m_vis",
+                        "dijetpt",
+                        "met",
+                        "eta_1",
+                        "eta_2"
+                        ]
         
     print args.bin_vars
 
