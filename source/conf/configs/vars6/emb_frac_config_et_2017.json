@@ -26,7 +26,7 @@
             "iso_2"
         	]
     },
-    "shifted_variables": ["njets","jpt_1","jpt_2","m_sv","mt_1","mt_2","bpt_1","bpt_2","nbtag","pt_tt","met","jdeta","mjj","dijetpt","htxs_reco_ggf","htxs_reco_vbf"],
+    "shifted_variables": ["m_sv","njets","jpt_1","jpt_2","m_sv","mt_1","mt_2","bpt_1","bpt_2","nbtag","pt_tt","met","jdeta","mjj","dijetpt","htxs_reco_ggf","htxs_reco_vbf"],
     "addvar": [
         "evt",
         "by*IsolationMVArun2017v2DBoldDMwLT2017*",
