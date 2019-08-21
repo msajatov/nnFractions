@@ -16,7 +16,7 @@ import logging
 def main():
     logging.basicConfig(level=logging.INFO, format="%(message)s")
 
-    era = 2016
+    era = 2017
     embedding = True
     channels = ["tt", "et", "mt"]
 
@@ -27,10 +27,10 @@ def main():
     for channel in channels:
         if embedding:
             emb_suffix = "_emb"
-            config = "conf/emb_frac_config_{0}_{1}.json".format(channel, era)
+            config = "conf/configs/vars8_ss/emb_frac_config_{0}_{1}.json".format(channel, era)
         else:
             emb_suffix = ""
-            config = "conf/frac_config_{0}_{1}.json".format(channel, era)
+            config = "conf/configs/vars8_ss/frac_config_{0}_{1}.json".format(channel, era)
         settings = Settings(channel, era)
         parser = ConfigParser(channel, era, config)
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
@@ -42,7 +42,7 @@ def main():
 
         calculator = WeightCalculator(settings, parser, sample_root_path, sample_sets)
 
-        outdirpath = "debug/qcd_rw/4cat{2}/{1}/{0}".format(era, bin_var, emb_suffix)
+        outdirpath = "debug/qcd_rw_new/4cat{2}/{1}/{0}".format(era, bin_var, emb_suffix)
         try:
             if not os.path.exists(outdirpath):
                 os.makedirs(outdirpath)
