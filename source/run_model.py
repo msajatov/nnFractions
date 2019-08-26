@@ -173,7 +173,8 @@ def run(args):
 
         for variable in bin_vars:
             plotter.make_fraction_plots(ar_sample_sets, variable, "AR", outdirpath)
-            plotter.make_fraction_plots(train_sample_sets, variable, "train", outdirpath)
+            #plotter.make_fraction_plots(train_sample_sets, variable, "train", outdirpath)
+            plotter.make_classification_plots(train_sample_sets, variable, "train", outdirpath)
             
     if trainingFracplots:
         from FractionPlotter import FractionPlotter

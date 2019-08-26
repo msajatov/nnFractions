@@ -2,7 +2,6 @@ import json
 import sys
 from SampleSet import SampleSet
 from TargetCategory import TargetCategory
-from ComplexCut import ComplexCut
 from Cut import Cut
 
 

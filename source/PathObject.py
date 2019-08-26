@@ -1,5 +1,13 @@
 import os, errno
 
+def makeDir(path):
+    try:
+        if not os.path.exists(path):
+            os.makedirs(path)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise
+
 
 class PathObject:
 

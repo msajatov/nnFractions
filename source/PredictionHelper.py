@@ -46,22 +46,32 @@ class PredictionHelper:
             dirpath = self.file_manager.get_dir_path("prediction_output_dir")
             outpath = "{0}/{1}-{2}.root".format(dirpath, self.settings.channel, filename)
 
+            invert = False
+
             iter = controller.read_for_prediction(sample_info)
             for data_frame in iter:
-                if not self.ext_input:
-                    controller.modifyDF(data_frame, sample_info)
-                prediction_folds = self.prediction.get_prediction_folds(data_frame)
-                self.addPredictionToOutput(prediction_folds, data_frame, outpath, first)
+                # if not self.ext_input:
+                #     controller.modifyDF(data_frame, sample_info)
+                prediction_folds = self.prediction.get_prediction_folds(data_frame, "evt", invert=invert)
+                self.addPredictionToOutput(prediction_folds, data_frame, outpath, first, invert=invert)
                 first = False
 
-    def addPredictionToOutput(self, prediction, df, outpath, new=True):
+    def addPredictionToOutput(self, prediction, df, outpath, new=True, invert=False):
+
+        reordered = []
+
+        if invert:
+            reordered.append(prediction[1])
+            reordered.append(prediction[0])
+        else:
+            reordered = prediction
 
         folds = PredictionWrapper.splitInFolds(df)
         df.drop(df.index, inplace=True)
 
         for i in xrange(len(folds)):
-            for c in prediction[i].columns.values.tolist():
-                folds[i][c] = prediction[i][c]
+            for c in reordered[i].columns.values.tolist():
+                folds[i][c] = reordered[i][c]
 
             if i == 0 and new:
                 mode = "w"

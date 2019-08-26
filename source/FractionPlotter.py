@@ -10,6 +10,8 @@ from ConfigParser import ConfigParser
 from TargetCategory import TargetCategory
 from SampleSet import SampleSet
 from pandas import DataFrame, concat
+from PathObject import makeDir
+import os
 import copy
 
 
@@ -82,6 +84,32 @@ class FractionPlotter:
         # self.create_normalized_plot(inclusive_histos, descriptions, "{0}_norm.png".format(outfileprefix))
         # self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
 
+    def make_classification_plots(self, sample_sets, bin_var, prefix, outdirpath):
+        fraction_histo_summary = []
+
+        var = Var(bin_var, self.settings.channel)
+
+        for sample_set in sample_sets:
+            histos = self.get_histos_for_classification(sample_set, var)
+            fraction_histo_summary.append(histos)
+            descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
+                            "lumi": "35.87", "title": "Fractions"}
+
+            newoutpath = os.path.join(outdirpath, "classification")
+            makeDir(newoutpath)
+
+            outfile = "{0}/{1}_{2}_frac_{3}_{4}".format(newoutpath, self.settings.channel, prefix, sample_set.name, bin_var)
+            self.create_plot(histos, descriptions, "{0}.png".format(outfile))
+            self.create_normalized_plot(histos, descriptions, "{0}_norm.png".format(outfile))
+
+        descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
+                        "lumi": "35.87", "title": "Full Classification Fractions"}
+        outfileprefix = "{0}/{1}_{2}_frac_{3}_{4}".format(newoutpath, self.settings.channel, prefix, "inclusive", bin_var)
+
+        inclusive_histos = self.get_inclusive(var, fraction_histo_summary)
+        self.create_normalized_plot(inclusive_histos, descriptions, "{0}_norm.png".format(outfileprefix))
+        self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
+
     def get_histos_for_fractions(self, sample_set, var):
         histograms = {}
         bin_var = var.name
@@ -103,6 +131,27 @@ class FractionPlotter:
         #     print i
         #     hist = self.fill_histo(events, "", "predicted_prob_{0}".format(i), var)
         #     histograms["predicted_prob_{0}".format(i)] = hist
+
+        return histograms
+
+    def get_histos_for_classification(self, sample_set, var):
+        histograms = {}
+        bin_var = var.name
+        branches = [bin_var] + ["predicted_frac_class"]
+
+        events = self.get_events_for_sample_set(sample_set, branches)
+
+        dict = self.get_branch_frac_dict()
+
+        for i in range(0, len(self.get_frac_branches())):
+            print "index is:"
+            print i
+
+            filtered = events.query("predicted_frac_class == {0}".format(i))
+
+            hist = self.fill_histo(filtered, "", "1", var)
+            frac_name = dict["predicted_frac_prob_{0}".format(i)]
+            histograms[frac_name] = hist
 
         return histograms
 
