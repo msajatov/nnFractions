@@ -19,7 +19,9 @@
             "jdeta",
             "m_vis",
             "dijetpt",
-            "met"
+            "met",
+            "eta_1",
+            "eta_2"
             ]
     },
     "shifted_variables": ["njets","jpt_1","jpt_2","jdeta","m_sv","mt_1","mt_2","bpt_1","bpt_2","nbtag","pt_tt","dijetpt","mjj","dijetpt","htxs_reco_ggf","htxs_reco_vbf"],

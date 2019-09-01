@@ -2,7 +2,7 @@
     "path": "/afs/hephy.at/data/higgs01/v10/",
     "outpath": "/afs/hephy.at/work/m/msajatovic/data/mlFramework/",
     "variables":{
-        "tt": [
+        "et": [
             "pt_1",
             "pt_2",
             "jpt_1",
@@ -19,15 +19,18 @@
             "jdeta",
             "m_vis",
             "dijetpt",
-            "met"
-            ]
+            "met",
+            "eta_1",
+            "eta_2"
+        	]
     },
-    "shifted_variables": ["njets","jpt_1","jpt_2","jdeta","m_sv","mt_1","mt_2","bpt_1","bpt_2","nbtag","pt_tt","dijetpt","mjj","dijetpt","htxs_reco_ggf","htxs_reco_vbf"],
+    "shifted_variables": ["njets","jpt_1","jpt_2","m_sv","mt_1","mt_2","bpt_1","bpt_2","nbtag","pt_tt","met","jdeta","mjj","dijetpt","htxs_reco_ggf","htxs_reco_vbf"],
     "addvar": [
         "evt",
         "by*IsolationMVArun2017v2DBoldDMwLT2017*",
         "pt_1",
         "pt_2",
+        "m_vis",
         "q_1",
         "q_2",
         "iso_1",
@@ -53,14 +56,14 @@
     ],
 
     "version":{
-        "tt":"v5"
+        "et":"v5"
     },
     "lumi": 41.529,
       "class_weight":{
-        "tt":     {"tt":61.0 },
-        "w":     {"tt":15.7 },
-        "qcd":     {"tt":1.2 },
-        "real":  {"tt":9.9 }
+          "tt":     {"et":17.1   },
+        "w":     {"et":2.5  },
+        "qcd":     {"et":2.5    },
+          "real":     {"et":7.2 }
       },
 
     "target_values":{
@@ -71,62 +74,62 @@
     },
 
     "weights":["*weight*","gen_match*","topPtReweightWeight*","zPtReweightWeight", "sf*","njets","jpt_1","jdeta","mjj", "dijetpt"],
-    "shape_from_file":["TES1p0p0","TES1p1p0","TES3p0p0"],
+    "shape_from_file":["TES1p0p0","TES1p1p0","TES3p0p0","EES1p0p0","EES1p1p0","EES"],
     "shape_from_tree":["Total","CMS_scale_j_eta0to5_13TeV","CMS_scale_j_eta0to3_13TeV","CMS_scale_j_eta3to5_13TeV","CMS_scale_j_RelativeBal_13TeV","CMS_scale_j_RelativeSample_13TeV",
                        "Btag","Mistag","CMS_htt_boson_reso_met_13TeV","CMS_htt_boson_scale_met_13TeV"
     ],
 
     "samples":{
         "ZL_anti": {
-            "target":{ "tt":"real" },
+            "target":{"et":"real"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- &&  ((-GENJET- || -GENTAU-) < 0.5)",
             "name": "NOMINAL_ntuple_DY",
-            "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight"
+            "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight*sf_SingleXorCrossTrigger"
         },
         "ZJ_anti": {
-            "target":{ "tt":"w" },
+            "target":{"et":"w"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENJET-",
             "name": "NOMINAL_ntuple_DY",
-            "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight"
+            "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight*sf_SingleXorCrossTrigger"
         },
         "TTL_anti": {
-            "target":{ "tt":"real" },
+            "target":{"et":"real"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && ((-GENJET- || -GENTAU-) < 0.5)",
             "name": "NOMINAL_ntuple_TT",
-            "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1"
+            "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1*sf_SingleXorCrossTrigger"
         },
         "TTJ_anti": {
-            "target":{ "tt":"tt" },
+            "target":{"et":"tt"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENJET- ",
             "name": "NOMINAL_ntuple_TT",
-            "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1"
+            "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1*sf_SingleXorCrossTrigger"
         },
         "VVL_anti": {
-            "target":{ "tt":"real" },
+            "target":{"et":"real"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && ((-GENJET- || -GENTAU-) < 0.5)",
             "name": "NOMINAL_ntuple_VV",
-            "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )"
+            "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*sf_SingleXorCrossTrigger"
         },
         "VVJ_anti": {
-            "target":{ "tt":"w" },
+            "target":{"et":"w"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENJET-",
             "name": "NOMINAL_ntuple_VV",
-            "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )"
+            "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*sf_SingleXorCrossTrigger"
         },
         "W_anti": {
-            "target":{ "tt":"w" },
+            "target":{"et":"w"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_WJets",
-            "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )"
+            "event_weight": "weight*0.991*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*sf_SingleXorCrossTrigger"
         },
         "QCD_estimate": {
-            "target":{ "tt":"qcd" },
-            "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG-",
+            "target":{"et":"qcd"},
+            "select": "-SS- && -ANTIISO2- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_Data",
-            "event_weight": 0.86577682219
+            "event_weight": 0.553036295013
         },
         "EMB_anti": {
-            "target":{"tt":"real"},
+            "target":{"et":"real"},
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENTAU- ",
             "name": "NOMINAL_ntuple_EMB",
             "event_weight": "weight"

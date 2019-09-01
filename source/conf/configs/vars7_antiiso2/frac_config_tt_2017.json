@@ -19,7 +19,9 @@
             "jdeta",
             "m_vis",
             "dijetpt",
-            "met"
+            "met",
+            "eta_1",
+            "eta_2"
             ]
     },
     "shifted_variables": ["njets","jpt_1","jpt_2","jdeta","m_sv","mt_1","mt_2","bpt_1","bpt_2","nbtag","pt_tt","dijetpt","mjj","dijetpt","htxs_reco_ggf","htxs_reco_vbf"],
@@ -77,6 +79,12 @@
     ],
 
     "samples":{
+        "ZTT_anti": {
+            "target":{ "tt":"real" },
+            "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENTAU-",
+            "name": "NOMINAL_ntuple_DY",
+            "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight"
+        },
         "ZL_anti": {
             "target":{ "tt":"real" },
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- &&  ((-GENJET- || -GENTAU-) < 0.5)",
@@ -89,6 +97,12 @@
             "name": "NOMINAL_ntuple_DY",
             "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*zPtReweightWeight"
         },
+        "TTT_anti": {
+            "target":{ "tt":"real" },
+            "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENTAU- ",
+            "name": "NOMINAL_ntuple_TT",
+            "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1"
+        },
         "TTL_anti": {
             "target":{ "tt":"real" },
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && ((-GENJET- || -GENTAU-) < 0.5)",
@@ -100,6 +114,12 @@
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENJET- ",
             "name": "NOMINAL_ntuple_TT",
             "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )*topPtReweightWeightRun1"
+        },
+        "VVT_anti": {
+            "target":{ "tt":"real" },
+            "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENTAU- ",
+            "name": "NOMINAL_ntuple_VV",
+            "event_weight": "weight*sf_DoubleTauTight*( 0.89*(gen_match_1 == 5) + 1.*(gen_match_1 !=5) )*( 0.89*(gen_match_2 == 5) + 1.*(gen_match_2 !=5) )"
         },
         "VVL_anti": {
             "target":{ "tt":"real" },
@@ -123,13 +143,7 @@
             "target":{ "tt":"qcd" },
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_Data",
-            "event_weight": 0.86577682219
-        },
-        "EMB_anti": {
-            "target":{"tt":"real"},
-            "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG- && -GENTAU- ",
-            "name": "NOMINAL_ntuple_EMB",
-            "event_weight": "weight"
+            "event_weight": 0.889903917272
         },
         "VV_full": {
             "target":"none",

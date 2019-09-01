@@ -141,7 +141,7 @@
             "target":{ "tt":"qcd" },
             "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_Data",
-            "event_weight": 1.92374324867
+            "event_weight": 0.889903917272
         },
         "VV_full": {
             "target":"none",
@@ -181,7 +181,7 @@
         },
         "data_AR": {
             "target":"none",
-            "select": "-OS- && -ANTIISO- && -VETO- && -MT- && -TRIG-",
+            "select": "-OS- && -ANTIISO2- && -VETO- && -MT- && -TRIG-",
             "name": "NOMINAL_ntuple_Data",
             "event_weight": 1.0
         }
