@@ -30,7 +30,7 @@ class PredictionHelper:
     def predict(self):
 
         print "scaler: ", self.scaler
-        controller = DataController(self.parser.data_root_path, 2, self.parser, self.settings, self.ext_input,
+        controller = DataController(self.parser.data_root_path, self.settings.folds, self.parser, self.settings, self.ext_input,
                                     sample_sets=[])
 
         sample_info_dicts = controller.prepare(self.sample_sets)
@@ -56,7 +56,7 @@ class PredictionHelper:
 
     def addPredictionToOutput(self, prediction, df, outpath, new=True):
 
-        folds = PredictionWrapper.splitInFolds(df)
+        folds = PredictionWrapper.splitInFolds(df, self.settings.folds)
         df.drop(df.index, inplace=True)
 
         for i in xrange(len(folds)):
