@@ -174,7 +174,7 @@ def run(args):
         for variable in bin_vars:
             plotter.make_fraction_plots(ar_sample_sets, variable, "AR", outdirpath)
             #plotter.make_fraction_plots(train_sample_sets, variable, "train", outdirpath)
-            plotter.make_classification_plots(train_sample_sets, variable, "train", outdirpath)
+            #plotter.make_classification_plots(train_sample_sets, variable, "train", outdirpath)
             
     if trainingFracplots:
         from FractionPlotter import FractionPlotter
@@ -186,6 +186,7 @@ def run(args):
 
         train_sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
         train_sample_sets = [sset for sset in train_sample_sets if (not "AR" in sset.name)]
+        train_sample_sets = [sset for sset in train_sample_sets if (not "EMB" in sset.name)]
 
         ar_sample_sets = [sset for sset in parser.sample_sets if "data_AR" in sset.name]
 
@@ -221,7 +222,7 @@ def run(args):
                 raise
         
         for variable in bin_vars:
-            plotter.make_fraction_plots(train_sample_sets, variable, "train", trainOutpath)
+            plotter.make_fraction_plots(train_sample_sets, variable, "train", trainOutpath, True)
 
     if datacard and "hephy.at" in os.environ["HOME"]:
         from Tools.Datacard.produce import Datacard, makePlot

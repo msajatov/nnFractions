@@ -18,7 +18,7 @@ def main():
 
     era = 2017
     embedding = True
-    channels = ["tt", "et", "mt"]
+    channels = ["tt"]
 
     bin_var = "m_vis"
 
@@ -27,10 +27,10 @@ def main():
     for channel in channels:
         if embedding:
             emb_suffix = "_emb"
-            config = "conf/configs/vars8_ss/emb_frac_config_{0}_{1}.json".format(channel, era)
+            config = "conf/configs/vars8_antiiso2/emb_frac_config_{0}_{1}.json".format(channel, era)
         else:
             emb_suffix = ""
-            config = "conf/configs/vars8_ss/frac_config_{0}_{1}.json".format(channel, era)
+            config = "conf/configs/vars8_antiiso2/frac_config_{0}_{1}.json".format(channel, era)
         settings = Settings(channel, era)
         parser = ConfigParser(channel, era, config)
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
@@ -42,7 +42,7 @@ def main():
 
         calculator = WeightCalculator(settings, parser, sample_root_path, sample_sets)
 
-        outdirpath = "debug/qcd_rw_new/4cat{2}/{1}/{0}".format(era, bin_var, emb_suffix)
+        outdirpath = "debug/qcd_rw_antiiso2/vars8/4cat{2}/{1}/{0}".format(era, bin_var, emb_suffix)
         try:
             if not os.path.exists(outdirpath):
                 os.makedirs(outdirpath)
@@ -101,7 +101,7 @@ class WeightCalculator:
             # print key
             histo = histos[key]
             content = histo.Integral()
-            # print bin_content
+            print key + " integral:" + str(content)
             if "data" in key:
                 data = content
             elif "QCD" in key:
@@ -111,6 +111,9 @@ class WeightCalculator:
 
         diff = abs(data - mc_sum)
         weight = diff / qcd
+        
+        new_total = mc_sum + qcd * weight
+        print "new total: " + str(new_total)
 
         return weight
 

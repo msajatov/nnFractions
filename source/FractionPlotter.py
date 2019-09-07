@@ -62,14 +62,14 @@ class FractionPlotter:
 
     # for each sample individually (TTJ, VVT etc.) and inclusive (all together)
     # legend: fractions, (tt_jet, w_jet, qcd_jet, other) or (tt, w, qcd)
-    def make_fraction_plots(self, sample_sets, bin_var, prefix, outdirpath):
-        fraction_histo_summary = []
+    def make_fraction_plots(self, sample_sets, bin_var, prefix, outdirpath, inclusive=False):
+        fraction_histo_summary = {}
 
         var = Var(bin_var, self.settings.channel)
 
         for sample_set in sample_sets:
             frac_histos = self.get_histos_for_fractions(sample_set, var)
-            fraction_histo_summary.append(frac_histos)
+            fraction_histo_summary[sample_set.name] = frac_histos
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
                             "lumi": "35.87", "title": "Fractions"}
             outfile = "{0}/{1}_{2}_frac_{3}_{4}".format(outdirpath, self.settings.channel, prefix, sample_set.name, bin_var)
@@ -80,11 +80,12 @@ class FractionPlotter:
                         "lumi": "35.87", "title": "Fractions"}
         outfileprefix = "{0}/{1}_{2}_frac_{3}_{4}".format(outdirpath, self.settings.channel, prefix, "inclusive", bin_var)
 
-        # inclusive_histos = self.get_inclusive(var, fraction_histo_summary)
-        # self.create_normalized_plot(inclusive_histos, descriptions, "{0}_norm.png".format(outfileprefix))
-        # self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
+        if inclusive:
+            inclusive_histos = self.get_inclusive(var, fraction_histo_summary)
+            self.create_normalized_plot(inclusive_histos, descriptions, "{0}_norm.png".format(outfileprefix))
+            self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
 
-    def make_classification_plots(self, sample_sets, bin_var, prefix, outdirpath):
+    def make_classification_plots(self, sample_sets, bin_var, prefix, outdirpath, inclusive=False):
         fraction_histo_summary = []
 
         var = Var(bin_var, self.settings.channel)
@@ -106,14 +107,19 @@ class FractionPlotter:
                         "lumi": "35.87", "title": "Full Classification Fractions"}
         outfileprefix = "{0}/{1}_{2}_frac_{3}_{4}".format(newoutpath, self.settings.channel, prefix, "inclusive", bin_var)
 
-        inclusive_histos = self.get_inclusive(var, fraction_histo_summary)
-        self.create_normalized_plot(inclusive_histos, descriptions, "{0}_norm.png".format(outfileprefix))
-        self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
+        if inclusive:
+            inclusive_histos = self.get_inclusive(var, fraction_histo_summary)
+            self.create_normalized_plot(inclusive_histos, descriptions, "{0}_norm.png".format(outfileprefix))
+            self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
 
     def get_histos_for_fractions(self, sample_set, var):
         histograms = {}
         bin_var = var.name
-        branches = [bin_var] + self.get_frac_branches()
+        
+        if "EMB" in sample_set.name:
+            branches = [bin_var] + ["*weight*"] + ["*gen_match*"] + self.get_frac_branches()
+        else:
+            branches = [bin_var] + self.config_parser.weights + self.get_frac_branches()
 
         events = self.get_events_for_sample_set(sample_set, branches)
 
@@ -122,7 +128,7 @@ class FractionPlotter:
         for i in range(0, len(self.get_frac_branches())):
             print "index is:"
             print i
-            hist = self.fill_histo(events, "", "predicted_frac_prob_{0}".format(i), var)
+            hist = self.fill_histo(events, "", "predicted_frac_prob_{0}".format(i) + " * " + sample_set.weight, var)
             frac_name = dict["predicted_frac_prob_{0}".format(i)]
             histograms[frac_name] = hist
 
@@ -171,6 +177,7 @@ class FractionPlotter:
         tmpHist = R.TH1F(template, template, *(var.bins("def")))
 
         tmpHist.Sumw2(True)
+        print "applying weight " + weight
         events.eval("event_weight=" + weight, inplace=True)
 
         fill_with = var.getBranches(jec_shift="")
@@ -248,7 +255,7 @@ class FractionPlotter:
         histograms = copy.deepcopy(input_histos)
 
         # get first list entry (arbitrary, number of histos must be the same for all entries)
-        dummy_frac_histos = histograms[0]
+        dummy_frac_histos = histograms.itervalues().next()
         keys = dummy_frac_histos.keys()
 
         fraction_histo_dict = {}
@@ -256,11 +263,27 @@ class FractionPlotter:
             fraction_histo_dict[key] = R.TH1F("", "", *(var.bins("def")))
 
         # iterate over source files
-        for histos in histograms:
+        for name, histos in histograms.items():
+            print "looking at " + name
+            if "QCD" in name:
+                weight = 1
+                #weight = 0.571225332448
+            else:
+                weight = 1
+            print "using weight " + str(weight)
             # iterate over fractions
+            integral_per_sample = 0
+            
             for key in histos:
                 frac_histo = histos[key]
+                frac_histo.Scale(float(weight))
+                
+                integral = frac_histo.Integral()
+                integral_per_sample += integral
+                print "integral for {0}, {1}: ".format(name, key) + str(integral)
                 fraction_histo_dict[key].Add(frac_histo)
+                
+            print "integral for {0}: ".format(name) + str(integral_per_sample)
 
         return fraction_histo_dict
 
