@@ -11,6 +11,7 @@ class Settings:
         self.model_file_manager = None
         self.prediction_file_manager = None
         self.fraction_plot_file_manager = None
+        self.folds = 2
 
     def __str__(self):
         result = ""
