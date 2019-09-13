@@ -1,6 +1,6 @@
 {
 	"model":{
-		"name":"smhtt_dropout_selu",
+		"name":"smhtt_dropout_tanh",
 		"batch_size":100,
 		"epochs":100000,
 		"early_stopping":50
