@@ -71,13 +71,13 @@ class FractionPlotter:
             frac_histos = self.get_histos_for_fractions(sample_set, var)
             fraction_histo_summary[sample_set.name] = frac_histos
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                            "lumi": "41.5", "title": ""}
+                            "lumi": "41.5", "title": "", "yaxis": "Background Fractions"}
             outfile = "{0}/{1}_{2}_frac_{3}_{4}".format(outdirpath, self.settings.channel, prefix, sample_set.name, bin_var)
             self.create_plot(frac_histos, descriptions, "{0}.png".format(outfile))
             self.create_normalized_plot(frac_histos, descriptions, "{0}_norm.png".format(outfile))
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                        "lumi": "41.5", "title": ""}
+                        "lumi": "41.5", "title": "", "yaxis": "Background Fractions"}
         outfileprefix = "{0}/{1}_{2}_frac_{3}_{4}".format(outdirpath, self.settings.channel, prefix, "inclusive", bin_var)
 
         if inclusive:
@@ -94,7 +94,7 @@ class FractionPlotter:
             histos = self.get_histos_for_classification(sample_set, var)
             fraction_histo_summary[sample_set.name] = histos
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                            "lumi": "41.5", "title": ""}
+                            "lumi": "41.5", "title": "", "yaxis": "Background Fractions (Classification)"}
 
             newoutpath = os.path.join(outdirpath, "classification")
             makeDir(newoutpath)
@@ -104,7 +104,7 @@ class FractionPlotter:
             self.create_normalized_plot(histos, descriptions, "{0}_norm.png".format(outfile))
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                        "lumi": "41.5", "title": ""}
+                        "lumi": "41.5", "title": "", "yaxis": "Background Fractions (Classification)"}
         outfileprefix = "{0}/{1}_{2}_frac_{3}_{4}".format(newoutpath, self.settings.channel, prefix, "inclusive", bin_var)
 
         if inclusive:
@@ -223,6 +223,8 @@ class FractionPlotter:
 
     def create_normalized_plot(self, histos, descriptions, outfile):
         frac_histos = self.normalize(histos)
+#         if descriptions.get("yaxis", ""):
+#             descriptions["yaxis"] = "Normalized " + descriptions.get("yaxis", "")
         self.create_plot(frac_histos, descriptions, outfile, False)
 
     def normalize(self, histos):
