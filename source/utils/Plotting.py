@@ -62,14 +62,14 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     width=700 
     height=600   
         
-    topMargin=0.08
+    topMargin=0.18
     bottomMargin=0.12
     leftMargin=0.15
     rightMargin=0.10
         
 # x1, y1, x2, y2
 #     leg = R.TLegend(leftMargin + 0.79, 0.20, leftMargin + 0.90, 0.92)
-    leg = R.TLegend(1 - rightMargin + 0.02, 0.20, 1 - rightMargin + 0.12, 0.92)
+    leg = R.TLegend(1 - rightMargin + 0.02, 0.20, 1 - rightMargin + 0.12, 1 - topMargin)
     leg.SetTextSize(0.04)
 #     leg.SetBorderSize(0.06)
     leg.SetBorderSize(0)
@@ -103,8 +103,8 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     dummy_down.GetXaxis().SetLabelSize(0)
     dummy_down.GetXaxis().SetTitle("")
 
-    cms1 = R.TLatex(leftMargin, 0.93, "CMS")
-    cms2 = R.TLatex(leftMargin + 0.08, 0.93, descriptions.get("plottype", "ProjectWork"))
+    cms1 = R.TLatex(leftMargin, 1 - topMargin + 0.01 * 600 / height, "CMS")
+    cms2 = R.TLatex(leftMargin + 0.08, 1 - topMargin + 0.01 * 600 / height, descriptions.get("plottype", "ProjectWork"))
     
     
     chtex = {"et": r"#font[42]{#scale[0.95]{e}}#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
@@ -112,7 +112,7 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     ch = chtex.get(ch, ch)
 #     channel = R.TLatex(0.75, 0.932, ch)
 #     channel = R.TLatex( leftMargin + 0.51, 0.932, ch )
-    channel = R.TLatex(1 - rightMargin - 0.255 * 700 / width, 0.932, ch )
+    channel = R.TLatex(1 - rightMargin - 0.255 * 700 / width, 1 - topMargin + 0.012 * 600 / height, ch )
     
 #     rightOffset = 227.5
 
@@ -121,7 +121,7 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     l = lumi + r" fb^{-1}"
     r = " ({0} TeV)".format(som)
 #     righttop = R.TLatex(leftMargin + 0.565, 0.932, l + r)
-    righttop = R.TLatex(1 - rightMargin - 0.21 * 700 / width, 0.932, l + r)
+    righttop = R.TLatex(1 - rightMargin - 0.21 * 700 / width, 1 - topMargin + 0.012 * 600 / height, l + r)
 
     cms1.SetNDC()
     cms2.SetNDC()
