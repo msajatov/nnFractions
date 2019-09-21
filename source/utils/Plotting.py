@@ -73,12 +73,13 @@ def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={
     dummy_up.SetTitle(descriptions.get("title", ""))
     dummy_up.GetYaxis().SetRangeUser(0.5, 1.5)
     dummy_up.GetYaxis().SetNdivisions(10, 4, 0, optimizeTicks)
+    dummy_up.GetYaxis().SetTickSize(0.02)
 #     dummy_up.GetYaxis().SetTitle(descriptions.get("yaxis", "some quantity"))
     dummy_up.GetXaxis().SetTitleSize(0.04)
 #     dummy_up.GetYaxis().SetTickLength(0.05)
     dummy_up.GetYaxis().SetLabelSize(0.04)
     
-    
+    dummy_up.GetXaxis().SetTickSize(0.02)
     dummy_up.GetXaxis().SetTitleSize(0.03)
     dummy_up.GetXaxis().SetTitle(descriptions.get("xaxis", "some quantity"))
     dummy_up.GetXaxis().SetTitleOffset(1.15)
