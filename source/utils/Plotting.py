@@ -40,7 +40,7 @@ def main():
 
 
 
-def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={}):
+def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={}, optimizeTicks=True):
 
     histos = copy.deepcopy(histograms)
 
@@ -59,8 +59,10 @@ def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={
         stack.Add(copy.deepcopy(h[1]))
         cumul.Add(h[1])
 
-    leg = R.TLegend(0.82, 0.29, 0.98, 0.92)
+    leg = R.TLegend(0.82, 0.20, 0.98, 0.92)
     leg.SetTextSize(0.04)
+#     leg.SetBorderSize(0.06)
+    leg.SetBorderSize(0)
 
     for h in reversed(histos):
         leg.AddEntry(h[1], getFancyName(h[0]))
@@ -70,11 +72,12 @@ def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={
     dummy_up.Reset()
     dummy_up.SetTitle(descriptions.get("title", ""))
     dummy_up.GetYaxis().SetRangeUser(0.5, 1.5)
-    dummy_up.GetYaxis().SetNdivisions(6)
+    dummy_up.GetYaxis().SetNdivisions(10, 4, 0, optimizeTicks)
+#     dummy_up.GetYaxis().SetTickLength(0.05)
     dummy_up.GetYaxis().SetLabelSize(0.04)
     dummy_up.GetXaxis().SetTitleSize(0.03)
     dummy_up.GetXaxis().SetTitle(descriptions.get("xaxis", "some quantity"))
-    dummy_up.GetXaxis().SetTitleOffset(1)
+    dummy_up.GetXaxis().SetTitleOffset(1.15)
     dummy_up.GetXaxis().SetTitleSize(0.04)
     dummy_up.GetXaxis().SetLabelSize(0.04)
 
@@ -88,16 +91,30 @@ def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={
     cms1 = R.TLatex(0.08, 0.93, "CMS")
     cms2 = R.TLatex(0.16, 0.93, descriptions.get("plottype", "ProjectWork"))
 
+#     chtex = {"et": r"e#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
+#     ch = descriptions.get("channel", "  ")
+#     ch = chtex.get(ch, ch)
+# #     channel = R.TLatex(0.75, 0.932, ch)
+#     channel = R.TLatex( 0.60, 0.932, ch )
+# 
+#     lumi = descriptions.get("lumi", "xx.y")
+#     som = descriptions.get("CoM", "13")
+#     l = lumi + r" fb^{-1}"
+#     r = " ({0} TeV)".format(som)
+#     righttop = R.TLatex(0.655, 0.932, l + r)
+    
+    
     chtex = {"et": r"e#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
     ch = descriptions.get("channel", "  ")
     ch = chtex.get(ch, ch)
-    channel = R.TLatex(0.75, 0.932, ch)
+#     channel = R.TLatex(0.75, 0.932, ch)
+    channel = R.TLatex( 0.55, 0.932, ch )
 
     lumi = descriptions.get("lumi", "xx.y")
     som = descriptions.get("CoM", "13")
     l = lumi + r" fb^{-1}"
     r = " ({0} TeV)".format(som)
-    righttop = R.TLatex(0.655, 0.932, l + r)
+    righttop = R.TLatex(0.605, 0.932, l + r)
 
     cms1.SetNDC()
     cms2.SetNDC()
@@ -112,6 +129,12 @@ def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={
 
     cv.cd(1)
     if canvas == "log": R.gPad.SetLogy()
+    
+    cms1.SetTextSize(0.04);            
+    cms2.SetTextFont(42)
+    cms2.SetTextSize(0.04);
+    righttop.SetTextSize(0.035);
+    channel.SetTextSize(0.045)
 
     dummy_up.Draw()
     stack.Draw("same hist ")
@@ -122,7 +145,10 @@ def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={
         outfile = "{0}_canvas.png".format(canvas)
 
     cv.cd(1)
+    cms1.Draw()
+    cms2.Draw()
     channel.Draw()
+    righttop.Draw()
 
     cvname = os.path.basename(outfile)
     cvname = cvname.replace(".png", "")
@@ -132,6 +158,7 @@ def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={
 
     cv.SaveAs(outfile.replace(".root", ".png"))
     cv.SaveAs(outfile.replace(".png", ".root"))
+    
 
 def plot( histograms, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
 
@@ -360,7 +387,7 @@ def createSimpleCanvas(name):
     # Set pad margins 1
     cv.cd(1)
     R.gPad.SetTopMargin(0.08)
-    R.gPad.SetBottomMargin(0.08)
+    R.gPad.SetBottomMargin(0.15)
     R.gPad.SetLeftMargin(0.08)
     R.gPad.SetRightMargin(0.2)
     return cv
