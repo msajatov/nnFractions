@@ -16,6 +16,8 @@ def main():
     parser.add_argument('-p', dest='predict', help='Make prediction', action='store_true')
     parser.add_argument('-f', dest='fractions', help='Plot Fractions', action='store_true')
     parser.add_argument('-tf', dest='trainingFracplots', help='Plot Fractions for training samples', action='store_true')
+    parser.add_argument('-cf', dest='classificationFracplots', help='Plot Fractions after classification', action='store_true')
+    parser.add_argument('-ctf', dest='classificationTrainingFracplots', help='Plot training Fractions after classification', action='store_true')
     parser.add_argument('-d', dest='datacard', help='Datacard', action='store_true')
     parser.add_argument('-e', dest='era',  help='Era', choices=["2016", "2017"], required = True)
     parser.add_argument('-ext', dest='ext_input', help='Use alternative sample input path for making predictions', action='store_true')
@@ -70,6 +72,8 @@ def run(args):
     predict = args.predict
     fractions = args.fractions
     trainingFracplots = args.trainingFracplots
+    classificationFracplots = args.classificationFracplots
+    classificationTrainingFracplots = args.classificationTrainingFracplots
     datacard = args.datacard
     ext_input = args.ext_input
     bin_vars = args.bin_vars
@@ -223,6 +227,102 @@ def run(args):
         
         for variable in bin_vars:
             plotter.make_fraction_plots(train_sample_sets, variable, "train", trainOutpath, True)
+            
+    if classificationFracplots:
+        from FractionPlotter import FractionPlotter
+
+        frac_plot_file_manager = FractionPlotFileManager("conf/path_config.json", settings)
+        settings.fraction_plot_file_manager = frac_plot_file_manager
+
+        plotter = FractionPlotter(settings)
+
+        train_sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
+        train_sample_sets = [sset for sset in train_sample_sets if (not "AR" in sset.name)]
+        train_sample_sets = [sset for sset in train_sample_sets if (not "EMB" in sset.name)]
+
+        ar_sample_sets = [sset for sset in parser.sample_sets if "data_AR" in sset.name]
+
+        complete_sample_sets = []
+        complete_sample_sets += train_sample_sets
+        complete_sample_sets += ar_sample_sets
+
+        print "Filtered sample sets for AR frac plots: \n"
+        for ss in complete_sample_sets:
+            print ss
+            print "count: "
+            print plotter.get_event_count_for_sample_set(ss)
+
+        settings.filtered_samples = complete_sample_sets
+
+        outdirpath = frac_plot_file_manager.get_dir_path("fracplot_output_dir")
+
+        #logger = FractionPlotLogger(settings)
+
+        # tn = {0:"tt", 1:"w", 2:"qcd"}
+        # plotter.set_target_names(tn)
+        # logger.set_target_names(tn)
+
+#         print "attempt logging"
+#         logger.log()
+
+        trainOutpath = outdirpath.replace("AR", "AR_classification")
+        try:
+            if not os.path.exists(trainOutpath):
+                os.makedirs(trainOutpath)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+        
+        for variable in bin_vars:
+            plotter.make_classification_plots(ar_sample_sets, variable, "AR_class", trainOutpath)
+            
+    if classificationTrainingFracplots:
+        from FractionPlotter import FractionPlotter
+
+        frac_plot_file_manager = FractionPlotFileManager("conf/path_config.json", settings)
+        settings.fraction_plot_file_manager = frac_plot_file_manager
+
+        plotter = FractionPlotter(settings)
+
+        train_sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
+        train_sample_sets = [sset for sset in train_sample_sets if (not "AR" in sset.name)]
+        train_sample_sets = [sset for sset in train_sample_sets if (not "EMB" in sset.name)]
+
+        ar_sample_sets = [sset for sset in parser.sample_sets if "data_AR" in sset.name]
+
+        complete_sample_sets = []
+        complete_sample_sets += train_sample_sets
+        complete_sample_sets += ar_sample_sets
+
+        print "Filtered sample sets for AR frac plots: \n"
+        for ss in complete_sample_sets:
+            print ss
+            print "count: "
+            print plotter.get_event_count_for_sample_set(ss)
+
+        settings.filtered_samples = complete_sample_sets
+
+        outdirpath = frac_plot_file_manager.get_dir_path("fracplot_output_dir")
+
+        #logger = FractionPlotLogger(settings)
+
+        # tn = {0:"tt", 1:"w", 2:"qcd"}
+        # plotter.set_target_names(tn)
+        # logger.set_target_names(tn)
+
+#         print "attempt logging"
+#         logger.log()
+
+        trainOutpath = outdirpath.replace("AR", "train_classification")
+        try:
+            if not os.path.exists(trainOutpath):
+                os.makedirs(trainOutpath)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+        
+        for variable in bin_vars:
+            plotter.make_classification_plots(train_sample_sets, variable, "train_class", trainOutpath, True)
 
     if datacard and "hephy.at" in os.environ["HOME"]:
         from Tools.Datacard.produce import Datacard, makePlot

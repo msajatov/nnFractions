@@ -86,15 +86,15 @@ class FractionPlotter:
             self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
 
     def make_classification_plots(self, sample_sets, bin_var, prefix, outdirpath, inclusive=False):
-        fraction_histo_summary = []
+        fraction_histo_summary = {}
 
         var = Var(bin_var, self.settings.channel)
 
         for sample_set in sample_sets:
             histos = self.get_histos_for_classification(sample_set, var)
-            fraction_histo_summary.append(histos)
+            fraction_histo_summary[sample_set.name] = histos
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                            "lumi": "35.87", "title": "Fractions"}
+                            "lumi": "35.87", "title": "Full Classification Fractions"}
 
             newoutpath = os.path.join(outdirpath, "classification")
             makeDir(newoutpath)
@@ -143,8 +143,12 @@ class FractionPlotter:
     def get_histos_for_classification(self, sample_set, var):
         histograms = {}
         bin_var = var.name
-        branches = [bin_var] + ["predicted_frac_class"]
-
+        
+        if "EMB" in sample_set.name:
+            branches = [bin_var] + ["*weight*"] + ["*gen_match*"] + ["predicted_frac_class"]
+        else:
+            branches = [bin_var] + self.config_parser.weights + ["predicted_frac_class"]
+        
         events = self.get_events_for_sample_set(sample_set, branches)
 
         dict = self.get_branch_frac_dict()
@@ -155,7 +159,7 @@ class FractionPlotter:
 
             filtered = events.query("predicted_frac_class == {0}".format(i))
 
-            hist = self.fill_histo(filtered, "", "1", var)
+            hist = self.fill_histo(filtered, "", sample_set.weight, var)
             frac_name = dict["predicted_frac_prob_{0}".format(i)]
             histograms[frac_name] = hist
 
