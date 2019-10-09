@@ -1,0 +1,3 @@
+Channel: et
+Bin_var: njets
+QCD weight = 0.570838997846

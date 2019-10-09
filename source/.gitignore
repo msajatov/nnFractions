@@ -119,10 +119,3 @@ nohup*
 
 # sh scripts
 run/
-
-# test folders
-debug/
-modeldebug/
-
-# path config
-conf/path_config.json

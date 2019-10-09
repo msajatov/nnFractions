@@ -1,0 +1,3 @@
+Channel: tt
+Bin_var: m_vis
+QCD weight = 1.81168471715

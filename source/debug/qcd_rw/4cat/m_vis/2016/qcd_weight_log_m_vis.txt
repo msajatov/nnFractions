@@ -1,0 +1,9 @@
+Channel: tt
+Bin_var: m_vis
+QCD weight = 1.74390515935
+Channel: et
+Bin_var: m_vis
+QCD weight = 0.673939919148
+Channel: mt
+Bin_var: m_vis
+QCD weight = 0.840537405556
