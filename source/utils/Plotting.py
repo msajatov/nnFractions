@@ -62,7 +62,7 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     width=700 
     height=600   
         
-    topMargin=0.18
+    topMargin=0.08
     bottomMargin=0.12
     leftMargin=0.15
     rightMargin=0.10
@@ -112,7 +112,7 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
     ch = chtex.get(ch, ch)
 #     channel = R.TLatex(0.75, 0.932, ch)
 #     channel = R.TLatex( leftMargin + 0.51, 0.932, ch )
-    channel = R.TLatex(1 - rightMargin - 0.255 * 700 / width, 1 - topMargin + 0.012 * 600 / height, ch )
+    channel = R.TLatex(1 - rightMargin - 0.265 * 700 / width, 1 - topMargin + 0.012 * 600 / height, ch )
     
 #     rightOffset = 227.5
 
@@ -160,8 +160,15 @@ def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions
 
     cv.SetName(cvname)
 
-    cv.SaveAs(outfile.replace(".root", ".png"))
-    cv.SaveAs(outfile.replace(".png", ".root"))
+    filename = outfile
+    print filename
+    cv.SaveAs(filename)
+    filename = outfile.replace(".png", ".root")
+    print filename
+    cv.SaveAs(filename)
+    filename = outfile.replace(".png", ".pdf")
+    print filename
+    cv.SaveAs(filename)
     
 
 def plot( histograms, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
