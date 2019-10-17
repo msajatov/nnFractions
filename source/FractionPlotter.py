@@ -49,12 +49,12 @@ class FractionPlotter:
             val_histo = self.get_histo_for_val(sample_set, var)
             val_histo_summary.append(val_histo)
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                            "lumi": "35.87", "title": "Fraction Validation"}
+                            "lumi": "41.5", "title": ""}
             outfilepath = "{0}/{1}_{2}_val_{3}_{4}.png".format(outdirpath, self.settings.channel, prefix, sample_set.name, bin_var)
             self.create_plot(val_histo, descriptions, outfilepath)
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                        "lumi": "35.87", "title": "Fraction Validation"}
+                        "lumi": "41.5", "title": ""}
         outfileprefix = "{0}/{1}_{2}_val_{3}_{4}".format(outdirpath, self.settings.channel, prefix, "inclusive", bin_var)
 
         # inclusive_histos = self.get_inclusive(var, val_histo_summary)
@@ -71,13 +71,13 @@ class FractionPlotter:
             frac_histos = self.get_histos_for_fractions(sample_set, var)
             fraction_histo_summary[sample_set.name] = frac_histos
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                            "lumi": "35.87", "title": "Fractions"}
+                            "lumi": "41.5", "title": "", "yaxis": "Background Fractions"}
             outfile = "{0}/{1}_{2}_frac_{3}_{4}".format(outdirpath, self.settings.channel, prefix, sample_set.name, bin_var)
             self.create_plot(frac_histos, descriptions, "{0}.png".format(outfile))
             self.create_normalized_plot(frac_histos, descriptions, "{0}_norm.png".format(outfile))
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                        "lumi": "35.87", "title": "Fractions"}
+                        "lumi": "41.5", "title": "", "yaxis": "Background Fractions"}
         outfileprefix = "{0}/{1}_{2}_frac_{3}_{4}".format(outdirpath, self.settings.channel, prefix, "inclusive", bin_var)
 
         if inclusive:
@@ -86,15 +86,15 @@ class FractionPlotter:
             self.create_plot(inclusive_histos, descriptions, "{0}.png".format(outfileprefix))
 
     def make_classification_plots(self, sample_sets, bin_var, prefix, outdirpath, inclusive=False):
-        fraction_histo_summary = []
+        fraction_histo_summary = {}
 
         var = Var(bin_var, self.settings.channel)
 
         for sample_set in sample_sets:
             histos = self.get_histos_for_classification(sample_set, var)
-            fraction_histo_summary.append(histos)
+            fraction_histo_summary[sample_set.name] = histos
             descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                            "lumi": "35.87", "title": "Fractions"}
+                            "lumi": "41.5", "title": "", "yaxis": "Background Fractions (Classification)"}
 
             newoutpath = os.path.join(outdirpath, "classification")
             makeDir(newoutpath)
@@ -104,7 +104,7 @@ class FractionPlotter:
             self.create_normalized_plot(histos, descriptions, "{0}_norm.png".format(outfile))
 
         descriptions = {"plottype": "ProjectWork", "xaxis": var.tex, "channel": self.settings.channel, "CoM": "13",
-                        "lumi": "35.87", "title": "Full Classification Fractions"}
+                        "lumi": "41.5", "title": "", "yaxis": "Background Fractions (Classification)"}
         outfileprefix = "{0}/{1}_{2}_frac_{3}_{4}".format(newoutpath, self.settings.channel, prefix, "inclusive", bin_var)
 
         if inclusive:
@@ -143,8 +143,12 @@ class FractionPlotter:
     def get_histos_for_classification(self, sample_set, var):
         histograms = {}
         bin_var = var.name
-        branches = [bin_var] + ["predicted_frac_class"]
-
+        
+        if "EMB" in sample_set.name:
+            branches = [bin_var] + ["*weight*"] + ["*gen_match*"] + ["predicted_frac_class"]
+        else:
+            branches = [bin_var] + self.config_parser.weights + ["predicted_frac_class"]
+        
         events = self.get_events_for_sample_set(sample_set, branches)
 
         dict = self.get_branch_frac_dict()
@@ -155,7 +159,7 @@ class FractionPlotter:
 
             filtered = events.query("predicted_frac_class == {0}".format(i))
 
-            hist = self.fill_histo(filtered, "", "1", var)
+            hist = self.fill_histo(filtered, "", sample_set.weight, var)
             frac_name = dict["predicted_frac_prob_{0}".format(i)]
             histograms[frac_name] = hist
 
@@ -210,16 +214,18 @@ class FractionPlotter:
         numEntries = file.TauCheck.GetEntries(select)
         return numEntries
 
-    def create_plot(self, histograms, descriptions, outfile):
+    def create_plot(self, histograms, descriptions, outfile, optimizeTicks=True):
         sorted = self.sort_by_target_names(histograms)
         print sorted
 
         pl.simple_plot(sorted, canvas="linear", signal=[],
-                       descriptions=descriptions, outfile=outfile)
+                       descriptions=descriptions, outfile=outfile, optimizeTicks=optimizeTicks)
 
     def create_normalized_plot(self, histos, descriptions, outfile):
         frac_histos = self.normalize(histos)
-        self.create_plot(frac_histos, descriptions, outfile)
+#         if descriptions.get("yaxis", ""):
+#             descriptions["yaxis"] = "Normalized " + descriptions.get("yaxis", "")
+        self.create_plot(frac_histos, descriptions, outfile, False)
 
     def normalize(self, histos):
         bin_totals = []

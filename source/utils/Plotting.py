@@ -40,7 +40,7 @@ def main():
 
 
 
-def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={}):
+def simple_plot(histograms, signal=[], canvas="linear", outfile="", descriptions={}, optimizeTicks=True):
 
     histos = copy.deepcopy(histograms)
 
@@ -58,9 +58,21 @@ def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={
         h[1].SetName(h[0])
         stack.Add(copy.deepcopy(h[1]))
         cumul.Add(h[1])
-
-    leg = R.TLegend(0.82, 0.29, 0.98, 0.92)
+            
+    width=700 
+    height=600   
+        
+    topMargin=0.08
+    bottomMargin=0.12
+    leftMargin=0.15
+    rightMargin=0.10
+        
+# x1, y1, x2, y2
+#     leg = R.TLegend(leftMargin + 0.79, 0.20, leftMargin + 0.90, 0.92)
+    leg = R.TLegend(1 - rightMargin + 0.02, 0.20, 1 - rightMargin + 0.12, 1 - topMargin)
     leg.SetTextSize(0.04)
+#     leg.SetBorderSize(0.06)
+    leg.SetBorderSize(0)
 
     for h in reversed(histos):
         leg.AddEntry(h[1], getFancyName(h[0]))
@@ -70,11 +82,17 @@ def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={
     dummy_up.Reset()
     dummy_up.SetTitle(descriptions.get("title", ""))
     dummy_up.GetYaxis().SetRangeUser(0.5, 1.5)
-    dummy_up.GetYaxis().SetNdivisions(6)
+    dummy_up.GetYaxis().SetNdivisions(10, 4, 0, optimizeTicks)
+    dummy_up.GetYaxis().SetTickSize(0.02)
+    dummy_up.GetYaxis().SetTitle(descriptions.get("yaxis", "some quantity"))
+#     dummy_up.GetYaxis().SetTitleOffset(1)
+    dummy_up.GetYaxis().SetTitleSize(0.04)
     dummy_up.GetYaxis().SetLabelSize(0.04)
+    
+    dummy_up.GetXaxis().SetTickSize(0.02)
     dummy_up.GetXaxis().SetTitleSize(0.03)
     dummy_up.GetXaxis().SetTitle(descriptions.get("xaxis", "some quantity"))
-    dummy_up.GetXaxis().SetTitleOffset(1)
+    dummy_up.GetXaxis().SetTitleOffset(1.15)
     dummy_up.GetXaxis().SetTitleSize(0.04)
     dummy_up.GetXaxis().SetLabelSize(0.04)
 
@@ -85,33 +103,42 @@ def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={
     dummy_down.GetXaxis().SetLabelSize(0)
     dummy_down.GetXaxis().SetTitle("")
 
-    cms1 = R.TLatex(0.08, 0.93, "CMS")
-    cms2 = R.TLatex(0.16, 0.93, descriptions.get("plottype", "ProjectWork"))
-
-    chtex = {"et": r"e#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
+    cms1 = R.TLatex(leftMargin, 1 - topMargin + 0.01 * 600 / height, "CMS")
+    cms2 = R.TLatex(leftMargin + 0.08, 1 - topMargin + 0.01 * 600 / height, descriptions.get("plottype", "ProjectWork"))
+    
+    
+    chtex = {"et": r"#font[42]{#scale[0.95]{e}}#tau", "mt": r"#mu#tau", "tt": r"#tau#tau", "em": r"e#mu"}
     ch = descriptions.get("channel", "  ")
     ch = chtex.get(ch, ch)
-    channel = R.TLatex(0.75, 0.932, ch)
+#     channel = R.TLatex(0.75, 0.932, ch)
+#     channel = R.TLatex( leftMargin + 0.51, 0.932, ch )
+    channel = R.TLatex(1 - rightMargin - 0.265 * 700 / width, 1 - topMargin + 0.012 * 600 / height, ch )
+    
+#     rightOffset = 227.5
 
     lumi = descriptions.get("lumi", "xx.y")
     som = descriptions.get("CoM", "13")
     l = lumi + r" fb^{-1}"
     r = " ({0} TeV)".format(som)
-    righttop = R.TLatex(0.655, 0.932, l + r)
+#     righttop = R.TLatex(leftMargin + 0.565, 0.932, l + r)
+    righttop = R.TLatex(1 - rightMargin - 0.21 * 700 / width, 1 - topMargin + 0.012 * 600 / height, l + r)
 
     cms1.SetNDC()
     cms2.SetNDC()
     righttop.SetNDC()
     channel.SetNDC()
 
-    if canvas == "linear": dummy_up.GetYaxis().SetRangeUser(0, maxVal)
-    if canvas == "log": dummy_up.GetYaxis().SetRangeUser(0.1, maxVal)
+    dummy_up.GetYaxis().SetRangeUser(0, maxVal)
 
-    # cv = createRatioCanvas("cv")
-    cv = createSimpleCanvas("cv")
+    cv = createSimpleCanvas("cv", width, height, topMargin, bottomMargin, leftMargin, rightMargin)
 
     cv.cd(1)
-    if canvas == "log": R.gPad.SetLogy()
+    
+    cms1.SetTextSize(0.04);            
+    cms2.SetTextFont(42)
+    cms2.SetTextSize(0.04);
+    righttop.SetTextSize(0.035);
+    channel.SetTextSize(0.045)
 
     dummy_up.Draw()
     stack.Draw("same hist ")
@@ -122,7 +149,10 @@ def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={
         outfile = "{0}_canvas.png".format(canvas)
 
     cv.cd(1)
+    cms1.Draw()
+    cms2.Draw()
     channel.Draw()
+    righttop.Draw()
 
     cvname = os.path.basename(outfile)
     cvname = cvname.replace(".png", "")
@@ -130,8 +160,16 @@ def simple_plot(histograms, signal=[], canvas="semi", outfile="", descriptions={
 
     cv.SetName(cvname)
 
-    cv.SaveAs(outfile.replace(".root", ".png"))
-    cv.SaveAs(outfile.replace(".png", ".root"))
+    filename = outfile
+    print filename
+    cv.SaveAs(filename)
+    filename = outfile.replace(".png", ".root")
+    print filename
+    cv.SaveAs(filename)
+    filename = outfile.replace(".png", ".pdf")
+    print filename
+    cv.SaveAs(filename)
+    
 
 def plot( histograms, signal=[], canvas = "semi", outfile = "", descriptions = {} ):
 
@@ -348,9 +386,10 @@ def plot( histograms, signal=[], canvas = "semi", outfile = "", descriptions = {
     cv.SaveAs(outfile.replace(".png", ".root"))
 
 
-def createSimpleCanvas(name):
+def createSimpleCanvas(name, width=700, height=600, topMargin=0.08, bottomMargin=0.12,
+                       leftMargin=0.08, rightMargin=0.15):
 
-    cv = R.TCanvas(name, name, 10, 10, 800, 600)
+    cv = R.TCanvas(name, name, 10, 10, width, height)
     cv.Divide(1, 1, 0.0, 0.0)
 
     # Set Pad sizes
@@ -359,10 +398,10 @@ def createSimpleCanvas(name):
 
     # Set pad margins 1
     cv.cd(1)
-    R.gPad.SetTopMargin(0.08)
-    R.gPad.SetBottomMargin(0.08)
-    R.gPad.SetLeftMargin(0.08)
-    R.gPad.SetRightMargin(0.2)
+    R.gPad.SetTopMargin(topMargin)
+    R.gPad.SetBottomMargin(bottomMargin)
+    R.gPad.SetLeftMargin(leftMargin)
+    R.gPad.SetRightMargin(rightMargin)
     return cv
 
 

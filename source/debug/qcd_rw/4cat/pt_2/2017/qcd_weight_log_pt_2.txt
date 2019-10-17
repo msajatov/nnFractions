@@ -1,0 +1,3 @@
+Channel: tt
+Bin_var: pt_2
+QCD weight = 1.81625761595
