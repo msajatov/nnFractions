@@ -1,5 +1,5 @@
 {
-    "path": "/afs/hephy.at/data/higgs01/v10/",
+    "path": "/eos/user/m/msajatov/data/ntuples_scp/v10/",
     "outpath": "/afs/hephy.at/work/m/msajatovic/data/mlFramework/",
     "variables":{
         "mt": [
