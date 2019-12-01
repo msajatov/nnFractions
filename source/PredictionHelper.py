@@ -1,5 +1,5 @@
 from DataController import DataController
-from Tools.NNCore.PredictionWrapper import PredictionWrapper
+from NNCore.PredictionWrapper import PredictionWrapper
 
 import os
 import cPickle
@@ -56,7 +56,7 @@ class PredictionHelper:
 
     def addPredictionToOutput(self, prediction, df, outpath, new=True):
 
-        folds = PredictionWrapper.splitInFolds(df, self.settings.folds)
+        folds = PredictionWrapper.splitInFolds(df)
         df.drop(df.index, inplace=True)
 
         for i in xrange(len(folds)):

@@ -324,25 +324,6 @@ def run(args):
         for variable in bin_vars:
             plotter.make_classification_plots(train_sample_sets, variable, "train_class", trainOutpath, True)
 
-    if datacard and "hephy.at" in os.environ["HOME"]:
-        from Tools.Datacard.produce import Datacard, makePlot
-        from Tools.CutObject.CutObject import Cut
-        from Tools.FakeFactor.FakeFactor import FakeFactor
-
-        Datacard.use_config = era + "/datacard_conf"
-        D = Datacard(channel=channel,
-                     variable="predicted_prob",
-                     era=era,
-                     real_est="mc",
-                     add_systematics = shapes,
-                     debug=True,
-                     use_cutfile = "conf/cuts_{0}.json".format(era))
-
-        FakeFactor.fractions = "{0}/datacard_conf/fractions/htt_ff_fractions_{0}.root".format(era)
-
-        D.create(era+"/"+model)
-        makePlot(channel, "ML", era+"/"+model, era, era+"/plots")
-
 
 if __name__ == '__main__':
     main()
