@@ -100,9 +100,9 @@ def run(args):
 
         settings.filtered_samples = sample_sets
 
-        logger = TrainingLogger(settings)
-        print "attempt logging"
-        logger.log()
+        # logger = TrainingLogger(settings)
+        # print "attempt logging"
+        # logger.log()
 
         training = Training(settings)
         training.train()
@@ -128,9 +128,9 @@ def run(args):
             parser.data_root_path = ext_prediction_input_path
             settings.ext_input = ext_input
 
-        logger = PredictionLogger(settings)
-        print "attempt logging"
-        logger.log()
+        # logger = PredictionLogger(settings)
+        # print "attempt logging"
+        # logger.log()
 
         # prediction = Prediction(settings)
         # prediction.predict()

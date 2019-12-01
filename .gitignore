@@ -125,3 +125,6 @@ output/
 # datacard dirs
 source/2016
 source/2017
+
+# config dir (accessed via symbolic link)
+configs/
