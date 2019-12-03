@@ -16,6 +16,15 @@ class FileManager():
 
         FileManager.parse_path_config(self, path_config_path)
 
+    @staticmethod
+    def create_dir(path):
+        try:
+            if not os.path.exists(path):
+                os.makedirs(path)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+
     def parse_path_config(self, path):
         # parse config and return boolean to indicate success
         try:
@@ -245,4 +254,4 @@ class FractionPlotFileManager(FileManager):
         plot_dir = self.get_dir_name("fracplot_output_dir")
         plot_dir = "{0}/{1}".format(plot_dir, era)
         self.set_dir_name("fracplot_output_dir", plot_dir)
-        
+

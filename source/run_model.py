@@ -33,28 +33,8 @@ def main():
     print args.bin_vars
     
     if not args.bin_vars:
-        args.bin_vars = [
-                        "pt_1",
-                        "pt_2",
-                        "jpt_1",
-                        "jpt_2",
-                        "bpt_1",
-                        "bpt_2",
-                        "njets",
-                        "nbtag",
-                        "m_sv",
-                        "mt_1",
-                        "mt_2",
-                        "pt_vis",
-                        "pt_tt",
-                        "mjj",
-                        "jdeta",
-                        "m_vis",
-                        "dijetpt",
-                        "met",
-                        "eta_1",
-                        "eta_2"
-                        ]
+        args.bin_vars = ["pt_1", "pt_2", "jpt_1", "jpt_2", "bpt_1", "bpt_2", "njets", "nbtag",  "m_sv", "mt_1",
+                        "mt_2", "pt_vis", "pt_tt", "mjj", "jdeta", "m_vis", "dijetpt", "met", "eta_1", "eta_2"]
         
     print args.bin_vars
 
@@ -130,7 +110,7 @@ def run(args):
         prediction_helper = PredictionHelper(settings)
         prediction_helper.predict()
 
-    if fractions:
+    if fractions or trainingFracplots or classificationFracplots or classificationTrainingFracplots:
 
         from FractionPlotter import FractionPlotter
 
@@ -141,6 +121,9 @@ def run(args):
 
         train_sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
         train_sample_sets = [sset for sset in train_sample_sets if (not "AR" in sset.name)]
+
+        if trainingFracplots or classificationTrainingFracplots:
+            train_sample_sets = [sset for sset in train_sample_sets if (not "EMB" in sset.name)]
 
         ar_sample_sets = [sset for sset in parser.sample_sets if "data_AR" in sset.name]
 
@@ -167,154 +150,30 @@ def run(args):
 #         print "attempt logging"
 #         logger.log()
 
-        for variable in bin_vars:
-            plotter.make_fraction_plots(ar_sample_sets, variable, "AR", outdirpath)
-            #plotter.make_fraction_plots(train_sample_sets, variable, "train", outdirpath)
-            #plotter.make_classification_plots(train_sample_sets, variable, "train", outdirpath)
+        if fractions:
+            for variable in bin_vars:
+                plotter.make_fraction_plots(ar_sample_sets, variable, "AR", outdirpath)
+
+        if trainingFracplots:
+            trainOutpath = outdirpath.replace("AR", "train")
+            FileManager.create_dir(trainOutpath)
+                        
+            for variable in bin_vars:
+                plotter.make_fraction_plots(train_sample_sets, variable, "train", trainOutpath, True)
+
+        if classificationFracplots:
+            trainOutpath = outdirpath.replace("AR", "AR_classification")
+            FileManager.create_dir(trainOutpath)
             
-    if trainingFracplots:
-        from FractionPlotter import FractionPlotter
+            for variable in bin_vars:
+                plotter.make_classification_plots(ar_sample_sets, variable, "AR_class", trainOutpath)
 
-        frac_plot_file_manager = FractionPlotFileManager("conf/path_config.json", settings)
-        settings.fraction_plot_file_manager = frac_plot_file_manager
-
-        plotter = FractionPlotter(settings)
-
-        train_sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
-        train_sample_sets = [sset for sset in train_sample_sets if (not "AR" in sset.name)]
-        train_sample_sets = [sset for sset in train_sample_sets if (not "EMB" in sset.name)]
-
-        ar_sample_sets = [sset for sset in parser.sample_sets if "data_AR" in sset.name]
-
-        complete_sample_sets = []
-        complete_sample_sets += train_sample_sets
-        complete_sample_sets += ar_sample_sets
-
-        print "Filtered sample sets for AR frac plots: \n"
-        for ss in complete_sample_sets:
-            print ss
-            print "count: "
-            print plotter.get_event_count_for_sample_set(ss)
-
-        settings.filtered_samples = complete_sample_sets
-
-        outdirpath = frac_plot_file_manager.get_dir_path("fracplot_output_dir")
-
-        #logger = FractionPlotLogger(settings)
-
-        # tn = {0:"tt", 1:"w", 2:"qcd"}
-        # plotter.set_target_names(tn)
-        # logger.set_target_names(tn)
-
-#         print "attempt logging"
-#         logger.log()
-
-        trainOutpath = outdirpath.replace("AR", "train")
-        try:
-            if not os.path.exists(trainOutpath):
-                os.makedirs(trainOutpath)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
-        
-        for variable in bin_vars:
-            plotter.make_fraction_plots(train_sample_sets, variable, "train", trainOutpath, True)
+        if classificationTrainingFracplots:
+            trainOutpath = outdirpath.replace("AR", "train_classification")
+            FileManager.create_dir(trainOutpath)
             
-    if classificationFracplots:
-        from FractionPlotter import FractionPlotter
-
-        frac_plot_file_manager = FractionPlotFileManager("conf/path_config.json", settings)
-        settings.fraction_plot_file_manager = frac_plot_file_manager
-
-        plotter = FractionPlotter(settings)
-
-        train_sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
-        train_sample_sets = [sset for sset in train_sample_sets if (not "AR" in sset.name)]
-        train_sample_sets = [sset for sset in train_sample_sets if (not "EMB" in sset.name)]
-
-        ar_sample_sets = [sset for sset in parser.sample_sets if "data_AR" in sset.name]
-
-        complete_sample_sets = []
-        complete_sample_sets += train_sample_sets
-        complete_sample_sets += ar_sample_sets
-
-        print "Filtered sample sets for AR frac plots: \n"
-        for ss in complete_sample_sets:
-            print ss
-            print "count: "
-            print plotter.get_event_count_for_sample_set(ss)
-
-        settings.filtered_samples = complete_sample_sets
-
-        outdirpath = frac_plot_file_manager.get_dir_path("fracplot_output_dir")
-
-        #logger = FractionPlotLogger(settings)
-
-        # tn = {0:"tt", 1:"w", 2:"qcd"}
-        # plotter.set_target_names(tn)
-        # logger.set_target_names(tn)
-
-#         print "attempt logging"
-#         logger.log()
-
-        trainOutpath = outdirpath.replace("AR", "AR_classification")
-        try:
-            if not os.path.exists(trainOutpath):
-                os.makedirs(trainOutpath)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
-        
-        for variable in bin_vars:
-            plotter.make_classification_plots(ar_sample_sets, variable, "AR_class", trainOutpath)
-            
-    if classificationTrainingFracplots:
-        from FractionPlotter import FractionPlotter
-
-        frac_plot_file_manager = FractionPlotFileManager("conf/path_config.json", settings)
-        settings.fraction_plot_file_manager = frac_plot_file_manager
-
-        plotter = FractionPlotter(settings)
-
-        train_sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
-        train_sample_sets = [sset for sset in train_sample_sets if (not "AR" in sset.name)]
-        train_sample_sets = [sset for sset in train_sample_sets if (not "EMB" in sset.name)]
-
-        ar_sample_sets = [sset for sset in parser.sample_sets if "data_AR" in sset.name]
-
-        complete_sample_sets = []
-        complete_sample_sets += train_sample_sets
-        complete_sample_sets += ar_sample_sets
-
-        print "Filtered sample sets for AR frac plots: \n"
-        for ss in complete_sample_sets:
-            print ss
-            print "count: "
-            print plotter.get_event_count_for_sample_set(ss)
-
-        settings.filtered_samples = complete_sample_sets
-
-        outdirpath = frac_plot_file_manager.get_dir_path("fracplot_output_dir")
-
-        #logger = FractionPlotLogger(settings)
-
-        # tn = {0:"tt", 1:"w", 2:"qcd"}
-        # plotter.set_target_names(tn)
-        # logger.set_target_names(tn)
-
-#         print "attempt logging"
-#         logger.log()
-
-        trainOutpath = outdirpath.replace("AR", "train_classification")
-        try:
-            if not os.path.exists(trainOutpath):
-                os.makedirs(trainOutpath)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
-        
-        for variable in bin_vars:
-            plotter.make_classification_plots(train_sample_sets, variable, "train_class", trainOutpath, True)
+            for variable in bin_vars:
+                plotter.make_classification_plots(train_sample_sets, variable, "train_class", trainOutpath, True)
 
 
 if __name__ == '__main__':
