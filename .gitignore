@@ -128,3 +128,6 @@ source/2017
 
 # config dir (accessed via symbolic link)
 configs/
+
+# path config
+source/conf/path_config.json
