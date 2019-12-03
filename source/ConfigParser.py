@@ -140,9 +140,9 @@ class ConfigParser:
         print "Parsing additional variable names..."
         self.additional_variable_names = self._assert_channel(config["addvar"])
 
-        for v in config["shifted_variables"]:
-            # if v in self.config["shifted_variables"]:
-                self.additional_variable_names.append(v+"*")
+        #for v in config["shifted_variables"]:
+        #    # if v in self.config["shifted_variables"]:
+        #        self.additional_variable_names.append(v+"*")
 
     def _parse_lumi(self, config):
         self.lumi = config["lumi"]

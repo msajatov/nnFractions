@@ -153,10 +153,6 @@ class PredictionFileManager(FileManager):
         type = "scaler_input_dir"
         self.paths["scaler_input_dir"] = DirPathObject(type, self.outputpath, path)
 
-        path = conf["sample_input_dir"]
-        type = "sample_input_dir"
-        self.paths["sample_input_dir"] = DirPathObject(type, self.outputpath, path)
-
         path = conf["prediction_output_dir"]
         type = "prediction_output_dir"
         self.paths["prediction_output_dir"] = DirPathObject(type, self.outputpath, path)
@@ -249,33 +245,4 @@ class FractionPlotFileManager(FileManager):
         plot_dir = self.get_dir_name("fracplot_output_dir")
         plot_dir = "{0}/{1}".format(plot_dir, era)
         self.set_dir_name("fracplot_output_dir", plot_dir)
-
-
-class DatacardFileManager(FileManager):
-
-    def __init__(self, path_config_path, settings):
-        FileManager.__init__(self, path_config_path)
-        self.fractions_filepath = ""
-        if path_config_path:
-            print "parsing path config..."
-            self.parse_path_config(path_config_path)
-        self.incorporate_era(settings)
-
-    def parse_path_config(self, path):
-
-        conf = self.config["datacard"]
-
-        path = conf["datacard_dir"]
-        type = "datacard_dir"
-        self.paths["datacard_dir"] = DirPathObject(type, self.outputpath, path)
-
-        path = conf["datacard_conf_dir"]
-        type = "datacard_conf_dir"
-        self.paths["datacard_conf_dir"] = DirPathObject(type, self.outputpath, path)
-
-        path = conf["datacard_plot_dir"]
-        type = "datacard_plot_dir"
-        self.paths["datacard_plot_dir"] = DirPathObject(type, self.outputpath, path)
-
-    def incorporate_era(self, settings):
-        pass
+        

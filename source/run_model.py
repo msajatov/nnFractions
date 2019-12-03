@@ -20,7 +20,6 @@ def main():
     parser.add_argument('-ctf', dest='classificationTrainingFracplots', help='Plot training Fractions after classification', action='store_true')
     parser.add_argument('-d', dest='datacard', help='Datacard', action='store_true')
     parser.add_argument('-e', dest='era',  help='Era', choices=["2016", "2017"], required = True)
-    parser.add_argument('-ext', dest='ext_input', help='Use alternative sample input path for making predictions', action='store_true')
     parser.add_argument('bin_vars', nargs="*", help='Bin variable for fraction plots or datacard', default=[])
     args = parser.parse_args()
     
@@ -75,7 +74,6 @@ def run(args):
     classificationFracplots = args.classificationFracplots
     classificationTrainingFracplots = args.classificationTrainingFracplots
     datacard = args.datacard
-    ext_input = args.ext_input
     bin_vars = args.bin_vars
 
     file_manager = FileManager("conf/path_config.json")
@@ -121,12 +119,6 @@ def run(args):
             print ss
 
         settings.filtered_samples = sample_sets
-
-        # use external predictions (category NN output) as input for frac NN prediction
-        if ext_input:
-            ext_prediction_input_path = prediction_file_manager.get_dir_path("sample_input_dir")
-            parser.data_root_path = ext_prediction_input_path
-            settings.ext_input = ext_input
 
         # logger = PredictionLogger(settings)
         # print "attempt logging"

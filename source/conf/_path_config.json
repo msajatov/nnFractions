@@ -5,7 +5,7 @@
     },
     "samples":
     {
-        "sample_config": "conf/configs/vars6/frac_config_{0}_{1}.json"
+        "sample_config": "conf/sample_config/frac_config_{0}_{1}.json"
     },
     "model":
     {
@@ -14,18 +14,11 @@
     "prediction":
     {
         "model_input_dir": "models/dummy",
-        "sample_input_dir": "ext_input/predictions/predictions_2017",
         "prediction_output_dir": "predictions/dummy"
     },
     "fracplots":
     {
         "prediction_input_dir": "predictions/dummy",
         "fracplot_output_dir": "fracplots/dummy/AR"
-    },
-    "datacard":
-    {
-        "datacard_dir": "",
-        "datacard_conf_dir": "",
-        "datacard_plot_dir": ""
     }
 }
