@@ -9,8 +9,8 @@ import os
 
 def main():
 
-    basepath1 = "/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output/predictions/4cat_vars8/2017"
-    basepath2 = "/afs/hephy.at/work/m/msajatovic/CMSSW_9_4_0/src/dev/nnFractions/output/predictions/4cat_vars8/inverted/2017"
+    basepath1 = "/eos/user/m/msajatov/data/storage/nnFractions/output/predictions/4cat_vars8/2017"
+    basepath2 = "/eos/user/m/msajatov/data/storage/nnFractions/output/predictions/4cat_vars8/inverted/2017"
 
     filenames1 = ["mt-NOMINAL_ntuple_TT.root"]
     filenames2 = ["mt-NOMINAL_ntuple_TT.root"]
