@@ -1,10 +1,14 @@
 import os
+import sys
 import argparse
 from FileManager import FileManager, ModelFileManager, PredictionFileManager, FractionPlotFileManager
 from ConfigParser import ConfigParser
 from Settings import Settings
 from Logger import TrainingLogger, PredictionLogger, FractionPlotLogger
-
+import tempfile
+import json
+import shutil
+import time
 
 def main():
 
@@ -21,6 +25,9 @@ def main():
     parser.add_argument('-d', dest='datacard', help='Datacard', action='store_true')
     parser.add_argument('-e', dest='era',  help='Era', choices=["2016", "2017"], required = True)
     parser.add_argument('bin_vars', nargs="*", help='Bin variable for fraction plots or datacard', default=[])
+    parser.add_argument('-name', dest='name',   help='Global data scaler', default='none')
+    parser.add_argument('-varset', dest='varset',   help='Global data scaler', default='none')
+    parser.add_argument('-emb', dest='emb',   help='Global data scaler', action='store_true')
     args = parser.parse_args()
     
     # parser.add_argument('var', nargs="+", help='Variable')
@@ -56,18 +63,43 @@ def run(args):
     datacard = args.datacard
     bin_vars = args.bin_vars
 
-    file_manager = FileManager("conf/path_config.json")
+    if args.emb:
+        embstr = "_emb"
+    else:
+        embstr = ""
 
-    config = file_manager.get_sample_config_path().format(channel, era)
+    path_config_path = "conf/path_config.json"
+    temp_path = "conf/path_config_{0}_{1}{2}_{3}".format(args.name, args.varset, embstr, str(int(time.time())))
+
+    try:
+        shutil.copyfile(path_config_path,temp_path)
+        print 'temp file:',temp_path
+    except ValueError as e:
+        print e
+        sys.exit(-1)
+    
+    #file_manager = FileManager("conf/path_config.json")
+    file_manager = FileManager(temp_path) 
+    
+    settings = Settings(channel, era, model, scaler)    
+
+    settings.varset = args.varset
+    settings.emb = args.emb
+    settings.name = args.name
+
+    config = file_manager.get_sample_config_path().format(channel, era, settings.varset, settings.get_emb_prefix())
+
+    print "Sample config path: " + config
+
     parser = ConfigParser(channel, era, config)
-    settings = Settings(channel, era, model, scaler)
+
     settings.config_parser = parser
 
     if train:
 
         from Training import Training
 
-        model_file_manager = ModelFileManager("conf/path_config.json", settings)
+        model_file_manager = ModelFileManager(temp_path, settings)
         settings.model_file_manager = model_file_manager
 
         sample_sets = [sset for sset in parser.sample_sets if (not "_full" in sset.name)]
@@ -90,7 +122,7 @@ def run(args):
         from Prediction import Prediction
         from PredictionHelper import PredictionHelper
 
-        prediction_file_manager = PredictionFileManager("conf/path_config.json", settings)
+        prediction_file_manager = PredictionFileManager(temp_path, settings)
         settings.prediction_file_manager = prediction_file_manager
 
         sample_sets = [sset for sset in parser.sample_sets if "_full" in sset.name]
@@ -114,7 +146,7 @@ def run(args):
 
         from FractionPlotter import FractionPlotter
 
-        frac_plot_file_manager = FractionPlotFileManager("conf/path_config.json", settings)
+        frac_plot_file_manager = FractionPlotFileManager(temp_path, settings)
         settings.fraction_plot_file_manager = frac_plot_file_manager
 
         plotter = FractionPlotter(settings)

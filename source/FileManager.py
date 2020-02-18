@@ -5,7 +5,7 @@ from PathObject import DirPathObject, FilePathObject
 
 class FileManager():
 
-    def __init__(self, path_config_path):
+    def __init__(self, path_config_path, settings=None):
 
         self.paths = {}
         self.config = {}
@@ -13,6 +13,7 @@ class FileManager():
         self.path_config_path = path_config_path
         self.outputpath = ""
         self.sample_config_path = ""
+        self.settings = settings
 
         FileManager.parse_path_config(self, path_config_path)
 
@@ -67,7 +68,7 @@ class FileManager():
 class ModelFileManager(FileManager):
 
     def __init__(self, path_config_path, settings):
-        FileManager.__init__(self, path_config_path)
+        FileManager.__init__(self, path_config_path, settings)
         self.filepaths = {}
         if path_config_path:
             print "parsing path config..."
@@ -78,12 +79,14 @@ class ModelFileManager(FileManager):
 
         conf = self.config["model"]
 
-        path = conf["model_output_dir"]
+        model_identifier = "{0}_{1}_{2}".format(self.settings.name, self.settings.varset, self.settings.get_emb_suffix())
+
+        path = conf["model_output_dir"].format(model_identifier)
         type = "model_output_dir"
         self.paths["model_output_dir"] = DirPathObject(type, self.outputpath, path)
 
         # sic! use model_output_dir for scaler_output_dir
-        path = conf["model_output_dir"]
+        path = conf["model_output_dir"].format(model_identifier)
         type = "scaler_output_dir"
         self.paths["scaler_output_dir"] = DirPathObject(type, self.outputpath, path)
 
@@ -142,7 +145,7 @@ class ModelFileManager(FileManager):
 class PredictionFileManager(FileManager):
 
     def __init__(self, path_config_path, settings):
-        FileManager.__init__(self, path_config_path)
+        FileManager.__init__(self, path_config_path, settings)
         self.filepaths = {}
         if path_config_path:
             print "parsing path config..."
@@ -153,16 +156,18 @@ class PredictionFileManager(FileManager):
 
         conf = self.config["prediction"]
 
-        path = conf["model_input_dir"]
+        model_identifier = "{0}_{1}_{2}".format(self.settings.name, self.settings.varset, self.settings.get_emb_suffix())
+
+        path = conf["model_input_dir"].format(model_identifier)
         type = "model_input_dir"
         self.paths["model_input_dir"] = DirPathObject(type, self.outputpath, path)
 
         # sic! use model_input_dir for scaler_input_dir
-        path = conf["model_input_dir"]
+        path = conf["model_input_dir"].format(model_identifier)
         type = "scaler_input_dir"
         self.paths["scaler_input_dir"] = DirPathObject(type, self.outputpath, path)
 
-        path = conf["prediction_output_dir"]
+        path = conf["prediction_output_dir"].format(model_identifier)
         type = "prediction_output_dir"
         self.paths["prediction_output_dir"] = DirPathObject(type, self.outputpath, path)
 
@@ -226,7 +231,7 @@ class PredictionFileManager(FileManager):
 class FractionPlotFileManager(FileManager):
 
     def __init__(self, path_config_path, settings):
-        FileManager.__init__(self, path_config_path)
+        FileManager.__init__(self, path_config_path, settings)
         if path_config_path:
             print "parsing path config..."
             self.parse_path_config(path_config_path)
@@ -236,11 +241,13 @@ class FractionPlotFileManager(FileManager):
 
         conf = self.config["fracplots"]
 
-        path = conf["prediction_input_dir"]
+        model_identifier = "{0}_{1}_{2}".format(self.settings.name, self.settings.varset, self.settings.get_emb_suffix())
+
+        path = conf["prediction_input_dir"].format(model_identifier)
         type = "prediction_input_dir"
         self.paths["prediction_input_dir"] = DirPathObject(type, self.outputpath, path)
 
-        path = conf["fracplot_output_dir"]
+        path = conf["fracplot_output_dir"].format(model_identifier)
         type = "fracplot_output_dir"
         self.paths["fracplot_output_dir"] = DirPathObject(type, self.outputpath, path)
 

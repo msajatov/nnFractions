@@ -12,6 +12,21 @@ class Settings:
         self.prediction_file_manager = None
         self.fraction_plot_file_manager = None
         self.folds = 2
+        self.emb = None
+        self.varset = None
+        self.name = None
+
+    def get_emb_prefix(self):
+        emb_prefix = ""
+        if self.emb:
+            emb_prefix = "emb_"
+        return emb_prefix
+
+    def get_emb_suffix(self):
+        emb_suffix = ""
+        if self.emb:
+            emb_suffix = "_emb"
+        return emb_suffix
 
     def __str__(self):
         result = ""
